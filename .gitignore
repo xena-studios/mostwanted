@@ -1,0 +1,9 @@
+.DS_Store
+
+# Gradle
+.gradle/
+build/
+.kotlin/
+# Paper servers for boot tests and runServer
+.cache/
+run/
