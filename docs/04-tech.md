@@ -100,7 +100,7 @@ Ruled out for this budget: Goodleaf Ryzen 9950X VPS (great CPU, but only 6 GB RA
 **Making 24 GB fit:**
 - Game server ~12 GB, Velocity ~1 GB, limbo ~512 MB, PostgreSQL ~1–2 GB, plus the OS.
 - **Run staging on your own PC**, not on the server.
-- 300 Mbps is enough. Minecraft uses roughly 0.5–1 Mbps per player.
+- Bandwidth is no problem: Minecraft uses roughly 0.5–1 Mbps per player.
 
 **Upgrade trigger:** when we regularly hit ~25–30 players online, or MSPT stays above ~40 at peak, move up a stage: restore the backups on the new box and point the domain at it.
 
