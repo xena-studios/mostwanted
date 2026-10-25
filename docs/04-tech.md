@@ -59,9 +59,28 @@ Bedrock players ───▶│  + Geyser          ──▶ Paper "limbo" (xLim
 
 **Machine:**
 - A recent **high-clock CPU**. Single-core speed matters most, because the world runs mostly on one thread.
-- **64 GB RAM**: ~16 GB for the game server, plus proxy, limbo, staging, PostgreSQL, and room to grow.
+- **64 GB RAM**: ~16 GB for the game server, plus proxy, limbo, staging, PostgreSQL, and room to grow. (32 GB works at launch, but it's tight once staging runs.)
 - **NVMe** storage and off-machine **backups** (Raptor does encrypted backups).
-- A data center close to where most players are (likely North America).
+- **DDoS protection that covers UDP** (Bedrock), not just TCP.
+- In North America, East Coast or central so latency is fair across the US and Canada.
+
+### Picking the box
+
+Researched 2026-10-25. **Prices are moving.** A DDR5/NVMe shortage since late 2025 roughly doubled some hosts' prices in 2026 (OVH's Game line went from €140 to €280). Lines that weren't raised are where the deals are. Re-check before ordering.
+
+| Pick | Server | CPU | RAM | Price | Notes |
+| --- | --- | --- | --- | --- | --- |
+| ⭐ **1st** | [OVH **RISE-S**](https://eco.us.ovhcloud.com/rise/) | Ryzen 7 **9700X** (Zen 5, 5.5 GHz) | 64 GB DDR5 ECC | **$77/mo** + $77 setup | Best value by far. Near-top single-core speed. Vint Hill VA / Beauharnois QC / Toronto / Hillsboro OR. Standard OVH anti-DDoS (not the "Game" filter). Listed as "Coming Soon", so stock may be limited. 2×512 GB NVMe |
+| 2nd | [OVH **Rise-Game-2**](https://eco.us.ovhcloud.com/rise/rise-game-2) | Ryzen 7 5800X (Zen 3, 4.7 GHz) | 64 GB DDR4 ECC | ~$100–110/mo | Includes OVH **Game DDoS** protection. Older, slower CPU, but fine to launch. Check stock |
+| 3rd | [BudgetVM](https://www.budgetvm.com/amd-ryzen-dedicated-server-hosting/) 9900X / 9950X | Ryzen 9 9900X / 9950X | 64 / 128 GB | $197 / $209/mo | More headroom, many US cities. Ask exactly how their DDoS filtering handles Minecraft + Bedrock UDP before buying |
+| ❌ skip | OVH Game-1/2 (2026), Pufferfish Host, GameServerKings, ReliableSite, etc. | 9800X3D / 9950X(3D) | | $357–550+/mo | Great hardware, but 4–7× the price of RISE-S for performance we don't need yet |
+
+**Plan:** order a **RISE-S** in **Vint Hill** or **Beauharnois**. If it's out of stock, get a **Rise-Game-2**. Since Raptor backs up and moves servers, upgrading later to an X3D chip (big Minecraft gains from the extra cache) is easy if the server outgrows it.
+
+**Before paying:**
+- Confirm the final price, setup fee and stock on OVH's order page (pick the location).
+- Check OVH's anti-DDoS / edge firewall settings cover UDP on Geyser's port (19132).
+- Pay monthly at first. Commit long-term only once it's proven.
 
 **Raptor caveat:** it's pre-launch with no uptime promise yet. Fine while we build. Revisit before public launch.
 
