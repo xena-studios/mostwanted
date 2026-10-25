@@ -7,13 +7,72 @@ Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserM
 | Layer | Choice |
 | --- | --- |
 | Minecraft version | **26.3** |
-| Game server | **Leaf 26.3** (Paper fork, Java 25). Paper is the fallback |
-| Proxy | **Velocity** |
-| Bedrock | **Geyser + Floodgate** on Velocity |
-| Hosting | **OVH US VPS-4 to start (US East, ~$27.50/mo), upgrade to dedicated as we grow. Managed with [Raptor](https://github.com/xena-studios/raptor)** |
-| Database | **PostgreSQL** (player data, cash, stats, LuckPerms) |
+| Game server | **Leaf 26.3** (Paper fork, Java 25), standalone, no proxy. Paper is the fallback |
+| Hosting | **OVH US VPS-3** (US East): 6 vCores, 12 GB RAM, 100 GB NVMe. Managed with [Raptor](https://github.com/xena-studios/raptor) |
+| Front door | **[Minehut External Server](https://support.minehut.com/hc/en-us/articles/33252734474899-How-to-Setup-a-Minehut-External-Hosted-Server)**: players join through Minehut's network |
+| Bedrock | **Minehut** handles it (their built-in Geyser) |
+| Database | **PostgreSQL** (small, on the same VPS) |
 | Game logic | **One custom Java plugin** (working name `core`), built like [xena-studios/plugins](https://github.com/xena-studios/plugins) |
 | Custom items | **Our own**, using Paper's item model components. No ItemsAdder / Nexo |
+
+## How players connect
+
+```
+Java players ─────┐
+                  ├──▶ Minehut network ──────────────▶ OVH VPS-3 (US East, Raptor)
+Bedrock players ──┘    (Geyser, DDoS protection,        └─ Leaf 26.3 game server
+                        server list, hides our IP)       └─ PostgreSQL
+```
+
+**Minehut External Server gives us:**
+- **Bedrock support.** Minehut translates Bedrock players for us, so no Geyser/Floodgate to run.
+- **DDoS protection** and a **hidden server IP.** Players connect to Minehut, not to our VPS.
+- **Minehut's server list, lobby ads and events.** This solves "how do people find us".
+- A free `<name>.minehut.gg` address, or our own domain.
+
+**Cost:** the External plan is paid in Minehut credits. A third-party wiki says **800 credits/mo (≈ $5 with a credit subscription)**. Check in the dashboard. ⚠️ One source says Minehut **paused new External plan purchases** except for partners. Minehut's own guide doesn't mention that, but **confirm we can actually select "External" before building around it.**
+
+**Setup (standalone Leaf, from Minehut's guide):**
+1. `config/paper-global.yml` → `proxies` → `proxy-protocol: true`
+2. `server.properties` → `enforce-secure-profile=false`
+3. Start flags:
+   ```
+   -Dminecraft.api.services.host=https://api.minecraftservices.com/
+   -Dminecraft.api.auth.host=https://authserver.mojang.com/
+   -Dminecraft.api.account.host=https://api.mojang.com/
+   -Dminecraft.api.profiles.host=https://api.mojang.com/
+   -Dminecraft.api.session.host=https://api.minehut.com/mitm/proxy
+   ```
+4. Minehut panel → server plan **External** → External Server Settings: VPS IP, proxy type **Other**, DNS record type **Port**, port **25565**, TCPShield **Not Configured**.
+5. **Firewall** the VPS so port 25565 only accepts connections from Minehut, if Minehut publishes its IP ranges (ask in their Discord). Then nobody can attack or bypass Minehut by hitting the VPS directly.
+
+**Minehut rules we must follow (external servers):**
+- All Minehut community rules apply.
+- **No server-made gambling mechanics.** No crates/loot boxes or betting cash. Robbery payouts must be fixed or skill-based, not a spin.
+- Don't tell players to leave Minehut and join our IP directly.
+- One Minehut listing per game server.
+
+## Hosting: OVH US VPS-3
+
+6 vCores (shared), 12 GB RAM, 100 GB NVMe, 2 Gbps unmetered, daily backups. Ordered 2026-10-25.
+
+**Fitting it in 12 GB:**
+- Leaf game server: **~8–9 GB** (`-Xms` = `-Xmx`, Paper's recommended flags)
+- PostgreSQL: ~0.5–1 GB (keep `shared_buffers` small)
+- OS + Raptor: ~1–1.5 GB
+- **Staging runs on your own PC**, not the VPS.
+
+**What to expect:** shared cores, so single-core speed is the limit. Rough guess: **~15–30 players**. Fine for building, testing and launch. Run spark during the first playtest.
+
+**Upgrade path** (when we're regularly at ~20–25 players, or MSPT stays above ~40 at peak). Restore the backups on the new box and update the IP in Minehut's External settings. Players don't notice.
+
+| Next | Server | Specs | Price |
+| --- | --- | --- | --- |
+| 1 | OVH VPS-4 | 8 vCores, 24 GB | ~$27.50/mo |
+| 2 | OVH KS-GAME (dedicated) | i7-7700K, 32 GB | $32.10/mo + setup |
+| 3 | OVH RISE-S (dedicated) | Ryzen 7 9700X, 64 GB DDR5 | $77/mo + setup |
+
+Prices checked 2026-10-25. A DDR5/NVMe shortage has pushed many hosts' 2026 prices up a lot, so re-check before upgrading.
 
 ## Server software: Leaf
 
@@ -25,7 +84,7 @@ Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserM
 | Folia | ❌ Multi-threads by **map region**. Our players are packed into one prison and one city, which is mostly the same region, so Folia gains little and breaks many plugins (WorldGuard, for one). |
 | Spigot / Bukkit | ❌ Slower, and Paper-based servers are drop-in replacements. |
 
-**Updating late is fine.** Leaf/Purpur can trail Paper on new Minecraft versions, but **ViaVersion** lets newer clients join until the server catches up. It also covers Geyser, which always speaks the newest Java version.
+**Updating late is fine.** Leaf/Purpur can trail Paper on new Minecraft versions, but **ViaVersion** lets newer clients join until the server catches up. 
 
 **Risks and how we handle them:**
 - Async features can clash with plugins that touch entities in unusual ways. Our `core` plugin sticks to the normal Paper API. Every async option is a config toggle, so we turn off whatever causes trouble.
@@ -41,118 +100,32 @@ Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserM
 
 So the final call is made with data: in the load test, run the same 100-bot test on **Leaf and Paper** and keep whichever has better MSPT (milliseconds per tick; under 50 = no lag).
 
-## Layout
-
-```
-                    ┌──────────────── one dedicated machine (Raptor) ────────────────┐
-Java players ──────▶│ Velocity proxy ──▶ Leaf 26.3 "game" (the world)                │
-Bedrock players ───▶│  + Geyser          ──▶ Paper "limbo" (xLimbo: holds players     │
-                    │  + Floodgate             during restarts/crashes)               │
-                    │  + LuckPerms       PostgreSQL       Discord bot (later)         │
-                    │                    Leaf "staging" (test server, not public)     │
-                    └─────────────────────────────────────────────────────────────────┘
-```
-
-## Hosting: our own server
-
-**Decided:** a dedicated machine we rent, managed with Raptor. At 100 players in one world, we need an always-on server with a fast CPU and full control over plugins, which Minehut can't really give us. What we give up is Minehut's server list, so we need a plan for getting players (server lists, Discord, TikTok/YouTube).
-
-**Machine:**
-- A recent **high-clock CPU**. Single-core speed matters most, because the world runs mostly on one thread.
-- **64 GB RAM**: ~16 GB for the game server, plus proxy, limbo, staging, PostgreSQL, and room to grow. (32 GB works at launch, but it's tight once staging runs.)
-- **NVMe** storage and off-machine **backups** (Raptor does encrypted backups).
-- **DDoS protection that covers UDP** (Bedrock), not just TCP.
-- In North America, East Coast or central so latency is fair across the US and Canada.
-
-### Picking the box
-
-Researched 2026-10-25. **Prices are moving.** A DDR5/NVMe shortage since late 2025 roughly doubled some hosts' prices in 2026 (OVH's Game line went from €140 to €280). Lines that weren't raised are where the deals are. Re-check before ordering.
-
-| Pick | Server | CPU | RAM | Price | Notes |
-| --- | --- | --- | --- | --- | --- |
-| ⭐ **1st** | [OVH **RISE-S**](https://eco.us.ovhcloud.com/rise/) | Ryzen 7 **9700X** (Zen 5, 5.5 GHz) | 64 GB DDR5 ECC | **$77/mo** + $77 setup | Best value by far. Near-top single-core speed. Vint Hill VA / Beauharnois QC / Toronto / Hillsboro OR. Standard OVH anti-DDoS (not the "Game" filter). Listed as "Coming Soon", so stock may be limited. 2×512 GB NVMe |
-| 2nd | [OVH **Rise-Game-2**](https://eco.us.ovhcloud.com/rise/rise-game-2) | Ryzen 7 5800X (Zen 3, 4.7 GHz) | 64 GB DDR4 ECC | ~$100–110/mo | Includes OVH **Game DDoS** protection. Older, slower CPU, but fine to launch. Check stock |
-| 3rd | [BudgetVM](https://www.budgetvm.com/amd-ryzen-dedicated-server-hosting/) 9900X / 9950X | Ryzen 9 9900X / 9950X | 64 / 128 GB | $197 / $209/mo | More headroom, many US cities. Ask exactly how their DDoS filtering handles Minecraft + Bedrock UDP before buying |
-| ❌ skip | OVH Game-1/2 (2026), Pufferfish Host, GameServerKings, ReliableSite, etc. | 9800X3D / 9950X(3D) | | $357–550+/mo | Great hardware, but 4–7× the price of RISE-S for performance we don't need yet |
-
-**Budget: under $50 for the first month, setup fee included, in US East** (decided 2026-10-25). That rules out every dedicated server above: KS-GAME is $32.10 + $32.10 setup = $64.20, and it isn't confirmed in the US. So we **start on a VPS and upgrade as the player count grows**. We won't have 100 players on day one.
-
-| Stage | Server | Specs | Price | Roughly handles* |
-| --- | --- | --- | --- | --- |
-| **Launch** ⭐ | [OVH US **VPS-4**](https://us.ovhcloud.com/vps/) | 8 vCores (shared), 24 GB RAM, 200 GB NVMe, 3 Gbps | **~$27.50/mo** monthly, no commitment ($23.37 with 12-month prepay) | ~20–40 players |
-| **Growing** | OVH **KS-GAME** or another cheap dedicated box | i7-7700K / 32 GB | $32.10/mo + setup | ~40–60 |
-| **Big** | OVH **RISE-S** | Ryzen 7 9700X / 64 GB DDR5 | $77/mo | 100 |
-
-\*Guesses. Depends mostly on how efficient our plugin is. The load test tells us for real.
-
-Why VPS-4:
-- **Fits the budget with lots of room:** about half of $50 for the first month.
-- **US East:** OVH's US VPS data center is **Vint Hill, Virginia** (third-party listing, confirm in the order form).
-- **Anti-DDoS included** on all OVH VPSes, plus daily backups.
-- **24 GB RAM** is enough for the game server, proxy, limbo and PostgreSQL.
-
-Downsides:
-- **Shared vCores** and an undisclosed CPU model, so single-core speed is unknown and can vary with neighbors. Run spark/benchmarks in the first week. If it's bad, cancel. It's month to month.
-- Standard OVH anti-DDoS, not the Game filter. Check that UDP 19132 (Bedrock) gets through and is protected.
-
-Ruled out for this budget: Goodleaf Ryzen 9950X VPS (great CPU, but only 6 GB RAM under $50), Bloom Host (8 GB for $22–30), Hetzner Cloud (2026 price increases of 2–2.6× in the US).
-
-**Making 24 GB fit:**
-- Game server ~12 GB, Velocity ~1 GB, limbo ~512 MB, PostgreSQL ~1–2 GB, plus the OS.
-- **Run staging on your own PC**, not on the server.
-- Bandwidth is no problem: Minecraft uses roughly 0.5–1 Mbps per player.
-
-**Upgrade trigger:** when we regularly hit ~25–30 players online, or MSPT stays above ~40 at peak, move up a stage: restore the backups on the new box and point the domain at it.
-
-**Before paying:**
-- Confirm the final price, setup fee, stock and **location** on OVH's order page. Pick **US East (Vint Hill, VA)**.
-- Check OVH's anti-DDoS / edge firewall settings cover UDP on Geyser's port (19132).
-- Pay monthly at first. Commit long-term only once it's proven.
-
-**Raptor caveat:** it's pre-launch with no uptime promise yet. Fine while we build. Revisit before public launch.
-
 ## Plugins we use
 
 Checked 2026-10-25. ✅ = has a 26.3 build. ⚠️ = verify before installing.
 
-### Proxy (Velocity)
-
 | Plugin | Why | 26.3 |
 | --- | --- | --- |
-| Geyser | Lets Bedrock players join | ✅ |
-| Floodgate | Bedrock players join without a Java account | ✅ |
-| LuckPerms | Ranks and permissions, synced across servers through PostgreSQL | ✅ |
-
-### Game server (Leaf)
-
-| Plugin | Why | 26.3 |
-| --- | --- | --- |
-| Floodgate | Our plugin uses its API to detect Bedrock players and show them forms | ✅ |
-| ViaVersion | Lets newer Java clients (and Geyser) join while the server is still on an older version | ✅ |
+| ViaVersion | Lets newer Java clients join while the server is still on an older version | ✅ (snapshot) |
 | LuckPerms | Ranks: prisoner, guard, staff | ✅ |
 | WorldGuard + WorldEdit | Regions (prison, safe zones, robbery spots) that our plugin reads. Building tools for the map | ✅ |
 | FastAsyncWorldEdit | Faster edits for big builds. Building only; can be left off live | ✅ |
 | PacketEvents | Packet library our plugin and Grim use | ✅ |
-| GrimAC | Anti-cheat with proper Bedrock (Geyser) handling | ✅ |
+| GrimAC | Anti-cheat. Check how it detects Bedrock players coming through Minehut (no local Floodgate) | ✅ ⚠️ |
 | CoreProtect | Logs and rollback of block changes (griefing, staff investigations) | ⚠️ latest build tagged 26.2 |
 | spark | Performance profiling | ✅ |
 | PlaceholderAPI | Shares our stats (cash, bounty) with TAB and other plugins | ✅ |
-| TAB | Tab list, name tags, scoreboard. Works on Bedrock | ✅ |
+| TAB | Tab list, name tags, scoreboard | ✅ |
 | DiscordSRV | Discord ↔ Minecraft account linking, Discord role → LuckPerms group sync, chat bridge | ✅ |
 | DecentHolograms | Floating text (leaderboards, robbery signs) | ✅ |
 | Chunky | Pre-generate the map so it doesn't lag on first load | ✅ |
-| LibertyBans | Bans, mutes, warnings across the network (Velocity + game server). ⚠️ 26.3 build is a milestone (`1.2.0-M1`) | ⚠️ |
+| LibertyBans | Bans, mutes, warnings | ⚠️ 26.3 build is a milestone (`1.2.0-M1`) |
 | Plan | Player analytics: playtime, retention, peak hours (when we need guards) | ✅ |
-| NuVotifier | Votes from server list sites, rewarded in-game. Our main way to get found without Minehut | ⚠️ not on Modrinth, check |
 | VaultUnlocked | Economy bridge, only if another plugin needs our cash | ✅ |
 | **xUtilities** | Our own: everyday commands (instead of EssentialsX) | ✅ |
 | **zChat** | Our own: chat format + filter | ✅ |
 
-### Limbo server
-
-| Plugin | Why | 26.3 |
-| --- | --- | --- |
-| **xLimbo** | Our own: catches players when the game server restarts or crashes, then sends them back | ✅ |
+NuVotifier (server list votes) is optional now that Minehut's list is our main source of players.
 
 ### Deliberately not using
 
@@ -161,6 +134,8 @@ Checked 2026-10-25. ✅ = has a 26.3 build. ⚠️ = verify before installing.
 - **Gun plugins (WeaponMechanics etc.):** we need guns that feel fair on Bedrock touch controls. Ours will be simple hitscan.
 - **Citizens:** for shopkeepers and NPCs we can use vanilla mannequin / display entities from our plugin. Revisit if we need walking NPCs.
 - **NeoSkript / Skript:** fine for quick tests, but the core game is too big and too performance-sensitive for scripts at 100 players.
+- **Velocity, Geyser, Floodgate:** Minehut does the proxy and Bedrock for us.
+- **xLimbo:** needs a proxy to send players back. Not needed without one.
 
 ## What we build ourselves
 
@@ -178,7 +153,7 @@ One plugin, `core`, in **Java 25**, built with Gradle like [xena-studios/plugins
 | 8 | **Riots** | Start conditions, prison PvP on during a riot, alerts, end conditions, cooldown. |
 | 9 | **Guns** | Hitscan guns, ammo, reload, damage, cooldowns. Same feel on Java and Bedrock. |
 | 10 | **Custom items** | Registry of every custom item (guns, food, tools, contraband) using item model components. Each is a vanilla item underneath. |
-| 11 | **Shops** | Criminal base shop, guard armory. Chest GUI on Java, Floodgate forms on Bedrock. |
+| 11 | **Shops** | Criminal base shop, guard armory. Chest GUIs for everyone (no Floodgate forms, see [Java + Bedrock](#java--bedrock)). |
 | 12 | **Indirect criminal kills** | Traps, snitching, stealing, sabotage (once we pick which). |
 | 13 | **Guard duty** | On/off duty, guard loadout, guards-online count. The guard rank itself comes from LuckPerms through DiscordSRV. |
 | 14 | **HUD** | Bounty, cash, wanted level, robbery status: boss bar / action bar, plus placeholders for TAB. |
@@ -186,35 +161,34 @@ One plugin, `core`, in **Java 25**, built with Gradle like [xena-studios/plugins
 
 Outside the plugin:
 
-- **Resource pack pipeline:** source art + models in this repo → build the Java pack → convert to a Bedrock pack + Geyser mappings → upload. Automate it in CI. See [resource pack](06-resource-pack.md).
+- **Resource pack pipeline:** source art + models in this repo → build the Java pack → host it on **GitHub releases** (Minehut only accepts packs from approved hosts). Bedrock pack depends on what Minehut allows, see [resource pack](06-resource-pack.md). Automate it in CI. See [resource pack](06-resource-pack.md).
 - **Guard applications:** start with a Discord form/ticket bot that already exists. Build our own bot only if it gets in the way.
 
 ## Other things we need
 
-- **DDoS protection, including UDP.** Our server's IP is public, and Minecraft servers get attacked a lot. Bedrock connects over **UDP**, and many Minecraft DDoS proxies only protect Java's TCP. Rent from a host with solid DDoS filtering for both, or use a protection service that supports Bedrock.
-- **Minecraft EULA / usage guidelines.** If we ever sell things for real money, we **can't sell gameplay advantages** like guns, cash or armor. Cosmetics, ranks without gameplay perks, etc. are OK. Check Mojang's current rules before opening a store.
-- **Getting players.** No Minehut server list, so: list on Minecraft server sites (votes via NuVotifier), short-form video of escapes and riots, and the Discord.
-- **Staff tools.** Punishments (LibertyBans), anti-cheat alerts (Grim), block logs (CoreProtect), and reports. Guards are players with power over others, so staff need to be able to review guard abuse too.
-- **Backups and a recovery drill.** Raptor's backups for world files + nightly PostgreSQL dumps, and actually test restoring one.
+- **Minehut External confirmed** before anything else (see the ⚠️ above).
+- **Mojang EULA + Minehut rules.** Real-money store = cosmetics only, no gameplay advantages. No gambling mechanics in-game.
+- **Staff tools.** Punishments (LibertyBans), anti-cheat alerts (Grim), block logs (CoreProtect), and reports. Guards are players with power over others, so staff need to be able to review guard abuse too. Minehut staff can't moderate external servers for us.
+- **Backups and a recovery drill.** OVH daily backup + Raptor's backups for world files + nightly PostgreSQL dumps, and actually test restoring one.
 - **Monitoring.** spark for lag spikes, Plan for player trends, alerts to Discord when the server goes down.
 
 ## Build order
 
-1. **Foundation:** set up the machine with Raptor; Velocity + Geyser + Floodgate + Leaf + ViaVersion + LuckPerms + PostgreSQL; join from Java and Bedrock.
+1. **Foundation:** confirm Minehut External; set up the VPS with Raptor; Leaf + ViaVersion + LuckPerms + PostgreSQL; Minehut External settings; join from Java **and** Bedrock through Minehut.
 2. **Core loop:** player state, combat rules, arrests, bounty, economy, one robbery. Playable on a test map.
-3. **Custom items + guns + resource pack** (Java and Bedrock).
+3. **Custom items + guns + resource pack** (Java first, then Bedrock if Minehut supports custom Bedrock packs).
 4. **Escapes, riots, shops, HUD.**
 5. **Discord:** linking, guard rank sync, applications.
 6. **Polish:** stats, leaderboards, indirect kills, more robberies.
-7. **Load test 100 players**, fix what spark shows, then launch.
+7. **Playtest at the VPS's limit**, fix what spark shows, launch, then upgrade the box as players grow.
 
 ## Java + Bedrock
 
-Both editions can join (decided), through Geyser + Floodgate on the proxy. Things to keep in mind:
+Both editions can join (decided). Minehut translates Bedrock players. Things to keep in mind:
 
-- **Menus:** chest GUIs work on Bedrock but can feel clunky. Our plugin shows Bedrock players native forms (Floodgate's Forms API) and Java players chest GUIs.
-- **Custom items / resource packs:** Java packs don't work on Bedrock. We need a separate Bedrock pack sent through Geyser. See [resource pack](06-resource-pack.md).
+- **No Floodgate on our server**, so no native Bedrock forms. Use **chest GUIs for everyone**, kept simple and big-button friendly for touch.
+- **Detecting Bedrock players:** find out how Minehut marks them (name prefix? UUID format?). We need this for gun balance and tests.
+- **Custom items / resource packs:** Java packs don't work on Bedrock. **Ask Minehut whether external servers can supply a Bedrock pack + Geyser custom item mappings.** If not, Bedrock players see the vanilla base item (that's why every custom item is a renamed vanilla item). See [resource pack](06-resource-pack.md).
 - **Combat:** Java and Bedrock PvP feel different (attack cooldown, reach, touch controls). Test fights between a Java player and a Bedrock player early.
-- **Usernames:** Bedrock players usually get a prefix (like `.Name`). Store players by UUID, never by name.
+- **Store players by UUID, never by name.**
 - **Test everything on both**, phone and console included, not just PC.
-

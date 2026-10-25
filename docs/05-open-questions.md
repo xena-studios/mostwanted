@@ -4,10 +4,11 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 
 ## Open
 
-1. **Indirect criminal-vs-criminal kills:** which ones? Traps, snitching, stealing, sabotage? See [combat](02-gameplay.md#combat).
-2. **Riot rules:** how one starts, how it ends, cooldown. See [riots](02-gameplay.md#riots).
-3. **Guards:** how many do we need, can they go off duty, and what's the application process?
-4. **Name?** See [names](../ideas/names.md).
+1. **Minehut External:** can we still buy the External plan (one source says it's partner-only now)? Can external servers supply a Bedrock resource pack + custom item mappings? Does Minehut publish IP ranges for the firewall? How are Bedrock players marked?
+2. **Indirect criminal-vs-criminal kills:** which ones? Traps, snitching, stealing, sabotage? See [combat](02-gameplay.md#combat).
+3. **Riot rules:** how one starts, how it ends, cooldown. See [riots](02-gameplay.md#riots).
+4. **Guards:** how many do we need, can they go off duty, and what's the application process?
+5. **Name?** See [names](../ideas/names.md).
 
 ## Decided
 
@@ -16,14 +17,14 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 - **Guards are by application:** everyone starts as a prisoner. Guard rank comes from applying in the Discord. (2026-10-25)
 - **Format:** one persistent world, no rounds. (2026-10-25)
 - **Vehicles:** not in the main game. Maybe later. (2026-10-25)
-- **Editions:** Java and Bedrock both, via Minehut's built-in support or Geyser + Floodgate. (2026-10-25)
+- **Editions:** Java and Bedrock both, with Bedrock handled by Minehut. (2026-10-25)
 - **Map:** Zachary is building it. (2026-10-25)
 - **Combat:** criminals can fight back. Guards vs. criminals is PvP. (2026-10-25)
 - **Criminal vs. criminal:** no direct damage, only indirect ways. (2026-10-25)
 - **Riots:** inmates can start them. (2026-10-25)
 - **Custom items:** guns, food, tools, and more through the resource pack. (2026-10-25)
-- **Version:** Minecraft 26.3, the latest Paper + Geyser both support. (2026-10-25)
+- **Version:** Minecraft 26.3. (2026-10-25)
 - **Size:** up to 100 players at once. (2026-10-25)
-- **Tech stack:** Leaf 26.3 (Paper as fallback) + Velocity + ViaVersion + Geyser/Floodgate, our own dedicated server on Raptor, PostgreSQL, one custom Java plugin. Full list in [tech](04-tech.md). (2026-10-25)
+- **Tech stack:** Leaf 26.3 standalone on an OVH US VPS-3 (Raptor), connected through Minehut External Server (Bedrock, DDoS, server list). PostgreSQL, one custom Java plugin. Full list in [tech](04-tech.md). (2026-10-25)
 - **Guns:** our own hitscan guns, no gun plugin. (2026-10-25)
 - **Custom items:** our own plugin + pack pipeline, no ItemsAdder/Nexo. (2026-10-25)

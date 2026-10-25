@@ -1,20 +1,24 @@
 # Resource pack
 
-We want custom textures and items. The catch: **Java and Bedrock use different resource pack formats**, so a Java pack does nothing for Bedrock players. The plan is to make two packs from one source.
+We want custom textures and items.
+
+> ⚠️ **Open question for Minehut:** Bedrock players reach us through Minehut's Geyser, not our own. Can an external server give Minehut a Bedrock pack and custom item mappings? If not, Bedrock players see the vanilla base items, and the game still works (see below). Ask in the Minehut Discord before making Bedrock art.
+
+**Hosting the Java pack:** Minehut only accepts packs from approved hosts. GitHub (`raw.githubusercontent.com`, `github.com/…/releases/download/…`) is on the list, so we publish the pack as a **GitHub release** from this repo. The catch: **Java and Bedrock use different resource pack formats**, so a Java pack does nothing for Bedrock players. The plan is to make two packs from one source.
 
 ## How it works
 
 ```
-                    ┌─▶ Java pack ──────▶ sent to Java players by the server (server.properties / plugin)
+                    ┌─▶ Java pack ──────▶ server.properties resource-pack= (hosted on GitHub releases)
  our art + models ──┤
-                    └─▶ Bedrock pack ──▶ sent to Bedrock players by Geyser (drop the .mcpack in Geyser's packs folder)
+                    └─▶ Bedrock pack ──▶ Minehut's Geyser, IF Minehut lets external servers supply one
                                            + Geyser "mappings" that tell it which Java item = which Bedrock item
 ```
 
 1. **Build the Java pack first.** It's the source of truth.
 2. **Convert it to a Bedrock pack.** GeyserMC has tools for this (look at **Rainbow** and **java2bedrock.sh**). Check which one fits our Minecraft version.
 3. **Custom items need mappings.** On Java, a custom item is a vanilla item with a custom model (e.g. a stick with an `item_model` / custom model data). Geyser needs a mapping file to turn that into a real custom item on Bedrock. The converter tools can generate these.
-4. **Make the packs required** for both editions so everyone sees the same thing.
+4. **Make the Java pack required** so every Java player sees the same thing.
 5. **Test on Bedrock**: phone, console and Windows.
 
 ## What translates well, and what doesn't
