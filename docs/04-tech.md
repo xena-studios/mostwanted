@@ -75,10 +75,28 @@ Researched 2026-10-25. **Prices are moving.** A DDR5/NVMe shortage since late 20
 | 3rd | [BudgetVM](https://www.budgetvm.com/amd-ryzen-dedicated-server-hosting/) 9900X / 9950X | Ryzen 9 9900X / 9950X | 64 / 128 GB | $197 / $209/mo | More headroom, many US cities. Ask exactly how their DDoS filtering handles Minecraft + Bedrock UDP before buying |
 | ❌ skip | OVH Game-1/2 (2026), Pufferfish Host, GameServerKings, ReliableSite, etc. | 9800X3D / 9950X(3D) | | $357–550+/mo | Great hardware, but 4–7× the price of RISE-S for performance we don't need yet |
 
-**Plan:** order a **RISE-S** in **Vint Hill** or **Beauharnois**. If it's out of stock, get a **Rise-Game-2**. Moving later means restoring a backup on the new box, so upgrading to an X3D chip (big Minecraft gains from the extra cache) is easy if the server outgrows it.
+**Budget: under $50/mo** (decided 2026-10-25). None of the above fit, so we **start small and upgrade as the player count grows**. We won't have 100 players on day one.
+
+| Stage | Server | CPU / RAM | Price | Roughly handles* |
+| --- | --- | --- | --- | --- |
+| **Launch** ⭐ | [OVH **KS-GAME**](https://eco.ovhcloud.com/en/game/) | Intel i7-7700K (4 cores, 4.5 GHz) / 32 GB DDR4 | **$32.10/mo** + $32.10 setup | ~40–60 players |
+| **Growing** | OVH **RISE-S** (above) | Ryzen 7 9700X / 64 GB DDR5 | $77/mo | 100 |
+
+\*Guesses. Depends mostly on how efficient our plugin is. The load test tells us for real.
+
+Why KS-GAME: it's a **real dedicated server** (no noisy neighbors), has OVH's **game DDoS** protection, has 32 GB RAM and NVMe, and costs less than most game VPSes. The CPU is from 2017, so it's about half as fast per core as the 9700X. That's fine for building, testing, and the first months of players.
+
+Under-$50 alternative: a **Ryzen 9 "game VPS"** (16–24 GB) from a host with Minecraft DDoS filtering. Faster per core than the 7700K, but shared hardware and less RAM. Only worth it if KS-GAME is out of stock.
+
+**Making 32 GB fit:**
+- Game server ~14 GB, Velocity ~1 GB, limbo ~512 MB, PostgreSQL ~1–2 GB, plus the OS.
+- **Run staging on your own PC**, not on the server.
+- 300 Mbps is enough. Minecraft uses roughly 0.5–1 Mbps per player.
+
+**Upgrade trigger:** when we regularly hit ~40 players online, or MSPT stays above ~40 at peak, move to RISE-S: restore the backups on the new box and point the domain at it.
 
 **Before paying:**
-- Confirm the final price, setup fee and stock on OVH's order page (pick the location).
+- Confirm the final price, setup fee, stock and **location** on OVH's order page. KS-GAME's page didn't say which data centers have it. We want Beauharnois (Canada) or a US site, not France.
 - Check OVH's anti-DDoS / edge firewall settings cover UDP on Geyser's port (19132).
 - Pay monthly at first. Commit long-term only once it's proven.
 
