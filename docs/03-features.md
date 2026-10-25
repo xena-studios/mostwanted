@@ -4,15 +4,22 @@ Sort ideas as we go. Move things between sections freely.
 
 ## Must-have (launch)
 
-- [ ] The prison map itself
-- [ ] Core escape loop (see [gameplay](02-gameplay.md))
-- [ ] Spawn / lobby
+- [ ] Map: prison, police station, city, criminal base
+- [ ] Team select (Prisoner / Cop) + team balance cap
+- [ ] Escape → criminal state change at the prison boundary
+- [ ] 2–3 robbery locations with open/close timers and alarms
+- [ ] Bounty system
+- [ ] Cop handcuffs + taser, arrest → back to prison
+- [ ] Cash, saved per player
+- [ ] Shop for basic gear
 - [ ] Basic anti-cheat and moderation tools
 
 ## Nice-to-have
 
-- [ ] Multiple prisons / maps to rotate
-- [ ] Crews (party up with other prisoners)
+- [ ] Vehicles (see [gameplay](02-gameplay.md#vehicles))
+- [ ] More robbery locations, big rotating heists
+- [ ] Crews / gangs
+- [ ] SWAT / special cop ranks
 - [ ] Cosmetics (prison jumpsuit colors, cell decorations)
 - [ ] Stats and leaderboards (fastest escape, most escapes, most catches)
 - [ ] Discord integration

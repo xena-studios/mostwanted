@@ -17,14 +17,14 @@ Things to check and write down here (don't trust memory, verify on Minehut's cur
 - **Scripting**: [NeoSkript](https://github.com/xena-studios/neoskript) for fast iteration on game logic, if Minehut allows it. Otherwise standard Skript
 - **Our plugins**: [xUtilities, zChat, xLimbo](https://github.com/xena-studios/plugins) where they fit
 - **Maps**: WorldEdit / FAWE for building, a world-reset plugin for round-based play
-- **NPC guards**: Citizens (+ Sentinel) or custom
+- **Vehicles**: vehicle plugin TBD (check Minehut support)
 
 ## Build vs. buy
 
 | Piece | Existing plugin? | Build ourselves? | Notes |
 | --- | --- | --- | --- |
-| Escape game logic | | | Probably custom |
-| Guard AI | | | |
-| Contraband / crafting | | | |
-| Cell searches | | | |
+| Teams, bounty, arrests | | | Probably custom |
+| Vehicles | | | |
+| Robbery locations + timers | | | |
+| Shop / gear | | | |
 | Economy | | | |

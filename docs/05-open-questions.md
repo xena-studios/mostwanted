@@ -4,9 +4,9 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 
 ## Open
 
-1. **Prison break or classic prison?** Is this an escape game (prisoners vs. guards), or a classic Minecraft "Prison" (mine, rank A→Z, prestige)? Or a mix?
-2. **Round-based, persistent, or hybrid?** See [gameplay](02-gameplay.md#the-big-choice-format).
-3. **Player guards or NPC guards?**
+1. **Vehicles:** horses, a vehicle plugin, or something custom? Depends on what Minehut allows.
+2. **Team switching:** free, cooldown, or locked per session?
+3. **Combat:** can criminals fight back against cops (guns/PvP), or is it pure chase-and-escape?
 4. **Target player count** at launch?
 5. **Java only, or Bedrock too?**
 6. **Minecraft version?**
@@ -15,4 +15,6 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 
 ## Decided
 
-_Nothing yet._
+- **Genre:** escape game, like Roblox Jailbreak. Not classic mine-and-rank-up prison. (2026-10-25)
+- **Teams:** two teams, Cops and Prisoners. Prisoners become Criminals after escaping. (2026-10-25)
+- **Format:** one persistent world, no rounds. (2026-10-25)
