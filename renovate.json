@@ -1,0 +1,22 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["local>xena-studios/.github:renovate-config"],
+  "packageRules": [
+    {
+      "description": "The Paper the server runs. A new Minecraft version means moving the whole server, so it's tracked by .github/workflows/minecraft.yml, not Renovate.",
+      "matchPackageNames": ["io.papermc.paper:paper-api"],
+      "enabled": false
+    },
+    {
+      "description": "Third-party actions run with the repo's secrets, so they're pinned to a commit (CodeQL flags tags, which can be moved); Renovate keeps the pins current. GitHub's own actions stay on tags.",
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["!actions/**", "!github/**"],
+      "pinDigests": true
+    },
+    {
+      "description": "CI builds, tests and boots the plugin, and merging releases nothing, so small updates merge themselves once it passes. Majors wait for a review.",
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true
+    }
+  ]
+}

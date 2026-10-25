@@ -1,0 +1,51 @@
+name: Release
+
+# Push a tag named <module>-v<version>, such as core-v0.1.0, to publish that
+# plugin's jar as a GitHub release. The version must match the module's
+# build.gradle.kts, and <module>/CHANGELOG.md must have a "## <version>" section.
+on:
+  push:
+    tags: ["*-v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-26.04
+    environment: release
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          cache-read-only: true
+      - name: Read the tag
+        id: tag
+        run: |
+          tag=${GITHUB_REF_NAME}
+          module=${tag%-v*}
+          version=${tag##*-v}
+          [[ -f $module/build.gradle.kts && $module != build-logic ]] \
+            || { echo "::error::$module isn't a releasable plugin"; exit 1; }
+          built=$(./gradlew -q ":$module:properties" --property version | sed -n 's/^version: //p')
+          [[ $built == "$version" ]] \
+            || { echo "::error::the tag says $version but $module/build.gradle.kts says $built"; exit 1; }
+          echo "module=$module" >>"$GITHUB_OUTPUT"
+          echo "version=$version" >>"$GITHUB_OUTPUT"
+      - name: Read the changelog
+        run: scripts/changelog.sh "${{ steps.tag.outputs.module }}/CHANGELOG.md" "${{ steps.tag.outputs.version }}" >"$RUNNER_TEMP/changelog.md"
+      - run: ./gradlew ":${{ steps.tag.outputs.module }}:build"
+      - name: Publish to GitHub
+        # Titled with the plugin's own name, such as "PrisonBreak 0.1.0", from its descriptor.
+        run: >
+          gh release create "$GITHUB_REF_NAME"
+          --title "$(unzip -p ${{ steps.tag.outputs.module }}/build/libs/${{ steps.tag.outputs.module }}-${{ steps.tag.outputs.version }}.jar paper-plugin.yml | sed -n 's/^name: //p') ${{ steps.tag.outputs.version }}"
+          --notes-file "$RUNNER_TEMP/changelog.md"
+          ${{ contains(steps.tag.outputs.version, '-') && '--prerelease' || '' }}
+          ${{ steps.tag.outputs.module }}/build/libs/${{ steps.tag.outputs.module }}-${{ steps.tag.outputs.version }}.jar
+        env:
+          GH_TOKEN: ${{ github.token }}

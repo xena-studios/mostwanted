@@ -1,0 +1,44 @@
+name: New Minecraft
+
+# On Mondays, or by hand from the Actions tab, opens a PR when Paper has a
+# stable build of a Minecraft version newer than the one we build against (see
+# scripts/new-minecraft.sh). The PR builds and boots the plugins on it. Merge it
+# when the server is ready to move: Leaf, the other plugins, and Minehut too.
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  check:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      - id: new
+        run: echo "version=$(scripts/new-minecraft.sh)" >> "$GITHUB_OUTPUT"
+      - if: steps.new.outputs.version != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.new.outputs.version }}
+        run: |
+          branch="minecraft-$VERSION"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+            echo "$branch already has a PR"; exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898729+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git commit -am "build: move to Minecraft $VERSION"
+          git push -u origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "build: move to Minecraft $VERSION" \
+            --body "Paper has a stable build of Minecraft $VERSION. This builds against it and moves the boot test onto it.
+
+          Merge when the checks pass **and** the server is ready to move: Leaf has a $VERSION build, the plugins in docs/07-server-stack.md support it, and Minehut does too. Until then, ViaVersion lets $VERSION clients join."
+          # PRs opened with this workflow's token don't start other workflows, so start CI here.
+          gh workflow run build.yml --ref "$branch"

@@ -1,0 +1,54 @@
+name: CodeQL
+
+# Code scanning: the plugins' Java (traced through a real Gradle build, for the
+# most accurate dataflow) and the workflows. Findings show on pull requests and
+# in the Security tab. Dependencies are Renovate's: it opens a fix PR as soon as
+# one has a known vulnerability.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly, for new queries against unchanged code.
+    - cron: "0 7 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: analyze (${{ matrix.language }})
+    runs-on: ubuntu-26.04
+    permissions:
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: java-kotlin
+            build-mode: manual
+          - language: actions
+            build-mode: none
+    steps:
+      - uses: actions/checkout@v7
+      - if: matrix.build-mode == 'manual'
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 25
+      - if: matrix.build-mode == 'manual'
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          cache-read-only: true
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-extended
+      # CodeQL reads the code as javac compiles it, so every source file has to
+      # really compile here: no build cache, no daemon, every task rerun.
+      - if: matrix.build-mode == 'manual'
+        run: ./gradlew --no-daemon --no-build-cache --no-configuration-cache --rerun-tasks compileJava compileTestJava
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}

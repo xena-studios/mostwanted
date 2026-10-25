@@ -1,0 +1,18 @@
+name: Labels
+
+# Labels pull requests by the folders they change (.github/labeler.yml).
+on:
+  # The labeler never checks out the pull request's code, so _target is safe here,
+  # and it lets pull requests from forks be labelled too.
+  pull_request_target:
+
+permissions: {}
+
+jobs:
+  pull-request:
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/labeler@v7

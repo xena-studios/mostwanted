@@ -1,0 +1,10 @@
+# Labels for pull requests, by the files they change (actions/labeler, in labels.yml).
+core:
+  - changed-files:
+      - any-glob-to-any-file: core/**
+build:
+  - changed-files:
+      - any-glob-to-any-file: [build-logic/**, gradle/**, "*.gradle.kts", scripts/**, .github/workflows/**]
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: [docs/**, "**/*.md"]
