@@ -1,0 +1,57 @@
+name: Bug report
+description: Something in the game doesn't work the way it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. For a security problem (duping, bypassing a rule, crashing the server), don't use this form: see [SECURITY.md](https://github.com/xena-studios/prison-break/blob/main/SECURITY.md).
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Escaping / prison
+        - Robberies / cash / bounty
+        - Arrests / guards
+        - Combat / guns / riots
+        - Shops / items / resource pack
+        - Something else
+    validations:
+      required: true
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Edition
+      options:
+        - Java
+        - Bedrock
+        - Both
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Plugin version
+      description: From `/prisonbreak info`, if you have access to it.
+      placeholder: "0.1.0"
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Escape the prison through ...
+        2. ...
+  - type: textarea
+    id: errors
+    attributes:
+      label: Console errors
+      description: Anything the plugin logged. Paste the whole error, not just the first line.
+      render: text

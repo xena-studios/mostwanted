@@ -1,0 +1,23 @@
+name: Idea
+description: Something new for the game.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What you'd like, and how it would play.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it's fun
+      description: Who it's for (prisoners, criminals, guards) and what it adds.
+    validations:
+      required: true
+  - type: textarea
+    id: bedrock
+    attributes:
+      label: Java and Bedrock
+      description: Anything that might work differently on Bedrock, if you know.
