@@ -27,7 +27,7 @@ We want custom textures and items. The catch: **Java and Bedrock use different r
 | Custom sounds (alarm, cuff click) | Easy | Works, separate sound definitions | 🟡 |
 | Font icons / emoji in chat & scoreboard (cash $, bounty ⭐) | Easy | Different system, needs separate glyph files | 🟡 |
 | GUI textures (custom menus) | Doable | Bedrock UI is very different; often doesn't match | 🔴 |
-| Custom armor (jumpsuit, cop uniform) | Doable | Needs Bedrock "attachables"; fiddly | 🔴 |
+| Custom armor (jumpsuit, guard uniform) | Doable | Needs Bedrock "attachables"; fiddly | 🔴 |
 | Custom blocks | Hacky on Java too (reused block states) | Possible with Geyser custom blocks; extra work | 🔴 |
 
 **Rule of thumb:** flat textures and simple items are easy on both. Menus, armor and blocks are where Bedrock gets painful.
@@ -52,6 +52,10 @@ Every custom item is a vanilla item underneath with a custom name and lore (e.g.
 | Cash / money bag | | 🟢 |
 | Lockpick / crowbar | | 🟢 |
 | Police badge | | 🟢 |
+| Guns (pistol, shotgun, rifle) | | 🟡 3D models; keep the "use item to shoot" simple |
+| Ammo | | 🟢 |
+| Custom food (prison slop, donuts for guards, energy drinks) | | 🟡 custom eating behavior needs testing on Bedrock |
+| Custom tools (spoon/shovel for digging, wire cutters, drill) | | 🟢 textures, 🟡 if they need special behavior |
 | Bounty ⭐ / cash $ icons in HUD/chat | font glyphs | 🟡 |
 | Robbery alarm sound | | 🟡 |
 | Prison jumpsuit | dyed leather armor (no pack) | 🟢 now, 🔴 if custom |

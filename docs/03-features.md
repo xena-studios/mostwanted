@@ -5,14 +5,17 @@ Sort ideas as we go. Move things between sections freely.
 ## Must-have (launch)
 
 - [ ] Map: prison, police station, city, criminal base
-- [ ] Team select (Prisoner / Cop) + team balance cap
+- [ ] Everyone spawns as a prisoner; guard rank from Discord applications
+- [ ] Discord ↔ Minecraft account linking (Java + Bedrock)
 - [ ] Escape → criminal state change at the prison boundary
 - [ ] 2–3 robbery locations with open/close timers and alarms
 - [ ] Bounty system
-- [ ] Cop handcuffs + taser, arrest → back to prison
+- [ ] Guard handcuffs + taser, arrest → back to prison
 - [ ] Cash, saved per player
 - [ ] Shop for basic gear
-- [ ] Cop vs. criminal PvP rules + safe zones (see [combat](02-gameplay.md#combat))
+- [ ] Custom guns + ammo (crossplay tested)
+- [ ] Riots
+- [ ] Guard vs. criminal PvP rules, no direct criminal-on-criminal damage, safe zones (see [combat](02-gameplay.md#combat))
 - [ ] Java + Bedrock crossplay, tested on both
 - [ ] Basic anti-cheat and moderation tools
 
@@ -20,12 +23,12 @@ Sort ideas as we go. Move things between sections freely.
 
 - [ ] More robbery locations, big rotating heists
 - [ ] Crews / gangs
-- [ ] SWAT / special cop ranks
+- [ ] SWAT / special guard ranks
 - [ ] Cosmetics (prison jumpsuit colors, cell decorations)
 - [ ] Stats and leaderboards (fastest escape, most escapes, most catches)
 - [ ] Discord integration
 
-- [ ] Resource pack v1 (Java + Bedrock): simple custom items. See [resource pack](06-resource-pack.md)
+- [ ] Resource pack v1 (Java + Bedrock): guns, food, tools, contraband. See [resource pack](06-resource-pack.md)
 
 ## Later
 

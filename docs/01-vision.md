@@ -2,7 +2,7 @@
 
 ## One-liner
 
-"Jailbreak, but Minecraft." Cops vs. prisoners in one persistent open world. Break out, rob the city, and stay ahead of the cops. Or be the cop who brings them back.
+"Jailbreak, but Minecraft." Guards vs. prisoners in one persistent open world. Break out, rob the city, and stay ahead of the guards. Or be the guard who brings them back.
 
 ## Who it's for
 
@@ -22,7 +22,7 @@ What do other prison/escape servers get wrong that we'd get right?
 
 Games, servers, shows, and maps worth looking at:
 
-- **Roblox Jailbreak**: the main reference. Cops vs. prisoners, escape → rob → get arrested loop, persistent world
+- **Roblox Jailbreak**: the main reference. Guards vs. prisoners, escape → rob → get arrested loop, persistent world
 - Prison Architect / The Escapists (crafting tools, routines, escape routes)
 - Prison Break (the show): planning, tattoos-as-maps, inside help
 - Cops and Robbers style Minecraft maps

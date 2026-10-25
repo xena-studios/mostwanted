@@ -1,6 +1,6 @@
 # Prison Break (working title)
 
-A Jailbreak-style cops vs. prisoners Minecraft server (Java + Bedrock) by Xena Studios.
+A Jailbreak-style guards vs. prisoners Minecraft server (Java + Bedrock) by Xena Studios.
 
 There's no final name yet. `prison-break` is a placeholder, and the repo can be renamed once we pick one.
 
