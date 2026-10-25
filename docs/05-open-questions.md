@@ -4,17 +4,19 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 
 ## Open
 
-1. **Vehicles:** horses, a vehicle plugin, or something custom? Depends on what Minehut allows.
-2. **Team switching:** free, cooldown, or locked per session?
-3. **Combat:** can criminals fight back against cops (guns/PvP), or is it pure chase-and-escape?
+1. **Team switching:** free, cooldown, or locked per session?
+2. **Weapons:** vanilla only, or test a gun plugin on Bedrock?
+3. **Criminal vs. criminal PvP** and **inmate riots**: allowed?
 4. **Target player count** at launch?
-5. **Java only, or Bedrock too?**
-6. **Minecraft version?**
-7. **Who's building the map?**
-8. **Name?** See [names](../ideas/names.md).
+5. **Minecraft version?**
+6. **Name?** See [names](../ideas/names.md).
 
 ## Decided
 
 - **Genre:** escape game, like Roblox Jailbreak. Not classic mine-and-rank-up prison. (2026-10-25)
 - **Teams:** two teams, Cops and Prisoners. Prisoners become Criminals after escaping. (2026-10-25)
 - **Format:** one persistent world, no rounds. (2026-10-25)
+- **Vehicles:** not in the main game. Maybe later. (2026-10-25)
+- **Editions:** Java and Bedrock both, using Minehut's built-in Bedrock support. (2026-10-25)
+- **Map:** Zachary is building it. (2026-10-25)
+- **Combat:** criminals can fight back. Cops vs. criminals is PvP. (2026-10-25)

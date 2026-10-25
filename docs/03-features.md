@@ -12,11 +12,12 @@ Sort ideas as we go. Move things between sections freely.
 - [ ] Cop handcuffs + taser, arrest → back to prison
 - [ ] Cash, saved per player
 - [ ] Shop for basic gear
+- [ ] Cop vs. criminal PvP rules + safe zones (see [combat](02-gameplay.md#combat))
+- [ ] Java + Bedrock crossplay, tested on both
 - [ ] Basic anti-cheat and moderation tools
 
 ## Nice-to-have
 
-- [ ] Vehicles (see [gameplay](02-gameplay.md#vehicles))
 - [ ] More robbery locations, big rotating heists
 - [ ] Crews / gangs
 - [ ] SWAT / special cop ranks
@@ -26,5 +27,6 @@ Sort ideas as we go. Move things between sections freely.
 
 ## Later
 
+- [ ] Vehicles (see [gameplay](02-gameplay.md#vehicles))
 - [ ] Seasonal events (holiday prison, riot weekend)
 - [ ] Store / ranks for monetization (check Minehut's rules first)

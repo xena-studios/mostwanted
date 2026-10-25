@@ -39,7 +39,7 @@ There should be several ways out so escapes don't get stale:
 - Sewers / vents
 - Grab a keycard (dropped by cops or found) to open gates
 - Go over the wall with a ladder or grapple
-- Hop into a getaway vehicle a friend parked outside
+- A friend breaks in from outside to help (opens a gate, drops a keycard)
 
 ### Criminals: robberies
 
@@ -63,6 +63,23 @@ Robbery spots around the map, each with its own risk and reward:
 - **Rule:** cops can't arrest **inmates** still inside the prison who aren't escaping (or only inside certain zones). This stops spawn camping.
 - Arresting a criminal pays the cop the criminal's **bounty**.
 
+### Combat
+
+Criminals **can fight back** (decided). Cops vs. criminals is full PvP.
+
+- **Who can hurt who:**
+
+  | | Cop | Criminal | Inmate |
+  | --- | --- | --- | --- |
+  | **Cop** | no | yes | only while escaping / in restricted zones |
+  | **Criminal** | yes | ? (criminal-on-criminal, decide later) | no |
+  | **Inmate** | ? (fighting guards = riots?) | no | no |
+
+- **Weapons:** start with vanilla gear (swords, bows, crossbows, maybe tridents) so it works the same on Java and Bedrock. Gun plugins often look or feel broken on Bedrock, so test before relying on one.
+- **Dying vs. getting arrested:** a criminal killed by a cop should count like an arrest (back to prison, cop gets the bounty, maybe a smaller share). Otherwise criminals would rather die than get cuffed.
+- **Cop deaths:** the cop respawns at the police station. The criminal maybe gets extra bounty for killing a cop.
+- **No spawn camping:** safe zones at the police station, criminal base, and inside the prison.
+
 ### Getting arrested
 
 - You go back to prison as an inmate, maybe with a jail timer that scales with your bounty.
@@ -71,12 +88,12 @@ Robbery spots around the map, each with its own risk and reward:
 ## Economy
 
 - **Earn:** robberies (criminals), arrests/bounties (cops), maybe a small salary while playing cop.
-- **Spend:** vehicles, weapons/gear, cosmetics, a garage, house/base upgrades.
+- **Spend:** weapons, armor, gear, cosmetics, base upgrades.
 - Keep all purchases permanent so progress carries over between sessions.
 
 ## Vehicles
 
-Vehicles are a huge part of Jailbreak, and vanilla Minecraft doesn't really have cars. Options:
+**Not in the main game** (decided). Players get around on foot. We can add vehicles later. If we do, options are:
 
 - Horses (vanilla, easy, slow)
 - Boats on ice roads (vanilla hack, fast, weird)
