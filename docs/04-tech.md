@@ -32,6 +32,15 @@ Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserM
 - Leaf's own README says to back up before switching. Raptor does backups, and we test every update on **staging** first.
 - If Leaf ever causes problems we can't fix, swap the jar for Paper. Nothing else changes.
 
+**How sure are we?** Leaf is the best **drop-in** choice right now: the most-used performance fork, already on 26.3, and it runs Paper plugins. (DivineMC is similar but smaller and wasn't on 26.3 yet. Multithreaded forks like Canvas and ShreddedPaper split by region like Folia, so they have the same problem with a crowded city.) But the fork is a **small lever**. What decides whether 100 players run smoothly is mostly:
+
+1. **Our own plugin.** No heavy work every tick, hitscan guns, caching, database calls off the main thread.
+2. **Entity count.** Few mobs, limited dropped items, no redstone farms.
+3. **View and simulation distance** tuned for a city.
+4. **The machine's single-core speed.**
+
+So the final call is made with data: in the load test, run the same 100-bot test on **Leaf and Paper** and keep whichever has better MSPT (milliseconds per tick; under 50 = no lag).
+
 ## Layout
 
 ```
@@ -86,6 +95,9 @@ Checked 2026-10-25. ✅ = has a 26.3 build. ⚠️ = verify before installing.
 | DiscordSRV | Discord ↔ Minecraft account linking, Discord role → LuckPerms group sync, chat bridge | ✅ |
 | DecentHolograms | Floating text (leaderboards, robbery signs) | ✅ |
 | Chunky | Pre-generate the map so it doesn't lag on first load | ✅ |
+| LibertyBans | Bans, mutes, warnings across the network (Velocity + game server). ⚠️ 26.3 build is a milestone (`1.2.0-M1`) | ⚠️ |
+| Plan | Player analytics: playtime, retention, peak hours (when we need guards) | ✅ |
+| NuVotifier | Votes from server list sites, rewarded in-game. Our main way to get found without Minehut | ⚠️ not on Modrinth, check |
 | VaultUnlocked | Economy bridge, only if another plugin needs our cash | ✅ |
 | **xUtilities** | Our own: everyday commands (instead of EssentialsX) | ✅ |
 | **zChat** | Our own: chat format + filter | ✅ |
@@ -130,6 +142,15 @@ Outside the plugin:
 
 - **Resource pack pipeline:** source art + models in this repo → build the Java pack → convert to a Bedrock pack + Geyser mappings → upload. Automate it in CI. See [resource pack](06-resource-pack.md).
 - **Guard applications:** start with a Discord form/ticket bot that already exists. Build our own bot only if it gets in the way.
+
+## Other things we need
+
+- **DDoS protection, including UDP.** Our server's IP is public, and Minecraft servers get attacked a lot. Bedrock connects over **UDP**, and many Minecraft DDoS proxies only protect Java's TCP. Rent from a host with solid DDoS filtering for both, or use a protection service that supports Bedrock.
+- **Minecraft EULA / usage guidelines.** If we ever sell things for real money, we **can't sell gameplay advantages** like guns, cash or armor. Cosmetics, ranks without gameplay perks, etc. are OK. Check Mojang's current rules before opening a store.
+- **Getting players.** No Minehut server list, so: list on Minecraft server sites (votes via NuVotifier), short-form video of escapes and riots, and the Discord.
+- **Staff tools.** Punishments (LibertyBans), anti-cheat alerts (Grim), block logs (CoreProtect), and reports. Guards are players with power over others, so staff need to be able to review guard abuse too.
+- **Backups and a recovery drill.** Raptor's backups for world files + nightly PostgreSQL dumps, and actually test restoring one.
+- **Monitoring.** spark for lag spikes, Plan for player trends, alerts to Discord when the server goes down.
 
 ## Build order
 

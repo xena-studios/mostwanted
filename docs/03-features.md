@@ -34,4 +34,4 @@ Sort ideas as we go. Move things between sections freely.
 
 - [ ] Vehicles (see [gameplay](02-gameplay.md#vehicles))
 - [ ] Seasonal events (holiday prison, riot weekend)
-- [ ] Store / ranks for monetization (check Minehut's rules first)
+- [ ] Store / ranks for monetization (cosmetic only, follow Mojang's EULA. See [tech](04-tech.md#other-things-we-need))
