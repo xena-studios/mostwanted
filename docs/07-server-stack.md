@@ -38,7 +38,8 @@ Why each choice was made is in [tech](04-tech.md).
 | --- | --- | --- | --- |
 | **PlaceholderAPI** | 2.12.3 | [Modrinth](https://modrinth.com/plugin/placeholderapi) | Our plugin exposes `%core_cash%`, `%core_bounty%`, etc. to other plugins |
 | **TAB** | 6.2.1 | [Modrinth](https://modrinth.com/plugin/tab-was-taken) | Tab list, name tags (team colors), sidebar scoreboard |
-| **DecentHolograms** | 2.10.2 | [Modrinth](https://modrinth.com/plugin/decentholograms) | Leaderboards, robbery signs, floating text |
+| **FancyHolograms** | 2.12.0 | [Modrinth](https://modrinth.com/plugin/fancyholograms) | Leaderboards, robbery signs, floating text. Uses display entities. ⚠️ check how they look on Bedrock |
+| **FancyNpcs** | 2.12.1 | [Modrinth](https://modrinth.com/plugin/fancynpcs) | Shopkeepers, guard armory, warden, quest/info NPCs. Packet-based, so cheap on the server |
 | **DiscordSRV** | 1.30.5 | [Modrinth](https://modrinth.com/plugin/discordsrv) | Account linking, Discord guard role → LuckPerms group, chat bridge |
 | **Chunky** | 1.5.3 | [Modrinth](https://modrinth.com/plugin/chunky) | Pre-generate the map once, then can be removed |
 
@@ -56,6 +57,11 @@ Why each choice was made is in [tech](04-tech.md).
 | --- | --- |
 | **core** | The whole game: teams, arrests, bounty, cash, robberies, riots, guns, custom items, shops, HUD, stats. See [what we build](04-tech.md#what-we-build-ourselves) |
 
+## ⚠️ Bedrock and the Fancy plugins
+
+- **FancyHolograms** uses text display entities. Bedrock has no display entities, so Geyser has to fake them, and that may look different or not show. Test a hologram with a Bedrock player early. If it's bad, FancyHolograms can also be set to the older armor stand style for key holograms (check its config).
+- **FancyNpcs** shows NPCs as fake players, which Geyser handles well. Test skins and click actions on Bedrock.
+
 ## ⚠️ Bedrock players and GrimAC
 
 Grim exempts Bedrock players from checks so they don't get false flags, but it finds them **through Floodgate**, which we can't use with Minehut. Without that, Bedrock players will probably get flagged and kicked.
@@ -67,11 +73,11 @@ Grim exempts Bedrock players from checks so they don't get false flags, but it f
 ```
 LuckPerms ─┐
 FAWE ──────┼─▶ WorldGuard ─┐
-PlaceholderAPI ────────────┼─▶ core (our plugin) ─▶ TAB / DecentHolograms read its placeholders
+PlaceholderAPI ────────────┼─▶ core (our plugin) ─▶ TAB / FancyHolograms / FancyNpcs read its placeholders
                            └─ DiscordSRV ─▶ LuckPerms (role sync)
 ```
 
-`core`'s `paper-plugin.yml` should depend on LuckPerms, WorldGuard and PlaceholderAPI.
+`core`'s `paper-plugin.yml` should depend on LuckPerms, WorldGuard and PlaceholderAPI, and soft-depend on FancyNpcs (to open shops when an NPC is clicked) and FancyHolograms (to update leaderboards).
 
 ## RAM budget (VPS-3, 12 GB)
 

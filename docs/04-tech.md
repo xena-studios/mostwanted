@@ -109,7 +109,8 @@ The full install list, with versions, links, start command and config checklist,
 - **EssentialsX:** xUtilities covers it, and Essentials' economy/kits/homes would fight our game.
 - **ItemsAdder / Oraxen / Nexo:** we only need a known set of items, and we need control over how they show on Bedrock. Paper's item model components + our own pack build are enough.
 - **Gun plugins (WeaponMechanics etc.):** we need guns that feel fair on Bedrock touch controls. Ours will be simple hitscan.
-- **Citizens:** for shopkeepers and NPCs we can use vanilla mannequin / display entities from our plugin. Revisit if we need walking NPCs.
+- **Citizens:** FancyNpcs covers our NPCs (shopkeepers, armory, info). Revisit only if we need NPCs that walk around or fight.
+- **DecentHolograms:** FancyHolograms instead.
 - **NeoSkript / Skript:** fine for quick tests, but the core game is too big and too performance-sensitive for scripts at 100 players.
 - **Velocity, Geyser, Floodgate:** Minehut does the proxy and Bedrock for us.
 - **xLimbo:** needs a proxy to send players back. Not needed without one.
