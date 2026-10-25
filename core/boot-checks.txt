@@ -1,0 +1,5 @@
+# The plugin on a real server, from the console. CI runs this on every change.
+run: prisonbreak info
+expect: PrisonBreak 0.1.0 on
+run: pb info
+expect: PrisonBreak 0.1.0 on
