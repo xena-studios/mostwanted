@@ -4,12 +4,10 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 
 ## Open
 
-1. **Hosting:** our own server (leaning, with Raptor) or Minehut? See [tech](04-tech.md#hosting). Note: 100 players in one world is a strong argument for our own dedicated machine.
-2. **Indirect criminal-vs-criminal kills:** which ones? Traps, snitching, stealing, sabotage? See [combat](02-gameplay.md#combat).
-3. **Riot rules:** how one starts, how it ends, cooldown. See [riots](02-gameplay.md#riots).
-4. **Guns:** existing plugin or our own? (leaning our own)
-5. **Guards:** how many do we need, can they go off duty, and what's the application process?
-6. **Name?** See [names](../ideas/names.md).
+1. **Indirect criminal-vs-criminal kills:** which ones? Traps, snitching, stealing, sabotage? See [combat](02-gameplay.md#combat).
+2. **Riot rules:** how one starts, how it ends, cooldown. See [riots](02-gameplay.md#riots).
+3. **Guards:** how many do we need, can they go off duty, and what's the application process?
+4. **Name?** See [names](../ideas/names.md).
 
 ## Decided
 
@@ -26,3 +24,6 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 - **Custom items:** guns, food, tools, and more through the resource pack. (2026-10-25)
 - **Version:** Minecraft 26.3, the latest Paper + Geyser both support. (2026-10-25)
 - **Size:** up to 100 players at once. (2026-10-25)
+- **Tech stack:** Paper 26.3 + Velocity + Geyser/Floodgate, our own dedicated server on Raptor, PostgreSQL, one custom Java plugin. Full list in [tech](04-tech.md). (2026-10-25)
+- **Guns:** our own hitscan guns, no gun plugin. (2026-10-25)
+- **Custom items:** our own plugin + pack pipeline, no ItemsAdder/Nexo. (2026-10-25)

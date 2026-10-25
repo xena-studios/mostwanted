@@ -60,10 +60,9 @@ Every custom item is a vanilla item underneath with a custom name and lore (e.g.
 | Robbery alarm sound | | 🟡 |
 | Prison jumpsuit | dyed leather armor (no pack) | 🟢 now, 🔴 if custom |
 
-## Tools to look into
+## Tools
 
-- **Rainbow / java2bedrock.sh** (GeyserMC): convert a Java pack into a Bedrock pack + Geyser mappings
-- **Item/pack plugins** like ItemsAdder, Oraxen or Nexo: manage custom items and build the Java pack. Check each one's Geyser/Bedrock support before picking
-- **Blockbench**: free tool for making models and textures. It can export for both Java and Bedrock
-
-Verify all of these against our Minecraft version before committing. The custom item system changed a lot in 1.21.x.
+- **Our `core` plugin** defines every custom item using Paper's item model components (decided). No ItemsAdder / Oraxen / Nexo. See [tech](04-tech.md#deliberately-not-using).
+- **Rainbow / java2bedrock.sh** (GeyserMC): convert the Java pack into a Bedrock pack + Geyser mappings. Pick whichever handles 26.3 item models.
+- **Blockbench**: free tool for making models and textures. It can export for both Java and Bedrock.
+- **CI**: build both packs automatically from the source files in this repo.

@@ -1,79 +1,146 @@
 # Tech
 
-## Hosting
+Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserMC the same day.
 
-Not decided yet. The preference is our own server, with Minehut as the fallback if it turns out to be the better option.
+## Summary
 
-| | Minehut | Our own server (VPS / dedicated box + [Raptor](https://github.com/xena-studios/raptor)) |
+| Layer | Choice |
+| --- | --- |
+| Minecraft version | **26.3** |
+| Game server | **Paper 26.3** (Java 25) |
+| Proxy | **Velocity** |
+| Bedrock | **Geyser + Floodgate** on Velocity |
+| Hosting | **Our own dedicated server, managed with [Raptor](https://github.com/xena-studios/raptor)** |
+| Database | **PostgreSQL** (player data, cash, stats, LuckPerms) |
+| Game logic | **One custom Java plugin** (working name `core`), built like [xena-studios/plugins](https://github.com/xena-studios/plugins) |
+| Custom items | **Our own**, using Paper's item model components. No ItemsAdder / Nexo |
+
+## Server software: Paper
+
+| Option | Verdict |
+| --- | --- |
+| **Paper** | ✅ **Pick.** The standard. First to update, every plugin and Geyser test against it, fast enough for 100 players with tuning. |
+| Purpur / Leaf / other forks | ❌ Extra config knobs and small speedups, but they update after Paper and add another thing that can break. Not worth it for us. |
+| Folia | ❌ Multi-threads by **map region**. Our players are packed into one prison and one city, which is mostly the same region, so Folia gains little and breaks many plugins (WorldGuard, for one). |
+| Spigot / Bukkit | ❌ Slower, and Paper is a drop-in replacement. |
+
+If Paper can't hold 100 players in load testing, the fix is profiling (spark) and tuning our plugin, not switching software.
+
+## Layout
+
+```
+                    ┌──────────────── one dedicated machine (Raptor) ────────────────┐
+Java players ──────▶│ Velocity proxy ──▶ Paper 26.3 "game" (the world)               │
+Bedrock players ───▶│  + Geyser          ──▶ Paper "limbo" (xLimbo: holds players     │
+                    │  + Floodgate             during restarts/crashes)               │
+                    │  + LuckPerms       PostgreSQL       Discord bot (later)         │
+                    │                    Paper "staging" (test server, not public)    │
+                    └─────────────────────────────────────────────────────────────────┘
+```
+
+## Hosting: our own server
+
+**Decided:** a dedicated machine we rent, managed with Raptor. At 100 players in one world, we need an always-on server with a fast CPU and full control over plugins, which Minehut can't really give us. What we give up is Minehut's server list, so we need a plan for getting players (server lists, Discord, TikTok/YouTube).
+
+**Machine:**
+- A recent **high-clock CPU**. Single-core speed matters most, because the world runs mostly on one thread.
+- **64 GB RAM**: ~16 GB for the game server, plus proxy, limbo, staging, PostgreSQL, and room to grow.
+- **NVMe** storage and off-machine **backups** (Raptor does encrypted backups).
+- A data center close to where most players are (likely North America).
+
+**Raptor caveat:** it's pre-launch with no uptime promise yet. Fine while we build. Revisit before public launch.
+
+## Plugins we use
+
+Checked 2026-10-25. ✅ = has a 26.3 build. ⚠️ = verify before installing.
+
+### Proxy (Velocity)
+
+| Plugin | Why | 26.3 |
 | --- | --- | --- |
-| **Cost** | Free tier, paid plans for more RAM/slots | Monthly rent for the machine. Check current prices |
-| **Getting players** | **Built-in server list.** New players find you without advertising | No built-in discovery. Server lists, Discord, TikTok/YouTube are on us |
-| **Bedrock** | Built in | Geyser + Floodgate plugins (standard, well documented) |
-| **Plugins** | Limited to what Minehut allows (verify) | Anything, including our own jars |
-| **Always on** | Free servers sleep when empty | Always on |
-| **Performance** | Shared, capped by plan | All the machine's CPU/RAM is ours |
-| **Address** | `name.minehut.gg` (custom domain on paid plans?) | Our own domain, e.g. `play.<name>.com` |
-| **Control** | Their panel, their rules | Full control: backups, files, versions, multiple servers later |
+| Geyser | Lets Bedrock players join | ✅ |
+| Floodgate | Bedrock players join without a Java account | ✅ |
+| LuckPerms | Ranks and permissions, synced across servers through PostgreSQL | ✅ |
 
-**Leaning:** our own server running Raptor. A persistent Jailbreak-style world with custom logic needs to be always on and able to run any plugin, and we'd be testing Raptor on a real server at the same time. The big thing we give up is Minehut's player discovery, so we'd need a plan for getting players.
+### Game server (Paper)
 
-Caveat: Raptor is pre-launch with no uptime promise yet. That's fine while we build and test. Revisit before opening to the public.
+| Plugin | Why | 26.3 |
+| --- | --- | --- |
+| Floodgate | Our plugin uses its API to detect Bedrock players and show them forms | ✅ |
+| LuckPerms | Ranks: prisoner, guard, staff | ✅ |
+| WorldGuard + WorldEdit | Regions (prison, safe zones, robbery spots) that our plugin reads. Building tools for the map | ✅ |
+| FastAsyncWorldEdit | Faster edits for big builds. Building only; can be left off live | ✅ |
+| PacketEvents | Packet library our plugin and Grim use | ✅ |
+| GrimAC | Anti-cheat with proper Bedrock (Geyser) handling | ✅ |
+| CoreProtect | Logs and rollback of block changes (griefing, staff investigations) | ⚠️ latest build tagged 26.2 |
+| spark | Performance profiling | ✅ |
+| PlaceholderAPI | Shares our stats (cash, bounty) with TAB and other plugins | ✅ |
+| TAB | Tab list, name tags, scoreboard. Works on Bedrock | ✅ |
+| DiscordSRV | Discord ↔ Minecraft account linking, Discord role → LuckPerms group sync, chat bridge | ✅ |
+| DecentHolograms | Floating text (leaderboards, robbery signs) | ✅ |
+| Chunky | Pre-generate the map so it doesn't lag on first load | ✅ |
+| VaultUnlocked | Economy bridge, only if another plugin needs our cash | ✅ |
+| **xUtilities** | Our own: everyday commands (instead of EssentialsX) | ✅ |
+| **zChat** | Our own: chat format + filter | ✅ |
 
-### Minehut things to check (if we go that way)
+### Limbo server
 
-- [x] Bedrock support: Minehut has it built in
-- [ ] Which plan / tier we'd need (RAM, player slots)
-- [ ] Can we upload our own plugin jars?
-- [ ] Monetization rules (what we're allowed to sell)
+| Plugin | Why | 26.3 |
+| --- | --- | --- |
+| **xLimbo** | Our own: catches players when the game server restarts or crashes, then sends them back | ✅ |
 
-## Stack (ideas)
+### Deliberately not using
 
-- **Minecraft version**: **26.3**, the latest version everything supports (decided, checked 2026-10-25). Paper 26.3 has stable builds (needs Java 25), and Geyser supports Java 26.3 and current Bedrock versions. Re-check plugins as we pick them.
-- **Server software**: Paper
-- **Scripting**: [NeoSkript](https://github.com/xena-studios/neoskript) for fast iteration on game logic, if Minehut allows it. Otherwise standard Skript
-- **Our plugins**: [xUtilities, zChat, xLimbo](https://github.com/xena-studios/plugins) where they fit
-- **Maps**: WorldEdit / FAWE for building, a world-reset plugin for round-based play
-- **Maps**: built by Zachary
+- **EssentialsX:** xUtilities covers it, and Essentials' economy/kits/homes would fight our game.
+- **ItemsAdder / Oraxen / Nexo:** we only need a known set of items, and we need control over how they show on Bedrock. Paper's item model components + our own pack build are enough.
+- **Gun plugins (WeaponMechanics etc.):** we need guns that feel fair on Bedrock touch controls. Ours will be simple hitscan.
+- **Citizens:** for shopkeepers and NPCs we can use vanilla mannequin / display entities from our plugin. Revisit if we need walking NPCs.
+- **NeoSkript / Skript:** fine for quick tests, but the core game is too big and too performance-sensitive for scripts at 100 players.
 
-## Handling 100 players
+## What we build ourselves
 
-Target: **up to 100 players online at once** (decided), all in one persistent world.
+One plugin, `core`, in **Java 25**, built with Gradle like [xena-studios/plugins](https://github.com/xena-studios/plugins) (reuse its `build-logic` conventions and CI boot tests). Each system is a module inside it:
 
-- **One world means one game server.** We can't split one map across servers, so it all runs on a single Paper server. That's the bottleneck. Minecraft does most of its work on one CPU core, so **single-core speed matters more than core count**.
-- **Setup:**
-  ```
-  Java players ───────┐
-                      ├──▶ Velocity proxy (+ Geyser + Floodgate) ──▶ Paper 26.3 game server
-  Bedrock players ────┘
-  ```
-  Running Geyser on the proxy keeps Bedrock translation work off the game server and leaves room for a lobby or second server later.
-- **Machine:** a dedicated server (not a shared VPS) with a recent high-clock CPU, NVMe storage, and enough RAM for ~12–16 GB for the game server plus the proxy. Rough numbers. Confirm with load tests.
-- **Things that eat performance at 100 players:** lots of entities, redstone, too many bullets as real projectiles (another reason for instant-hit guns), big view distance. Tune `view-distance` / `simulation-distance` and Paper's entity limits.
-- **Load test before launch.** Use bots (and a real playtest night) to check 100 players running around the city with guns.
-- **Folia** (multi-threaded Paper) could handle more players in one world, but many plugins don't work on it. NeoSkript does. Keep it as a backup plan if Paper can't hold 100.
+| # | System | What it does |
+| --- | --- | --- |
+| 1 | **Player state** | Inmate / criminal / guard (on/off duty), saved in PostgreSQL. Detects crossing the prison boundary (WorldGuard region). |
+| 2 | **Combat rules** | Who can damage who (the table in [gameplay](02-gameplay.md#combat)), safe zones, death = arrest. |
+| 3 | **Arrests** | Handcuffs, taser, jail time based on bounty, losing unbanked cash. |
+| 4 | **Bounty** | Goes up from robberies and killing guards. Paid to the guard who makes the arrest. |
+| 5 | **Economy** | Cash (unbanked vs. banked at a criminal base), guard salary, all stored in PostgreSQL. |
+| 6 | **Robberies** | Locations, open/close timers, announcements, alarms, payouts scaled by guards online. |
+| 7 | **Escapes** | Breakable walls that regenerate, keycard doors, vents/sewers. |
+| 8 | **Riots** | Start conditions, prison PvP on during a riot, alerts, end conditions, cooldown. |
+| 9 | **Guns** | Hitscan guns, ammo, reload, damage, cooldowns. Same feel on Java and Bedrock. |
+| 10 | **Custom items** | Registry of every custom item (guns, food, tools, contraband) using item model components. Each is a vanilla item underneath. |
+| 11 | **Shops** | Criminal base shop, guard armory. Chest GUI on Java, Floodgate forms on Bedrock. |
+| 12 | **Indirect criminal kills** | Traps, snitching, stealing, sabotage (once we pick which). |
+| 13 | **Guard duty** | On/off duty, guard loadout, guards-online count. The guard rank itself comes from LuckPerms through DiscordSRV. |
+| 14 | **HUD** | Bounty, cash, wanted level, robbery status: boss bar / action bar, plus placeholders for TAB. |
+| 15 | **Stats & leaderboards** | Escapes, arrests, cash earned, robberies. Holograms + Discord. |
 
-## Discord
+Outside the plugin:
 
-- Guard applications happen in Discord (form, ticket or bot). Approved players get the guard rank.
-- **Account linking** between Discord and Minecraft (e.g. DiscordSRV-style linking) so the Discord role and in-game rank stay in sync. It has to work for Bedrock players too (Floodgate accounts).
-- Raptor can host Discord bots, so a custom bot could live on the same machine.
+- **Resource pack pipeline:** source art + models in this repo → build the Java pack → convert to a Bedrock pack + Geyser mappings → upload. Automate it in CI. See [resource pack](06-resource-pack.md).
+- **Guard applications:** start with a Discord form/ticket bot that already exists. Build our own bot only if it gets in the way.
+
+## Build order
+
+1. **Foundation:** set up the machine with Raptor; Velocity + Geyser + Floodgate + Paper + LuckPerms + PostgreSQL; join from Java and Bedrock.
+2. **Core loop:** player state, combat rules, arrests, bounty, economy, one robbery. Playable on a test map.
+3. **Custom items + guns + resource pack** (Java and Bedrock).
+4. **Escapes, riots, shops, HUD.**
+5. **Discord:** linking, guard rank sync, applications.
+6. **Polish:** stats, leaderboards, indirect kills, more robberies.
+7. **Load test 100 players**, fix what spark shows, then launch.
 
 ## Java + Bedrock
 
-Both editions can join (decided), through Minehut's built-in support or Geyser + Floodgate on our own server. Things to keep in mind:
+Both editions can join (decided), through Geyser + Floodgate on the proxy. Things to keep in mind:
 
-- **Menus:** chest GUIs work on Bedrock but can feel clunky. Keep them simple, or use Bedrock forms where we can.
+- **Menus:** chest GUIs work on Bedrock but can feel clunky. Our plugin shows Bedrock players native forms (Floodgate's Forms API) and Java players chest GUIs.
 - **Custom items / resource packs:** Java packs don't work on Bedrock. We need a separate Bedrock pack sent through Geyser. See [resource pack](06-resource-pack.md).
 - **Combat:** Java and Bedrock PvP feel different (attack cooldown, reach, touch controls). Test fights between a Java player and a Bedrock player early.
-- **Usernames:** Bedrock players usually get a prefix (like `.Name`). Make sure our scripts/plugins handle that.
+- **Usernames:** Bedrock players usually get a prefix (like `.Name`). Store players by UUID, never by name.
 - **Test everything on both**, phone and console included, not just PC.
 
-## Build vs. buy
-
-| Piece | Existing plugin? | Build ourselves? | Notes |
-| --- | --- | --- | --- |
-| Teams, bounty, arrests | | | Probably custom |
-| Robbery locations + timers | | | |
-| Shop / gear | | | |
-| PvP rules / safe zones | | | |
-| Economy | | | |
