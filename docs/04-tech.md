@@ -10,7 +10,7 @@ Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserM
 | Game server | **Leaf 26.3** (Paper fork, Java 25). Paper is the fallback |
 | Proxy | **Velocity** |
 | Bedrock | **Geyser + Floodgate** on Velocity |
-| Hosting | **Our own dedicated server, managed with [Raptor](https://github.com/xena-studios/raptor)** |
+| Hosting | **OVH US VPS-4 to start (US East, ~$27.50/mo), upgrade to dedicated as we grow. Managed with [Raptor](https://github.com/xena-studios/raptor)** |
 | Database | **PostgreSQL** (player data, cash, stats, LuckPerms) |
 | Game logic | **One custom Java plugin** (working name `core`), built like [xena-studios/plugins](https://github.com/xena-studios/plugins) |
 | Custom items | **Our own**, using Paper's item model components. No ItemsAdder / Nexo |
@@ -75,28 +75,37 @@ Researched 2026-10-25. **Prices are moving.** A DDR5/NVMe shortage since late 20
 | 3rd | [BudgetVM](https://www.budgetvm.com/amd-ryzen-dedicated-server-hosting/) 9900X / 9950X | Ryzen 9 9900X / 9950X | 64 / 128 GB | $197 / $209/mo | More headroom, many US cities. Ask exactly how their DDoS filtering handles Minecraft + Bedrock UDP before buying |
 | ❌ skip | OVH Game-1/2 (2026), Pufferfish Host, GameServerKings, ReliableSite, etc. | 9800X3D / 9950X(3D) | | $357–550+/mo | Great hardware, but 4–7× the price of RISE-S for performance we don't need yet |
 
-**Budget: under $50/mo** (decided 2026-10-25). None of the above fit, so we **start small and upgrade as the player count grows**. We won't have 100 players on day one.
+**Budget: under $50 for the first month, setup fee included, in US East** (decided 2026-10-25). That rules out every dedicated server above: KS-GAME is $32.10 + $32.10 setup = $64.20, and it isn't confirmed in the US. So we **start on a VPS and upgrade as the player count grows**. We won't have 100 players on day one.
 
-| Stage | Server | CPU / RAM | Price | Roughly handles* |
+| Stage | Server | Specs | Price | Roughly handles* |
 | --- | --- | --- | --- | --- |
-| **Launch** ⭐ | [OVH **KS-GAME**](https://eco.ovhcloud.com/en/game/) | Intel i7-7700K (4 cores, 4.5 GHz) / 32 GB DDR4 | **$32.10/mo** + $32.10 setup | ~40–60 players |
-| **Growing** | OVH **RISE-S** (above) | Ryzen 7 9700X / 64 GB DDR5 | $77/mo | 100 |
+| **Launch** ⭐ | [OVH US **VPS-4**](https://us.ovhcloud.com/vps/) | 8 vCores (shared), 24 GB RAM, 200 GB NVMe, 3 Gbps | **~$27.50/mo** monthly, no commitment ($23.37 with 12-month prepay) | ~20–40 players |
+| **Growing** | OVH **KS-GAME** or another cheap dedicated box | i7-7700K / 32 GB | $32.10/mo + setup | ~40–60 |
+| **Big** | OVH **RISE-S** | Ryzen 7 9700X / 64 GB DDR5 | $77/mo | 100 |
 
 \*Guesses. Depends mostly on how efficient our plugin is. The load test tells us for real.
 
-Why KS-GAME: it's a **real dedicated server** (no noisy neighbors), has OVH's **game DDoS** protection, has 32 GB RAM and NVMe, and costs less than most game VPSes. The CPU is from 2017, so it's about half as fast per core as the 9700X. That's fine for building, testing, and the first months of players.
+Why VPS-4:
+- **Fits the budget with lots of room:** about half of $50 for the first month.
+- **US East:** OVH's US VPS data center is **Vint Hill, Virginia** (third-party listing, confirm in the order form).
+- **Anti-DDoS included** on all OVH VPSes, plus daily backups.
+- **24 GB RAM** is enough for the game server, proxy, limbo and PostgreSQL.
 
-Under-$50 alternative: a **Ryzen 9 "game VPS"** (16–24 GB) from a host with Minecraft DDoS filtering. Faster per core than the 7700K, but shared hardware and less RAM. Only worth it if KS-GAME is out of stock.
+Downsides:
+- **Shared vCores** and an undisclosed CPU model, so single-core speed is unknown and can vary with neighbors. Run spark/benchmarks in the first week. If it's bad, cancel. It's month to month.
+- Standard OVH anti-DDoS, not the Game filter. Check that UDP 19132 (Bedrock) gets through and is protected.
 
-**Making 32 GB fit:**
-- Game server ~14 GB, Velocity ~1 GB, limbo ~512 MB, PostgreSQL ~1–2 GB, plus the OS.
+Ruled out for this budget: Goodleaf Ryzen 9950X VPS (great CPU, but only 6 GB RAM under $50), Bloom Host (8 GB for $22–30), Hetzner Cloud (2026 price increases of 2–2.6× in the US).
+
+**Making 24 GB fit:**
+- Game server ~12 GB, Velocity ~1 GB, limbo ~512 MB, PostgreSQL ~1–2 GB, plus the OS.
 - **Run staging on your own PC**, not on the server.
 - 300 Mbps is enough. Minecraft uses roughly 0.5–1 Mbps per player.
 
-**Upgrade trigger:** when we regularly hit ~40 players online, or MSPT stays above ~40 at peak, move to RISE-S: restore the backups on the new box and point the domain at it.
+**Upgrade trigger:** when we regularly hit ~25–30 players online, or MSPT stays above ~40 at peak, move up a stage: restore the backups on the new box and point the domain at it.
 
 **Before paying:**
-- Confirm the final price, setup fee, stock and **location** on OVH's order page. KS-GAME's page didn't say which data centers have it. We want Beauharnois (Canada) or a US site, not France.
+- Confirm the final price, setup fee, stock and **location** on OVH's order page. Pick **US East (Vint Hill, VA)**.
 - Check OVH's anti-DDoS / edge firewall settings cover UDP on Geyser's port (19132).
 - Pay monthly at first. Commit long-term only once it's proven.
 
