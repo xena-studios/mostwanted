@@ -59,7 +59,7 @@ Why each choice was made is in [tech](04-tech.md).
 
 ## ⚠️ Bedrock and the Fancy plugins
 
-- **FancyHolograms** uses text display entities. Bedrock has no display entities, so Geyser has to fake them, and that may look different or not show. Test a hologram with a Bedrock player early. If it's bad, FancyHolograms can also be set to the older armor stand style for key holograms (check its config).
+- **FancyHolograms** uses text display entities. Bedrock has no display entities, so Geyser has to fake them, and that may look different or not show. Test a hologram with a Bedrock player early. If it's bad, important info (robbery open/closed, bounty) should also go in chat, the action bar or the scoreboard, not only in holograms.
 - **FancyNpcs** shows NPCs as fake players, which Geyser handles well. Test skins and click actions on Bedrock.
 
 ## ⚠️ Bedrock players and GrimAC
