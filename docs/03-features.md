@@ -25,6 +25,8 @@ Sort ideas as we go. Move things between sections freely.
 - [ ] Stats and leaderboards (fastest escape, most escapes, most catches)
 - [ ] Discord integration
 
+- [ ] Resource pack v1 (Java + Bedrock): simple custom items. See [resource pack](06-resource-pack.md)
+
 ## Later
 
 - [ ] Vehicles (see [gameplay](02-gameplay.md#vehicles))

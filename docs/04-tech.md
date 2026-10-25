@@ -39,7 +39,7 @@ Caveat: Raptor is pre-launch with no uptime promise yet. That's fine while we bu
 Both editions can join (decided), through Minehut's built-in support or Geyser + Floodgate on our own server. Things to keep in mind:
 
 - **Menus:** chest GUIs work on Bedrock but can feel clunky. Keep them simple, or use Bedrock forms where we can.
-- **Custom items / resource packs:** Java packs don't automatically work on Bedrock. Stick to vanilla items with custom names/lore at first.
+- **Custom items / resource packs:** Java packs don't work on Bedrock. We need a separate Bedrock pack sent through Geyser. See [resource pack](06-resource-pack.md).
 - **Combat:** Java and Bedrock PvP feel different (attack cooldown, reach, touch controls). Test fights between a Java player and a Bedrock player early.
 - **Usernames:** Bedrock players usually get a prefix (like `.Name`). Make sure our scripts/plugins handle that.
 - **Test everything on both**, phone and console included, not just PC.
