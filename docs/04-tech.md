@@ -7,7 +7,7 @@ Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserM
 | Layer | Choice |
 | --- | --- |
 | Minecraft version | **26.3** |
-| Game server | **Paper 26.3** (Java 25) |
+| Game server | **Leaf 26.3** (Paper fork, Java 25). Paper is the fallback |
 | Proxy | **Velocity** |
 | Bedrock | **Geyser + Floodgate** on Velocity |
 | Hosting | **Our own dedicated server, managed with [Raptor](https://github.com/xena-studios/raptor)** |
@@ -15,26 +15,32 @@ Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserM
 | Game logic | **One custom Java plugin** (working name `core`), built like [xena-studios/plugins](https://github.com/xena-studios/plugins) |
 | Custom items | **Our own**, using Paper's item model components. No ItemsAdder / Nexo |
 
-## Server software: Paper
+## Server software: Leaf
 
 | Option | Verdict |
 | --- | --- |
-| **Paper** | ✅ **Pick.** The standard. First to update, every plugin and Geyser test against it, fast enough for 100 players with tuning. |
-| Purpur / Leaf / other forks | ❌ Extra config knobs and small speedups, but they update after Paper and add another thing that can break. Not worth it for us. |
+| **Leaf** | ✅ **Pick.** Paper fork built for performance. Runs pathfinding, mob spawning and the **entity tracker** off the main thread. The entity tracker gets expensive fast as player count grows, so this is exactly the work that hurts at 100 players. It also includes Purpur's config options. Has a 26.3 build. |
+| Purpur | 🟡 Good, lots of gameplay config, but its speedups are small. Leaf already includes Purpur's options. |
+| Paper | 🟡 **Fallback.** The most stable, but leaves performance on the table at 100 players. Leaf runs Paper plugins, so switching back is a jar swap. |
 | Folia | ❌ Multi-threads by **map region**. Our players are packed into one prison and one city, which is mostly the same region, so Folia gains little and breaks many plugins (WorldGuard, for one). |
-| Spigot / Bukkit | ❌ Slower, and Paper is a drop-in replacement. |
+| Spigot / Bukkit | ❌ Slower, and Paper-based servers are drop-in replacements. |
 
-If Paper can't hold 100 players in load testing, the fix is profiling (spark) and tuning our plugin, not switching software.
+**Updating late is fine.** Leaf/Purpur can trail Paper on new Minecraft versions, but **ViaVersion** lets newer clients join until the server catches up. It also covers Geyser, which always speaks the newest Java version.
+
+**Risks and how we handle them:**
+- Async features can clash with plugins that touch entities in unusual ways. Our `core` plugin sticks to the normal Paper API. Every async option is a config toggle, so we turn off whatever causes trouble.
+- Leaf's own README says to back up before switching. Raptor does backups, and we test every update on **staging** first.
+- If Leaf ever causes problems we can't fix, swap the jar for Paper. Nothing else changes.
 
 ## Layout
 
 ```
                     ┌──────────────── one dedicated machine (Raptor) ────────────────┐
-Java players ──────▶│ Velocity proxy ──▶ Paper 26.3 "game" (the world)               │
+Java players ──────▶│ Velocity proxy ──▶ Leaf 26.3 "game" (the world)                │
 Bedrock players ───▶│  + Geyser          ──▶ Paper "limbo" (xLimbo: holds players     │
                     │  + Floodgate             during restarts/crashes)               │
                     │  + LuckPerms       PostgreSQL       Discord bot (later)         │
-                    │                    Paper "staging" (test server, not public)    │
+                    │                    Leaf "staging" (test server, not public)     │
                     └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -62,11 +68,12 @@ Checked 2026-10-25. ✅ = has a 26.3 build. ⚠️ = verify before installing.
 | Floodgate | Bedrock players join without a Java account | ✅ |
 | LuckPerms | Ranks and permissions, synced across servers through PostgreSQL | ✅ |
 
-### Game server (Paper)
+### Game server (Leaf)
 
 | Plugin | Why | 26.3 |
 | --- | --- | --- |
 | Floodgate | Our plugin uses its API to detect Bedrock players and show them forms | ✅ |
+| ViaVersion | Lets newer Java clients (and Geyser) join while the server is still on an older version | ✅ |
 | LuckPerms | Ranks: prisoner, guard, staff | ✅ |
 | WorldGuard + WorldEdit | Regions (prison, safe zones, robbery spots) that our plugin reads. Building tools for the map | ✅ |
 | FastAsyncWorldEdit | Faster edits for big builds. Building only; can be left off live | ✅ |
@@ -126,7 +133,7 @@ Outside the plugin:
 
 ## Build order
 
-1. **Foundation:** set up the machine with Raptor; Velocity + Geyser + Floodgate + Paper + LuckPerms + PostgreSQL; join from Java and Bedrock.
+1. **Foundation:** set up the machine with Raptor; Velocity + Geyser + Floodgate + Leaf + ViaVersion + LuckPerms + PostgreSQL; join from Java and Bedrock.
 2. **Core loop:** player state, combat rules, arrests, bounty, economy, one robbery. Playable on a test map.
 3. **Custom items + guns + resource pack** (Java and Bedrock).
 4. **Escapes, riots, shops, HUD.**

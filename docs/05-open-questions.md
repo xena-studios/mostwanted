@@ -24,6 +24,6 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 - **Custom items:** guns, food, tools, and more through the resource pack. (2026-10-25)
 - **Version:** Minecraft 26.3, the latest Paper + Geyser both support. (2026-10-25)
 - **Size:** up to 100 players at once. (2026-10-25)
-- **Tech stack:** Paper 26.3 + Velocity + Geyser/Floodgate, our own dedicated server on Raptor, PostgreSQL, one custom Java plugin. Full list in [tech](04-tech.md). (2026-10-25)
+- **Tech stack:** Leaf 26.3 (Paper as fallback) + Velocity + ViaVersion + Geyser/Floodgate, our own dedicated server on Raptor, PostgreSQL, one custom Java plugin. Full list in [tech](04-tech.md). (2026-10-25)
 - **Guns:** our own hitscan guns, no gun plugin. (2026-10-25)
 - **Custom items:** our own plugin + pack pipeline, no ItemsAdder/Nexo. (2026-10-25)
