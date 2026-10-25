@@ -4,7 +4,7 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 
 ## Open
 
-1. **Minehut External:** can we still buy the External plan (one source says it's partner-only now)? Can external servers supply a Bedrock resource pack + custom item mappings? Does Minehut publish IP ranges for the firewall? How are Bedrock players marked?
+1. **Minehut External:** can we still buy the External plan (one source says it's partner-only now)? Can external servers supply a Bedrock resource pack + custom item mappings? Does Minehut publish IP ranges for the firewall? How are Bedrock players marked? (needed so GrimAC doesn't false-flag them)
 2. **Indirect criminal-vs-criminal kills:** which ones? Traps, snitching, stealing, sabotage? See [combat](02-gameplay.md#combat).
 3. **Riot rules:** how one starts, how it ends, cooldown. See [riots](02-gameplay.md#riots).
 4. **Guards:** how many do we need, can they go off duty, and what's the application process?

@@ -102,30 +102,7 @@ So the final call is made with data: in the load test, run the same 100-bot test
 
 ## Plugins we use
 
-Checked 2026-10-25. ✅ = has a 26.3 build. ⚠️ = verify before installing.
-
-| Plugin | Why | 26.3 |
-| --- | --- | --- |
-| ViaVersion | Lets newer Java clients join while the server is still on an older version | ✅ (snapshot) |
-| LuckPerms | Ranks: prisoner, guard, staff | ✅ |
-| WorldGuard + WorldEdit | Regions (prison, safe zones, robbery spots) that our plugin reads. Building tools for the map | ✅ |
-| FastAsyncWorldEdit | Faster edits for big builds. Building only; can be left off live | ✅ |
-| PacketEvents | Packet library our plugin and Grim use | ✅ |
-| GrimAC | Anti-cheat. Check how it detects Bedrock players coming through Minehut (no local Floodgate) | ✅ ⚠️ |
-| CoreProtect | Logs and rollback of block changes (griefing, staff investigations) | ⚠️ latest build tagged 26.2 |
-| spark | Performance profiling | ✅ |
-| PlaceholderAPI | Shares our stats (cash, bounty) with TAB and other plugins | ✅ |
-| TAB | Tab list, name tags, scoreboard | ✅ |
-| DiscordSRV | Discord ↔ Minecraft account linking, Discord role → LuckPerms group sync, chat bridge | ✅ |
-| DecentHolograms | Floating text (leaderboards, robbery signs) | ✅ |
-| Chunky | Pre-generate the map so it doesn't lag on first load | ✅ |
-| LibertyBans | Bans, mutes, warnings | ⚠️ 26.3 build is a milestone (`1.2.0-M1`) |
-| Plan | Player analytics: playtime, retention, peak hours (when we need guards) | ✅ |
-| VaultUnlocked | Economy bridge, only if another plugin needs our cash | ✅ |
-| **xUtilities** | Our own: everyday commands (instead of EssentialsX) | ✅ |
-| **zChat** | Our own: chat format + filter | ✅ |
-
-NuVotifier (server list votes) is optional now that Minehut's list is our main source of players.
+The full install list, with versions, links, start command and config checklist, is in **[server stack](07-server-stack.md)**.
 
 ### Deliberately not using
 
@@ -136,6 +113,8 @@ NuVotifier (server list votes) is optional now that Minehut's list is our main s
 - **NeoSkript / Skript:** fine for quick tests, but the core game is too big and too performance-sensitive for scripts at 100 players.
 - **Velocity, Geyser, Floodgate:** Minehut does the proxy and Bedrock for us.
 - **xLimbo:** needs a proxy to send players back. Not needed without one.
+- **WorldEdit:** FastAsyncWorldEdit replaces it.
+- **spark (plugin):** already built into Paper/Leaf.
 
 ## What we build ourselves
 
@@ -174,7 +153,7 @@ Outside the plugin:
 
 ## Build order
 
-1. **Foundation:** confirm Minehut External; set up the VPS with Raptor; Leaf + ViaVersion + LuckPerms + PostgreSQL; Minehut External settings; join from Java **and** Bedrock through Minehut.
+1. **Foundation:** confirm Minehut External; set up the VPS with Raptor; Leaf + the must-have plugins from [server stack](07-server-stack.md) + PostgreSQL; Minehut External settings; join from Java **and** Bedrock through Minehut.
 2. **Core loop:** player state, combat rules, arrests, bounty, economy, one robbery. Playable on a test map.
 3. **Custom items + guns + resource pack** (Java first, then Bedrock if Minehut supports custom Bedrock packs).
 4. **Escapes, riots, shops, HUD.**

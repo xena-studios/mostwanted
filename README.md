@@ -14,6 +14,7 @@ There's no final name yet. `prison-break` is a placeholder, and the repo can be 
 | [`docs/04-tech.md`](docs/04-tech.md) | Decided stack: server software, plugins, what we build, build order |
 | [`docs/05-open-questions.md`](docs/05-open-questions.md) | Decisions we still need to make |
 | [`docs/06-resource-pack.md`](docs/06-resource-pack.md) | Custom textures and items on Java + Bedrock |
+| [`docs/07-server-stack.md`](docs/07-server-stack.md) | Install list: server software, every plugin + version, start command, config |
 | [`ideas/`](ideas/) | Raw ideas. Anything goes; drop a file in here |
 | [`ideas/names.md`](ideas/names.md) | Server name candidates |
 
