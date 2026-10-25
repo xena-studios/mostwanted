@@ -75,7 +75,7 @@ Researched 2026-10-25. **Prices are moving.** A DDR5/NVMe shortage since late 20
 | 3rd | [BudgetVM](https://www.budgetvm.com/amd-ryzen-dedicated-server-hosting/) 9900X / 9950X | Ryzen 9 9900X / 9950X | 64 / 128 GB | $197 / $209/mo | More headroom, many US cities. Ask exactly how their DDoS filtering handles Minecraft + Bedrock UDP before buying |
 | ❌ skip | OVH Game-1/2 (2026), Pufferfish Host, GameServerKings, ReliableSite, etc. | 9800X3D / 9950X(3D) | | $357–550+/mo | Great hardware, but 4–7× the price of RISE-S for performance we don't need yet |
 
-**Plan:** order a **RISE-S** in **Vint Hill** or **Beauharnois**. If it's out of stock, get a **Rise-Game-2**. Since Raptor backs up and moves servers, upgrading later to an X3D chip (big Minecraft gains from the extra cache) is easy if the server outgrows it.
+**Plan:** order a **RISE-S** in **Vint Hill** or **Beauharnois**. If it's out of stock, get a **Rise-Game-2**. Moving later means restoring a backup on the new box, so upgrading to an X3D chip (big Minecraft gains from the extra cache) is easy if the server outgrows it.
 
 **Before paying:**
 - Confirm the final price, setup fee and stock on OVH's order page (pick the location).
