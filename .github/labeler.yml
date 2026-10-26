@@ -2,6 +2,15 @@
 core:
   - changed-files:
       - any-glob-to-any-file: core/**
+website:
+  - changed-files:
+      - any-glob-to-any-file: website/**
+resource-pack:
+  - changed-files:
+      - any-glob-to-any-file: resource-pack/**
+server:
+  - changed-files:
+      - any-glob-to-any-file: server/**
 build:
   - changed-files:
       - any-glob-to-any-file: [build-logic/**, gradle/**, "*.gradle.kts", scripts/**, .github/workflows/**]

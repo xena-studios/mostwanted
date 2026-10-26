@@ -27,6 +27,9 @@ The jars land in `<module>/build/libs/`.
 ```
 build-logic/   the xena.java and xena.plugin Gradle conventions every plugin applies
 core/          the game plugin (PrisonBreak): every system the server runs
+website/       the website and store
+resource-pack/ source art and models for the custom items
+server/        the configs the live server runs (never secrets)
 docs/          the design: gameplay, tech, server stack, decisions
 scripts/       boot-test.sh, changelog.sh, new-minecraft.sh
 ```
