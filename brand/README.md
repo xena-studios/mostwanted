@@ -1,6 +1,6 @@
 # Brand
 
-MostWanted's logo and images. The rules (colours, naming, the in-game palette) are in [docs/09-brand.md](../docs/09-brand.md).
+MostWanted's logo and images. The rules (colours, naming, the in-game palette) are in [docs/09-brand.md](../docs/09-brand.md). MostWanted is also a product brand in [xena-studios/brand](https://github.com/xena-studios/brand#mostwanted), which makes the README banner (`.github/assets/banner.png`) and the GitHub social preview from these sources.
 
 **The look:** the pixel-art desert, blurred, with the chunky orange logo centred on top.
 
