@@ -10,7 +10,7 @@ Decided 2026-10-25.
 | Hosting | **Cloudflare** (Workers static assets), free tier |
 | Store | **[Tebex](https://tebex.io)**, through its [Headless API](https://docs.tebex.io/developers/headless-api/overview) |
 | Delivery | The **Tebex plugin** on the game server runs the commands for each purchase |
-| Domain | ⏳ waiting on the server name |
+| Domain | **mostwantedmc.com**: the site at the root, `play.` for the server address, `store.` if the store needs its own |
 
 ## Pages
 
@@ -38,7 +38,7 @@ Player on our site ──▶ Store page (our design, packages from Tebex's API)
                           ▼
               Tebex plugin on our server ──▶ runs commands
                                               e.g. lp user <name> parent add vip
-                                                   prisonbreak cosmetic give <name> <id>
+                                                   mostwanted cosmetic give <name> <id>
 ```
 
 - The Tebex plugin connects **out** to Tebex, so Minehut sitting in front of the server doesn't matter.
@@ -120,7 +120,8 @@ Each stat is a counter or a record in PostgreSQL, keyed by **UUID** (the player'
 
 ## Still to do
 
-- [ ] Pick the server name, then buy the domain
+- [x] Pick the server name: **MostWanted**
+- [ ] Register **mostwantedmc.com** (Cloudflare Registrar)
 - [ ] Create the Tebex store and its packages
 - [ ] Build the site (separate PR)
 - [ ] Add Tebex to the [server stack](07-server-stack.md) once the store exists

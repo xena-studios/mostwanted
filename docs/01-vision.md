@@ -2,7 +2,7 @@
 
 ## One-liner
 
-"Jailbreak, but Minecraft." Guards vs. prisoners in one persistent open world. Break out, rob the city, and stay ahead of the guards. Or be the guard who brings them back.
+**MostWanted.** "Jailbreak, but Minecraft." Guards vs. prisoners in one persistent open world. Break out, rob the city, and stay ahead of the guards. Or be the guard who brings them back.
 
 ## Who it's for
 

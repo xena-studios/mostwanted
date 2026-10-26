@@ -12,7 +12,7 @@ Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserM
 | Front door | **[Minehut External Server](https://support.minehut.com/hc/en-us/articles/33252734474899-How-to-Setup-a-Minehut-External-Hosted-Server)**: players join through Minehut's network |
 | Bedrock | **Minehut** handles it (their built-in Geyser) |
 | Database | **PostgreSQL** (small, on the same VPS) |
-| Game logic | **One custom Java plugin**, PrisonBreak (the `core` module), built like [xena-studios/plugins](https://github.com/xena-studios/plugins) |
+| Game logic | **One custom Java plugin**, MostWanted (the `core` module), built like [xena-studios/plugins](https://github.com/xena-studios/plugins) |
 | Custom items | **Our own**, using Paper's item model components. No ItemsAdder / Nexo |
 
 ## How players connect
@@ -119,7 +119,7 @@ The full install list, with versions, links, start command and config checklist,
 
 ## What we build ourselves
 
-One plugin, **PrisonBreak** (the `core` module), in **Java 25**, built with Gradle like [xena-studios/plugins](https://github.com/xena-studios/plugins) (reuse its `build-logic` conventions and CI boot tests). Each system is a module inside it:
+One plugin, **MostWanted** (the `core` module), in **Java 25**, built with Gradle like [xena-studios/plugins](https://github.com/xena-studios/plugins) (reuse its `build-logic` conventions and CI boot tests). Each system is a module inside it:
 
 | # | System | What it does |
 | --- | --- | --- |

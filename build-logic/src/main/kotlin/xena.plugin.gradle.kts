@@ -13,7 +13,7 @@ val minecraftVersion = libs.findVersion("paper").get().requiredVersion.substring
 paperPluginYaml {
     apiVersion = minecraftVersion
     authors.add("Xena Studios")
-    website = "https://github.com/xena-studios/prison-break"
+    website = "https://github.com/xena-studios/mostwanted"
 }
 
 tasks.runServer {

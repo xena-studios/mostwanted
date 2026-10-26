@@ -1,5 +1,5 @@
-# PrisonBreak changelog
+# MostWanted changelog
 
 ## Unreleased
 
-- The plugin skeleton: `/prisonbreak info` (alias `/pb`), permission `prisonbreak.admin`.
+- The plugin skeleton: `/mostwanted info` (alias `/mw`), permission `mostwanted.admin`.

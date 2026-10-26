@@ -36,7 +36,7 @@ Why each choice was made is in [tech](04-tech.md).
 
 | Plugin | Version | Get it | What it's for |
 | --- | --- | --- | --- |
-| **PlaceholderAPI** | 2.12.3 | [Modrinth](https://modrinth.com/plugin/placeholderapi) | Our plugin exposes `%core_cash%`, `%core_bounty%`, etc. to other plugins |
+| **PlaceholderAPI** | 2.12.3 | [Modrinth](https://modrinth.com/plugin/placeholderapi) | Our plugin exposes `%mostwanted_cash%`, `%mostwanted_bounty%`, etc. to other plugins |
 | **TAB** | 6.2.1 | [Modrinth](https://modrinth.com/plugin/tab-was-taken) | Tab list, name tags (team colors), sidebar scoreboard |
 | **FancyHolograms** | 2.12.0 | [Modrinth](https://modrinth.com/plugin/fancyholograms) | Leaderboards, robbery signs, floating text. Uses display entities. ⚠️ check how they look on Bedrock |
 | **FancyNpcs** | 2.12.1 | [Modrinth](https://modrinth.com/plugin/fancynpcs) | Shopkeepers, guard armory, warden, quest/info NPCs. Packet-based, so cheap on the server |

@@ -40,7 +40,7 @@ jobs:
         run: scripts/changelog.sh "${{ steps.tag.outputs.module }}/CHANGELOG.md" "${{ steps.tag.outputs.version }}" >"$RUNNER_TEMP/changelog.md"
       - run: ./gradlew ":${{ steps.tag.outputs.module }}:build"
       - name: Publish to GitHub
-        # Titled with the plugin's own name, such as "PrisonBreak 0.1.0", from its descriptor.
+        # Titled with the plugin's own name, such as "MostWanted 0.1.0", from its descriptor.
         run: >
           gh release create "$GITHUB_REF_NAME"
           --title "$(unzip -p ${{ steps.tag.outputs.module }}/build/libs/${{ steps.tag.outputs.module }}-${{ steps.tag.outputs.version }}.jar paper-plugin.yml | sed -n 's/^name: //p') ${{ steps.tag.outputs.version }}"
