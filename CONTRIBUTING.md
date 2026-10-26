@@ -6,7 +6,7 @@ Everyone taking part follows the [code of conduct](CODE_OF_CONDUCT.md). Security
 
 ## Reporting a bug or suggesting an idea
 
-Open an [issue](https://github.com/xena-studios/prison-break/issues/new/choose) and pick a form. For a bug, the version from `/prisonbreak info`, what you did, and the console error matter most. Rule breakers and in-game reports go to the server's staff, not here.
+Open an [issue](https://github.com/xena-studios/mostwanted/issues/new/choose) and pick a form. For a bug, the version from `/mostwanted info`, what you did, and the console error matter most. Rule breakers and in-game reports go to the server's staff, not here.
 
 ## Building
 
@@ -26,7 +26,7 @@ The jars land in `<module>/build/libs/`.
 
 ```
 build-logic/   the xena.java and xena.plugin Gradle conventions every plugin applies
-core/          the game plugin (PrisonBreak): every system the server runs
+core/          the game plugin (MostWanted): every system the server runs
 website/       the website and store
 resource-pack/ source art and models for the custom items
 server/        the configs the live server runs (never secrets)

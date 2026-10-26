@@ -1,15 +1,15 @@
-# Prison Break (working title)
+# MostWanted
 
 A Jailbreak-style cops vs. prisoners Minecraft server (Java + Bedrock) by [Xena Studios](https://xenastudios.co). Break out, rob the city, and stay ahead of the guards. Or be the guard who brings them back.
 
-There's no final name yet. `prison-break` is a placeholder, and the repo can be renamed once we pick one.
+**[mostwantedmc.com](https://mostwantedmc.com)** (coming soon)
 
 This repo holds everything the server needs: the game plugin, its build and CI, and the design docs.
 
 ## What's here
 
 ```
-core/          PrisonBreak, the game plugin: every system the server runs
+core/          MostWanted, the game plugin: every system the server runs
 website/       the website, with the store built in (Astro, Tebex)
 resource-pack/ source art and models for the custom items
 server/        the configs the live server runs (no secrets)
@@ -49,7 +49,7 @@ Planning done, plugin skeleton building. Next: the server foundation and the cor
 
 ## Help
 
-- **Bugs and ideas:** [open an issue](https://github.com/xena-studios/prison-break/issues/new/choose).
+- **Bugs and ideas:** [open an issue](https://github.com/xena-studios/mostwanted/issues/new/choose).
 - **Security problems:** privately, as [SECURITY.md](SECURITY.md) describes.
 - **Anything else:** [contact@xenastudios.co](mailto:contact@xenastudios.co).
 

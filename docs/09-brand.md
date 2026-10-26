@@ -1,6 +1,6 @@
 # Brand
 
-Started 2026-10-25. The name is still open, but the look isn't: **orange, desert**.
+Started 2026-10-25. The server is **MostWanted** (`mostwantedmc.com`): orange, desert, Wild West wanted posters.
 
 ## Colour
 
@@ -113,7 +113,7 @@ The reference is a chunky, Minecraft-style block wordmark:
 - A darker **extruded bottom face** (`#893500`) so the letters look like 3D blocks
 - A few **pixel notches** in a neighbouring shade, like worn sandstone
 
-The real logo waits for the name. Make it as a vector (SVG) so it works from favicon to banner, and keep a flat one-colour version for small sizes and Bedrock.
+The logo is the word **MOSTWANTED** in this style. Make it as a vector (SVG) so it works from favicon to banner, and keep a flat one-colour version for small sizes and Bedrock.
 
 ## Desert theme
 
@@ -125,8 +125,14 @@ What "desert" can mean across the server, site and store:
 - **Website:** the blurred pixel-art desert as the hero, the blocky logo on top, sand-coloured sections below, wanted-poster cards for the leaderboard.
 - **Words:** "the Yard", "Solitary", "the Badlands", "the Pit", "Wanted", "Most Wanted".
 
+## Naming
+
+- Write it **MostWanted**: one word, capital M and W. Add **MC** where there's room or for handles: `mostwantedmc`.
+- Server address: `play.mostwantedmc.com`. Website: `mostwantedmc.com`.
+- "Most Wanted" on its own is a crowded search term (Need for Speed, the FBI list), so always pair it with Minecraft or MC in titles and listings, e.g. *MostWanted — Cops & Robbers Minecraft Server*. Don't borrow anything from Need for Speed's look.
+
 ## Still to decide
 
-- [ ] The name (see [names](../ideas/names.md))
-- [ ] The logo, once there's a name
+- [x] The name: **MostWanted**
+- [ ] The logo: MOSTWANTED in the blocky style above
 - [ ] A secondary colour, if we want one (a desert sky blue would contrast well with orange)

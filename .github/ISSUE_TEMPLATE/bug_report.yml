@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting this. For a security problem (duping, bypassing a rule, crashing the server), don't use this form: see [SECURITY.md](https://github.com/xena-studios/prison-break/blob/main/SECURITY.md).
+        Thanks for reporting this. For a security problem (duping, bypassing a rule, crashing the server), don't use this form: see [SECURITY.md](https://github.com/xena-studios/mostwanted/blob/main/SECURITY.md).
   - type: dropdown
     id: area
     attributes:
@@ -33,7 +33,7 @@ body:
     id: version
     attributes:
       label: Plugin version
-      description: From `/prisonbreak info`, if you have access to it.
+      description: From `/mostwanted info`, if you have access to it.
       placeholder: "0.1.0"
   - type: textarea
     id: what

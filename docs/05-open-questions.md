@@ -8,10 +8,10 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 2. **Indirect criminal-vs-criminal kills:** which ones? Traps, snitching, stealing, sabotage? See [combat](02-gameplay.md#combat).
 3. **Riot rules:** how one starts, how it ends, cooldown. See [riots](02-gameplay.md#riots).
 4. **Guards:** how many do we need, can they go off duty, and what's the application process?
-5. **Name?** See [names](../ideas/names.md).
 
 ## Decided
 
+- **Name:** **MostWanted**, domain **mostwantedmc.com**. Repo renamed to `xena-studios/mostwanted`, plugin to MostWanted. (2026-10-25)
 - **Genre:** escape game, like Roblox Jailbreak. Not classic mine-and-rank-up prison. (2026-10-25)
 - **Teams:** two teams, Guards and Prisoners. Prisoners become Criminals after escaping. (2026-10-25)
 - **Guards are by application:** everyone starts as a prisoner. Guard rank comes from applying in the Discord. (2026-10-25)
