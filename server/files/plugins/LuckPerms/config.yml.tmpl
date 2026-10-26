@@ -1,10 +1,20 @@
-# LuckPerms: only what MostWanted changes. Rendered by server/install.sh from
-# <server-dir>/.env, so the database password never enters this repo.
+# LuckPerms: only what MostWanted changes (LuckPerms fills in the rest with its
+# defaults). Rendered by server/install.sh from <server-dir>/.env, so the
+# database password never enters this repo.
 server: mostwanted
 storage-method: ${LUCKPERMS_STORAGE}
 data:
-  address: ${DB_HOST}
-  database: ${DB_NAME}
-  username: ${DB_USER}
-  password: ${DB_PASSWORD}
+  address: '${DB_HOST}:${DB_PORT}'
+  database: '${DB_NAME}'
+  username: '${DB_USER}'
+  password: '${DB_PASSWORD}'
   table-prefix: luckperms_
+  # One server: a small pool is plenty, and leaves connections for core and LibertyBans.
+  pool-settings:
+    maximum-pool-size: 4
+    minimum-idle: 2
+# One server, so there's nothing to sync from other servers.
+sync-minutes: -1
+# Ranks come from LuckPerms groups (server/setup/luckperms.txt), not /op.
+enable-ops: false
+auto-op: false

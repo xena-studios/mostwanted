@@ -48,10 +48,10 @@ jobs:
         with:
           path: build/server/.cache
           key: server-${{ hashFiles('server/manifest.json') }}
-      # A test copy: LuckPerms on its local H2 file instead of PostgreSQL.
+      # A test copy: LuckPerms and LibertyBans on local files instead of PostgreSQL.
       - run: |
           mkdir -p build/server
-          sed -e 's/^LUCKPERMS_STORAGE=.*/LUCKPERMS_STORAGE=h2/' -e 's/^DB_PASSWORD=.*/DB_PASSWORD=ci/' server/.env.example > build/server/.env
+          sed -e 's/^LUCKPERMS_STORAGE=.*/LUCKPERMS_STORAGE=h2/' -e 's/^LIBERTYBANS_DATABASE=.*/LIBERTYBANS_DATABASE=HSQLDB/' -e 's/^DB_PASSWORD=.*/DB_PASSWORD=ci/' server/.env.example > build/server/.env
           server/install.sh build/server
           server/test.sh build/server
       - if: failure()

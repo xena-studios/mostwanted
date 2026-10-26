@@ -7,12 +7,14 @@ manifest.json         Leaf and every plugin, pinned to a version with its checks
 install.sh            downloads and checks them, then copies in the configs
 start.sh              starts the server: Java heap, Paper's G1 flags, Minehut's login flags
 test.sh               boots a test copy and fails if a plugin or config didn't load (CI runs it)
-files/                configs copied into the server (only what we change from the defaults)
-  server.properties   whitelist on until launch, adventure mode, 100 slots, view distance 8
-  config/             Paper: Minehut's PROXY protocol, world performance settings
-  spigot.yml          entity activation ranges, item merging
-  bukkit.yml          low natural mob spawning
-  plugins/            LuckPerms (a template), xUtilities and zChat in the message style
+files/                configs copied into the server; changes from the defaults say "MostWanted:"
+  server.properties   whitelist on until launch, adventure mode, 100 slots, view distance 8, lz4 regions
+  config/             Leaf, Gale and Paper: async pathfinding/saves/entity tracking, DAB, Minehut's PROXY protocol
+  purpur.yml          no phantoms/patrols/traders, quieter logs
+  spigot.yml          entity activation and tracking ranges, item merging, despawn rates
+  bukkit.yml          low natural mob spawning, no End
+  plugins/            LuckPerms and LibertyBans (templates), Grim, ViaVersion, Fancy*, FAWE,
+                      xUtilities and zChat in the message style
 setup/luckperms.txt   the ranks, run once in the console
 .env.example          the secrets the templates need; copy to <server-dir>/.env
 ```
@@ -42,13 +44,13 @@ Pull, run `install.sh` again, restart. It replaces the plugin jars it installed,
 ## Change a plugin or a config
 
 - **A plugin version:** edit `manifest.json` with the new version's file, URL and sha512 from Modrinth, in a pull request. CI installs and boots the server with it.
-- **A config:** edit the file under `files/` in a pull request. Plugins fill in any setting we leave out, so files only hold what we change. xUtilities and zChat are full files on purpose: every message there is in the [message style](../docs/09-brand.md#messages).
+- **A config:** edit the file under `files/` in a pull request. The server and plugin configs are full files, taken from a fresh boot of the pinned versions, so every setting is visible; lines we changed for speed or the game carry a `MostWanted:` comment where the reason isn't obvious. Configs with nothing to change (Grim's database and punishments, LibertyBans' scope, FAWE's worldedit-config) aren't tracked. LuckPerms' template only holds what we change: it fills in the rest itself. When a plugin update adds settings, boot a test copy and copy its new file back over ours, keeping our changes.
 - **A secret:** never here. Add a `${NAME}` to a `.tmpl` file and to `.env.example`; the real value goes in the server's `.env`.
 
 ## Test locally
 
 ```sh
-cp server/.env.example /tmp/mw/.env && sed -i '' 's/^LUCKPERMS_STORAGE=.*/LUCKPERMS_STORAGE=h2/; s/^DB_PASSWORD=.*/DB_PASSWORD=test/' /tmp/mw/.env
+cp server/.env.example /tmp/mw/.env && sed -i '' 's/^LUCKPERMS_STORAGE=.*/LUCKPERMS_STORAGE=h2/; s/^LIBERTYBANS_DATABASE=.*/LIBERTYBANS_DATABASE=HSQLDB/; s/^DB_PASSWORD=.*/DB_PASSWORD=test/' /tmp/mw/.env
 server/install.sh /tmp/mw && server/test.sh /tmp/mw
 ```
 
