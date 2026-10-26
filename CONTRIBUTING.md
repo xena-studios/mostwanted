@@ -27,6 +27,9 @@ The jars land in `<module>/build/libs/`.
 ```
 build-logic/   the xena.java and xena.plugin Gradle conventions every plugin applies
 core/          the game plugin (PrisonBreak): every system the server runs
+website/       the website and store
+resource-pack/ source art and models for the custom items
+server/        the configs the live server runs (never secrets)
 docs/          the design: gameplay, tech, server stack, decisions
 scripts/       boot-test.sh, changelog.sh, new-minecraft.sh
 ```
@@ -40,6 +43,7 @@ The server has to hold a lot of players in one world on modest hardware, so:
 - **Nothing heavy on the main thread.** Database and network calls run async. No work every tick unless a feature can't work without it, and then only while it's on.
 - **Do the work once.** Parse config, messages and regions when they load, not on every event.
 - **Java and Bedrock both work.** Bedrock players join through Minehut's Geyser, with no Floodgate, so: chest GUIs, no Bedrock forms, nothing that needs a Java-only client feature. Every custom item is a vanilla item underneath, so the game still works without the resource pack.
+- **Colours come from the palette** in [docs/09-brand.md](docs/09-brand.md#in-game-colours). Anything players must tell apart uses hues that stay different on Bedrock.
 - **Players are stored by UUID**, never by name.
 - **Paper API only.** No NMS, so the plugin keeps running on Leaf and on every Paper update.
 

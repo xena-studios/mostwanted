@@ -28,3 +28,6 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 - **Tech stack:** Leaf 26.3 standalone on an OVH US VPS-3 (Raptor), connected through Minehut External Server (Bedrock, DDoS, server list). PostgreSQL, one custom Java plugin. Full list in [tech](04-tech.md). (2026-10-25)
 - **Guns:** our own hitscan guns, no gun plugin. (2026-10-25)
 - **Custom items:** our own plugin + pack pipeline, no ItemsAdder/Nexo. (2026-10-25)
+- **Website and store:** Astro on Cloudflare, store through Tebex Headless, cosmetics only. See [website](08-website.md). (2026-10-25)
+- **Brand:** orange `#ff9933`, desert theme, blocky Minecraft-style logo. In-game colours only from the 24-hue `hsl(h, 100%, 60%)` palette. See [brand](09-brand.md). (2026-10-25)
+- **Repo layout:** `core/`, `website/`, `resource-pack/`, `server/` alongside the docs. (2026-10-25)

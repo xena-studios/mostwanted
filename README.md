@@ -10,6 +10,9 @@ This repo holds everything the server needs: the game plugin, its build and CI, 
 
 ```
 core/          PrisonBreak, the game plugin: every system the server runs
+website/       the website, with the store built in (Astro, Tebex)
+resource-pack/ source art and models for the custom items
+server/        the configs the live server runs (no secrets)
 build-logic/   the Gradle conventions every plugin applies
 docs/          the design: gameplay, tech, server stack, decisions
 ideas/         raw ideas and name candidates
@@ -25,6 +28,8 @@ scripts/       boot tests, changelogs and the new-Minecraft check
 | [`docs/05-open-questions.md`](docs/05-open-questions.md) | Decisions made, and the ones still open |
 | [`docs/06-resource-pack.md`](docs/06-resource-pack.md) | Custom textures and items on Java + Bedrock |
 | [`docs/07-server-stack.md`](docs/07-server-stack.md) | Install list: server software, every plugin + version, start command, config |
+| [`docs/08-website.md`](docs/08-website.md) | The website and store: Astro, Cloudflare, Tebex, what we sell |
+| [`docs/09-brand.md`](docs/09-brand.md) | The look: orange `#ff9933`, desert theme, palette and logo style |
 | [`ideas/names.md`](ideas/names.md) | Server name candidates |
 
 ## Building
