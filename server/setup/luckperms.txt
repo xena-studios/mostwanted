@@ -1,0 +1,50 @@
+# Ranks. Run each `lp` line in the server console once, after the first start
+# with the database connected. Colours follow the in-game palette
+# (docs/09-brand.md): inmates orange (hue 30), guards blue (hue 210), staff light
+# purple (hue 300). The prefixes are for name tags and the tab list (drawn by core);
+# chat tags come from zChat's formats,
+# which each rank turns on with zchat.group.<rank>.
+
+# Everyone: inmates and criminals. The core plugin switches between the two; it isn't a rank.
+lp group default setweight 0
+lp group default meta setprefix 0 "<#ff9933>Inmate</#ff9933> "
+
+# Guards: picked by application, synced from the Discord role by the MostWanted bot (bot/).
+lp creategroup guard
+lp group guard permission set zchat.group.guard true
+lp group guard setweight 10
+lp group guard parent add default
+lp group guard meta setprefix 10 "<#3399ff>Guard</#3399ff> "
+lp group guard permission set mostwanted.guard true
+
+# Staff.
+lp creategroup helper
+lp group helper permission set zchat.group.helper true
+lp group helper setweight 50
+lp group helper parent add default
+lp group helper meta setprefix 50 "<#ff33ff>Helper</#ff33ff> "
+
+lp creategroup moderator
+lp group moderator permission set zchat.group.moderator true
+lp group moderator setweight 60
+lp group moderator parent add helper
+lp group moderator meta setprefix 60 "<#ff33ff>Mod</#ff33ff> "
+lp group moderator permission set libertybans.* true
+lp group moderator permission set coreprotect.inspect true
+lp group moderator permission set coreprotect.lookup true
+lp group moderator permission set grim.alerts true
+
+lp creategroup admin
+lp group admin permission set zchat.group.admin true
+lp group admin setweight 90
+lp group admin parent add moderator
+lp group admin meta setprefix 90 "<#ff33ff>Admin</#ff33ff> "
+lp group admin permission set mostwanted.admin true
+lp group admin permission set coreprotect.* true
+
+lp creategroup owner
+lp group owner permission set zchat.group.owner true
+lp group owner setweight 100
+lp group owner parent add admin
+lp group owner meta setprefix 100 "<#ff33ff>Owner</#ff33ff> "
+lp group owner permission set * true

@@ -1,0 +1,7 @@
+# Only what MostWanted changes; Paper fills in the rest on start.
+# The config format version Paper 26.3 writes; Paper warns without it.
+_version: 31
+proxies:
+  # Players arrive through Minehut, which sends the real player IP with the
+  # PROXY protocol. Direct connections without it are refused.
+  proxy-protocol: true

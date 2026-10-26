@@ -1,0 +1,16 @@
+# Only what MostWanted changes; the server fills in the rest on start.
+world-settings:
+  default:
+    # Entities far from players tick less. Players and the core plugin's own
+    # entities (NPCs, holograms) aren't affected.
+    entity-activation-range:
+      animals: 16
+      monsters: 24
+      raiders: 48
+      misc: 8
+      water: 8
+      villagers: 16
+      flying-monsters: 32
+    merge-radius:
+      item: 2.5
+      exp: 3.0
