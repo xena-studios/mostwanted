@@ -1,0 +1,501 @@
+---
+import "@fontsource/lilita-one/latin-400.css";
+import "@fontsource-variable/rubik/wght.css";
+import "@fontsource/vt323/latin-400.css";
+import "../styles/global.css";
+// The Latin files of each face, preloaded so text renders in the right font
+// first time instead of swapping (and shifting the layout) a moment later.
+import lilitaLatin from "@fontsource/lilita-one/files/lilita-one-latin-400-normal.woff2?url";
+import rubikLatin from "@fontsource-variable/rubik/files/rubik-latin-wght-normal.woff2?url";
+import vt323Latin from "@fontsource/vt323/files/vt323-latin-400-normal.woff2?url";
+import { Image } from "astro:assets";
+import { LogIn, Menu } from "@lucide/astro";
+import monogram from "../brand/monogram.png";
+import xenaLogo from "../brand/xena.svg?raw";
+import { nav, site } from "../site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Keep the page out of search results, with no canonical or og:url (the 404 page). */
+  noindex?: boolean;
+  /** "article" for news posts. */
+  type?: "website" | "article";
+  /** Structured data (schema.org) for this page, merged with the site's own. */
+  schema?: Record<string, unknown>[];
+}
+
+const {
+  title,
+  description = "MostWanted is a Jailbreak-style cops vs. prisoners Minecraft server for Java and Bedrock. Break out, rob the town, and stay ahead of the guards.",
+  noindex = false,
+  type = "website",
+  schema = [],
+} = Astro.props;
+const fullTitle = title ? `${title} · MostWanted` : "MostWanted: a cops vs. prisoners Minecraft server";
+
+// build.format "file" makes the pathname /index.html or /<page>.html; the
+// canonical address has neither, matching the sitemap and trailingSlash "never".
+const path = Astro.url.pathname.replace(/(?:index)?\.html$/, "") || "/";
+const canonical = new URL(path, Astro.site);
+const og = new URL("/og.png", Astro.site);
+const year = new Date().getFullYear();
+// The XENA logo from xena-studios/brand, cropped to its ink (the export carries
+// half a cap height of clear space, 50 units a side) and drawn in currentColor.
+const [, xw, xh] = xenaLogo.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)!;
+const xenaSvg = xenaLogo
+  .replace(/ width="[^"]*" height="[^"]*"/, "")
+  .replace(/viewBox="[^"]*"/, `viewBox="50 50 ${+xw - 100} ${+xh - 100}" class="xena" aria-hidden="true"`)
+  .replace(/fill="#[0-9A-Fa-f]{6}"/g, 'fill="currentColor"');
+
+const current = (href: string) => path === href || path.startsWith(`${href}/`);
+
+// schema.org: who runs the site, and the site itself, on every page.
+const home = new URL("/", Astro.site).href;
+const structured = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${home}#org`,
+    name: "MostWanted",
+    url: home,
+    logo: new URL("/icon.png", Astro.site).href,
+    parentOrganization: { "@type": "Organization", name: "Xena Studios", url: "https://xenastudios.co" },
+    sameAs: [site.source],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${home}#site`,
+    name: "MostWanted",
+    url: home,
+    publisher: { "@id": `${home}#org` },
+  },
+  ...schema,
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <meta name="theme-color" content="#150D09" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap.xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preload" href={lilitaLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={rubikLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={vt323Latin} as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="MostWanted" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    {!noindex && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={og} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The MOSTWANTED wordmark over a pixel-art desert at sunset." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify(structured)} />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="wrap bar">
+        <a class="home" href="/" aria-label="MostWanted, home">
+          <Image src={monogram} alt="" widths={[80, 160]} sizes="2.75rem" class="mark" loading="eager" />
+        </a>
+
+        <nav class="nav-wide" aria-label="Main">
+          <ul>
+            {
+              nav.map((n) => (
+                <li>
+                  <a href={n.href} aria-current={current(n.href) ? "page" : undefined}>
+                    {n.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+
+        <details class="menu">
+          <summary class="menu-toggle" aria-label="Menu"><Menu aria-hidden="true" /></summary>
+          <nav aria-label="Menu">
+            <ul>
+              {
+                nav.map((n) => (
+                  <li>
+                    <a href={n.href} aria-current={current(n.href) ? "page" : undefined}>
+                      {n.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+        </details>
+
+        <div class="right">
+          <span class="status" title={site.open ? "Server online" : "The server isn't open yet"}>
+            <span class:list={["dot", { live: site.open }]} aria-hidden="true"></span>
+            <span class="pixel">{site.open ? "Online" : "Opening soon"}</span>
+          </span>
+          <a class="signin" href="/login" aria-current={current("/login") ? "page" : undefined}>
+            <LogIn aria-hidden="true" /> Sign in
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap foot">
+        <div class="foot-brand">
+          <Image src={monogram} alt="" widths={[96]} sizes="3rem" class="foot-mark" />
+          <p>A cops vs. prisoners Minecraft server for Java and Bedrock, by <a href="https://xenastudios.co">Xena Studios</a>.</p>
+          <p class="foot-ip"><span class="label">Address</span> <code>{site.address}</code></p>
+        </div>
+        <div>
+          <h2 class="foot-title">Server</h2>
+          <ul>
+            <li><a href="/news">News</a></li>
+            <li><a href="/leaderboards">Leaderboards</a></li>
+            <li><a href="/wiki">Wiki</a></li>
+            <li><a href="/store">Store</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2 class="foot-title">Community</h2>
+          <ul>
+            <li><a href="/rules">Rules</a></li>
+            <li><a href="/staff">Staff</a></li>
+            <li><a href="/creators">Creators</a></li>
+            <li><a href="/apply">Apply</a></li>
+            <li><a href="/support">Support</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2 class="foot-title">More</h2>
+          <ul>
+            <li><a href={site.source}>Source on GitHub</a></li>
+            <li><a href="https://xenastudios.co">Xena Studios</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="wrap legal">
+        <p class="studio">
+          <a href="https://xenastudios.co" aria-label="Xena Studios"><Fragment set:html={xenaSvg} /></a>
+          <span>© {year} Xena Studios</span>
+        </p>
+        <p>Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: var(--s-4);
+    top: -4rem;
+    z-index: 20;
+    padding: var(--s-2) var(--s-4);
+    border-radius: 8px;
+    background: var(--orange);
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .skip:focus {
+    top: var(--s-4);
+  }
+
+  /* ---------------------------------------------------------------- header */
+
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 10;
+    border-bottom: 1px solid color-mix(in srgb, var(--rule) 60%, transparent);
+    background: color-mix(in srgb, var(--dusk) 72%, transparent);
+    backdrop-filter: blur(14px) saturate(1.2);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: var(--s-5);
+    min-height: 4rem;
+  }
+
+  .home :global(.mark) {
+    display: block;
+    width: 2.75rem;
+    height: auto;
+    transition: transform 200ms var(--ease);
+  }
+
+  .home:hover :global(.mark) {
+    transform: rotate(-6deg) scale(1.06);
+  }
+
+  .nav-wide {
+    flex: 1;
+  }
+
+  .menu {
+    display: none;
+  }
+
+  nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-1);
+    padding: 0;
+    list-style: none;
+  }
+
+  nav a {
+    display: inline-block;
+    padding: var(--s-1) var(--s-3);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      color 150ms var(--ease),
+      background-color 150ms var(--ease);
+  }
+
+  nav a:hover {
+    color: var(--text);
+  }
+
+  nav a[aria-current="page"] {
+    background: color-mix(in srgb, var(--orange) 16%, transparent);
+    color: var(--text);
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+    gap: var(--s-4);
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .signin {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    padding: var(--s-2) var(--s-4);
+    border: 2px solid var(--rule);
+    border-radius: 999px;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: border-color 150ms var(--ease);
+  }
+
+  .signin:hover,
+  .signin[aria-current="page"] {
+    border-color: var(--orange);
+  }
+
+  .signin :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  /* Phones and small tablets: the links fold into a menu (no JavaScript, a <details>). */
+  @media (max-width: 68rem) {
+    .nav-wide {
+      display: none;
+    }
+
+    .menu {
+      display: block;
+      order: 3;
+    }
+
+    .menu-toggle {
+      display: grid;
+      place-items: center;
+      width: 2.75rem;
+      height: 2.75rem;
+      border: 2px solid var(--rule);
+      border-radius: 10px;
+      color: var(--text);
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .menu-toggle::-webkit-details-marker {
+      display: none;
+    }
+
+    .menu nav {
+      position: absolute;
+      inset: 4rem 0 auto 0;
+      padding: var(--s-4) var(--s-5) var(--s-5);
+      border-bottom: 1px solid var(--rule);
+      background: var(--dusk);
+    }
+
+    .menu nav ul {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+      gap: var(--s-2);
+    }
+
+    nav a {
+      display: block;
+      padding: var(--s-2) var(--s-3);
+      font-size: 1rem;
+    }
+
+    .right {
+      margin-left: auto;
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .status {
+      display: none;
+    }
+  }
+
+  /* ---------------------------------------------------------------- footer */
+
+  .site-footer {
+    margin-top: var(--s-8);
+    border-top: 2px solid var(--rule);
+    background: var(--night);
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  .foot {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+    gap: var(--s-6);
+    padding-block: var(--s-7) var(--s-6);
+  }
+
+  .foot-brand {
+    display: grid;
+    gap: var(--s-3);
+    align-content: start;
+    max-width: 34ch;
+  }
+
+  .foot :global(.foot-mark) {
+    width: 3rem;
+    height: auto;
+  }
+
+  .foot-ip code {
+    color: var(--orange);
+    font-weight: 600;
+  }
+
+  .foot-title {
+    margin-bottom: var(--s-3);
+    font-size: 1.125rem;
+    color: var(--text);
+  }
+
+  .foot ul {
+    display: grid;
+    gap: var(--s-2);
+    padding: 0;
+    list-style: none;
+  }
+
+  .foot a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .foot a:hover {
+    color: var(--orange);
+  }
+
+  .studio {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-3) var(--s-5);
+  }
+
+  .studio a {
+    display: block;
+    color: var(--text);
+    transition: color 150ms var(--ease);
+  }
+
+  .studio a:hover {
+    color: var(--orange);
+  }
+
+  .studio :global(.xena) {
+    display: block;
+    width: auto;
+    height: 0.875rem;
+  }
+
+  .studio span {
+    font-family: var(--pixel);
+    font-size: 1.125rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3) var(--s-5);
+    padding-block: var(--s-5);
+    border-top: 1px solid var(--rule);
+    font-size: 0.8125rem;
+  }
+
+  @media (max-width: 52rem) {
+    .foot {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .foot-brand {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 36rem) {
+    .foot {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

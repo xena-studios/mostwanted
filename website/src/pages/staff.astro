@@ -1,0 +1,105 @@
+---
+import { Image } from "astro:assets";
+import { ArrowRight } from "@lucide/astro";
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import monogram from "../brand/monogram.png";
+import road from "../brand/scene-road.png";
+
+// Add people as the team forms: { name, role, uuid? }. With a uuid the card
+// shows their Minecraft head; without one, the MW monogram.
+const team: { name: string; role: string; uuid?: string }[] = [];
+const roles = [
+  { name: "Owner", body: "Runs the server and makes the final calls." },
+  { name: "Admin", body: "Manages staff, the map and the server's settings." },
+  { name: "Moderator", body: "Handles reports, chat and rule breakers in game and on Discord." },
+  { name: "Helper", body: "Answers questions and helps new players find their way." },
+];
+---
+<Base title="Staff" description="Meet the team that runs MostWanted, the cops vs. prisoners Minecraft server, and find out how to join the staff.">
+  <PageHero title="Staff" lead="The people who keep MostWanted running." image={road} />
+  <section class="section">
+    <div class="wrap">
+      {
+        team.length ? (
+          <ul class="team">
+            {team.map((p) => (
+              <li class="panel member">
+                {p.uuid ? (
+                  <img src={`https://mc-heads.net/avatar/${p.uuid}/96`} alt="" width="96" height="96" loading="lazy" />
+                ) : (
+                  <Image src={monogram} alt="" widths={[96]} sizes="6rem" />
+                )}
+                <h2>{p.name}</h2>
+                <p class="label">{p.role}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div class="panel empty">
+            <Image src={monogram} alt="" widths={[160]} sizes="5rem" class="mono" />
+            <h2>The team is forming</h2>
+            <p>The staff list goes here before launch. Want to be on it?</p>
+            <a class="button primary" href="/apply#staff">Apply for staff <ArrowRight aria-hidden="true" /></a>
+          </div>
+        )
+      }
+
+      <div class="section-head roles-head">
+        <h2>Staff <span class="accent">roles</span></h2>
+      </div>
+      <ul class="roles">
+        {
+          roles.map((r) => (
+            <li class="panel role">
+              <h3>{r.name}</h3>
+              <p>{r.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .empty :global(.mono) {
+    width: 5rem;
+    height: auto;
+  }
+
+  .roles-head {
+    margin-top: var(--s-8);
+  }
+
+  .team,
+  .roles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: var(--s-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .member,
+  .role {
+    padding: var(--s-5);
+  }
+
+  .member {
+    display: grid;
+    justify-items: center;
+    gap: var(--s-2);
+    text-align: center;
+  }
+
+  .role h3 {
+    font-size: 1.5rem;
+    color: var(--orange);
+  }
+
+  .role p {
+    margin-top: var(--s-2);
+    color: var(--muted);
+  }
+</style>

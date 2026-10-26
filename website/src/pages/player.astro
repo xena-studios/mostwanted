@@ -1,0 +1,58 @@
+---
+import { Search, UserSearch } from "@lucide/astro";
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import { site } from "../site";
+import sun from "../brand/scene-sun.png";
+
+// /player?name=<username>. The page is static; the script below reads the name.
+// Once the stats feed exists (docs/08-website.md#player-stats), it fetches the
+// player from the stats API here.
+---
+<Base title="Player lookup" description="Look up any MostWanted player's escapes, arrests, bounties and records." noindex>
+  <PageHero title="Player lookup" lead="Escapes, arrests, bounties and records for anyone who's played." image={sun}>
+    <form class="search" action="/player" method="get" role="search">
+      <label class="visually-hidden" for="player-search">Minecraft username</label>
+      <div class="field">
+        <input id="player-search" class="input" name="name" type="search" placeholder="Minecraft username" autocomplete="off" spellcheck="false" maxlength="32" required />
+        <button class="button primary" type="submit"><Search aria-hidden="true" /> Search</button>
+      </div>
+    </form>
+  </PageHero>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="panel empty" data-result data-open={String(site.open)}>
+        <UserSearch aria-hidden="true" />
+        <h2 data-title>Search for a player</h2>
+        <p data-body>Type a Minecraft username above. Bedrock players are listed by the name they play under.</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const name = new URLSearchParams(location.search).get("name")?.trim().slice(0, 32);
+  const box = document.querySelector<HTMLElement>("[data-result]");
+  const input = document.querySelector<HTMLInputElement>("#player-search");
+  if (name && box && input) {
+    input.value = name;
+    const title = box.querySelector("[data-title]");
+    const body = box.querySelector("[data-body]");
+    if (box.dataset.open !== "true") {
+      if (title) title.textContent = `No stats for ${name} yet`;
+      if (body) body.textContent = "Stats start when the server opens. Every escape, arrest and heist will show up here.";
+    }
+  }
+</script>
+
+<style>
+  .search {
+    max-width: 34rem;
+    margin-top: var(--s-5);
+  }
+
+  .empty h2 {
+    font-size: var(--t-h3);
+  }
+</style>

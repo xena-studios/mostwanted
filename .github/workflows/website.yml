@@ -1,0 +1,97 @@
+name: Website
+
+# mostwantedmc.com. Pull requests always run, so the `website-ok` check main
+# requires always reports; `changes` skips the build when website/ didn't change.
+on:
+  push:
+    branches: [main]
+    paths: ["website/**", ".github/workflows/website.yml"]
+  pull_request:
+  # Redeploy main by hand from the Actions tab.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One run per branch at a time, so two quick merges can't deploy out of order.
+concurrency:
+  group: website-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  changes:
+    runs-on: ubuntu-26.04
+    permissions:
+      pull-requests: read
+    outputs:
+      website: ${{ steps.check.outputs.website }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          if [[ $GITHUB_EVENT_NAME != pull_request ]]; then echo "website=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          website=false
+          while read -r file; do
+            case $file in website/* | .github/workflows/website.yml) website=true ;; esac
+          done < <(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only)
+          echo "website=$website" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: changes
+    if: needs.changes.outputs.website == 'true'
+    runs-on: ubuntu-26.04
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npx wrangler deploy --dry-run
+
+  # Main only (on push or by hand), once the build passes. The Cloudflare token
+  # lives in the production environment, which GitHub opens to main alone, and
+  # only the deploy step sees it: never npm ci or the build.
+  deploy:
+    needs: build
+    if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && github.repository == 'xena-studios/mostwanted' }}
+    runs-on: ubuntu-26.04
+    environment:
+      name: production
+      url: https://mostwantedmc.com
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - name: Deploy to Cloudflare
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Not sensitive (it's in every dashboard URL), so a variable, not a secret.
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+
+  # The check main requires: passes when the build passed or was skipped
+  # because website/ didn't change.
+  website-ok:
+    needs: [changes, build, deploy]
+    if: always()
+    runs-on: ubuntu-26.04
+    steps:
+      - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
+      - run: echo "ok"

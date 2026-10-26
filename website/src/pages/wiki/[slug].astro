@@ -1,0 +1,109 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import PageHero from "../../components/PageHero.astro";
+import mesa from "../../brand/scene-mesa.png";
+
+export async function getStaticPaths() {
+  return (await getCollection("wiki")).map((article) => ({ params: { slug: article.id }, props: { article } }));
+}
+
+const { article } = Astro.props;
+const { Content, headings } = await render(article);
+const sections = ["Getting started", "Playing", "Guards", "Server"];
+const all = (await getCollection("wiki")).sort((a, b) => sections.indexOf(a.data.section) - sections.indexOf(b.data.section) || a.data.order - b.data.order);
+---
+<Base title={`${article.data.title} · Wiki`} description={`${article.data.summary} A guide to MostWanted, the cops vs. prisoners Minecraft server.`}>
+  <PageHero title={article.data.title} lead={article.data.summary} image={mesa} />
+  <section class="section">
+    <div class="wrap layout">
+      <aside class="side" aria-label="Wiki">
+        <p class="label">Wiki</p>
+        <ul>
+          {
+            all.map((a) => (
+              <li>
+                <a href={`/wiki/${a.id}`} aria-current={a.id === article.id ? "page" : undefined}>
+                  {a.data.title}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        {
+          headings.filter((h) => h.depth === 2).length > 1 && (
+            <>
+              <p class="label on-page">On this page</p>
+              <ul>
+                {headings
+                  .filter((h) => h.depth === 2)
+                  .map((h) => (
+                    <li>
+                      <a href={`#${h.slug}`}>{h.text}</a>
+                    </li>
+                  ))}
+              </ul>
+            </>
+          )
+        }
+      </aside>
+      <article class="prose"><Content /></article>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    gap: var(--s-7);
+    align-items: start;
+  }
+
+  .side {
+    position: sticky;
+    top: 5.5rem;
+    display: grid;
+    gap: var(--s-2);
+  }
+
+  .side ul {
+    display: grid;
+    gap: var(--s-1);
+    padding: 0;
+    list-style: none;
+  }
+
+  .side a {
+    display: block;
+    padding: var(--s-1) var(--s-3);
+    border-left: 3px solid var(--rule);
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .side a:hover {
+    color: var(--text);
+  }
+
+  .side a[aria-current="page"] {
+    border-color: var(--orange);
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .on-page {
+    margin-top: var(--s-5);
+  }
+
+  @media (max-width: 52rem) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .side {
+      position: static;
+      order: 2;
+    }
+  }
+</style>

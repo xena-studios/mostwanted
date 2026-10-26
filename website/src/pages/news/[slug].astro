@@ -1,0 +1,52 @@
+---
+import { getCollection, render } from "astro:content";
+import { ArrowLeft } from "@lucide/astro";
+import Base from "../../layouts/Base.astro";
+import PageHero from "../../components/PageHero.astro";
+
+export async function getStaticPaths() {
+  return (await getCollection("news")).map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const date = post.data.date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+---
+<Base
+  title={post.data.title}
+  description={post.data.summary}
+  type="article"
+  schema={[
+    {
+      "@context": "https://schema.org",
+      "@type": "NewsArticle",
+      headline: post.data.title,
+      description: post.data.summary,
+      datePublished: post.data.date.toISOString(),
+      image: new URL("/og.png", Astro.site).href,
+      author: { "@type": "Organization", name: "MostWanted", url: new URL("/", Astro.site).href },
+      mainEntityOfPage: new URL(`/news/${post.id}`, Astro.site).href,
+    },
+  ]}
+>
+  <PageHero title={post.data.title}>
+    <p class="label meta"><time datetime={post.data.date.toISOString()}>{date}</time></p>
+  </PageHero>
+  <section class="section">
+    <article class="wrap">
+      <div class="prose"><Content /></div>
+      <a class="more back" href="/news"><ArrowLeft aria-hidden="true" /> All news</a>
+    </article>
+  </section>
+</Base>
+
+<style>
+  .meta {
+    margin-top: var(--s-4);
+    color: var(--text);
+  }
+
+  .back {
+    margin-top: var(--s-7);
+  }
+</style>

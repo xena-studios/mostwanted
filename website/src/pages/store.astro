@@ -1,0 +1,86 @@
+---
+import { BadgeCheck, Brush, Crosshair, Shirt, Sparkles, Store } from "@lucide/astro";
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import { site } from "../site";
+import road from "../brand/scene-road.png";
+
+const categories = [
+  { icon: BadgeCheck, title: "Ranks", body: "Supporter ranks with a chat tag, a name colour and cosmetic perks." },
+  { icon: Shirt, title: "Jumpsuits & uniforms", body: "Your inmate jumpsuit or guard uniform, in your colours." },
+  { icon: Crosshair, title: "Gun skins", body: "New looks for every gun. Same stats as everyone else's." },
+  { icon: Sparkles, title: "Trails & effects", body: "Escape trails, arrest effects and particles." },
+  { icon: Brush, title: "Cell decor", body: "Make your cell yours." },
+];
+---
+<Base title="Store" description="The MostWanted store: cosmetic ranks, jumpsuits, gun skins, trails and cell decor. Cosmetics only, never pay to win.">
+  <PageHero title="Store" lead="Cosmetics only. Nothing in the store wins a fight, an escape or a robbery." image={road} />
+  <section class="section">
+    <div class="wrap">
+      {
+        site.store ? (
+          <a class="button primary" href={site.store}><Store aria-hidden="true" /> Open the store</a>
+        ) : (
+          <p class="note"><strong>The store opens at launch.</strong> Purchases go through Tebex, and show up in game within a minute.</p>
+        )
+      }
+      <ul class="cats">
+        {
+          categories.map((c) => (
+            <li class="panel cat">
+              <c.icon aria-hidden="true" />
+              <h2>{c.title}</h2>
+              <p>{c.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="panel never">
+        <h2>Never for sale</h2>
+        <p>Guns, ammo, armor, cash, shorter jail time, the guard rank, or anything random like crates. Under Mojang's rules, and because it's not fun when money decides who wins.</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .cats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: var(--s-4);
+    margin-top: var(--s-6);
+    padding: 0;
+    list-style: none;
+  }
+
+  .cat {
+    padding: var(--s-5);
+  }
+
+  .cat :global(svg) {
+    width: 2rem;
+    height: 2rem;
+    color: var(--orange);
+  }
+
+  h2 {
+    margin-top: var(--s-3);
+    font-size: 1.5rem;
+  }
+
+  .cat p,
+  .never p {
+    margin-top: var(--s-2);
+    color: var(--muted);
+  }
+
+  .never {
+    margin-top: var(--s-4);
+    padding: var(--s-6);
+    border-left: 5px solid var(--red);
+  }
+
+  .never h2 {
+    margin-top: 0;
+  }
+</style>

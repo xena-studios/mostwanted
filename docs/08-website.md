@@ -1,6 +1,6 @@
 # Website and store
 
-Decided 2026-10-25.
+Decided 2026-10-25. **Built** in [`website/`](../website/): home (explore cards, player search, how it plays, news), news, wiki, leaderboards, player lookup, rules, staff, creators, apply, support, store and sign-in. Player search, leaderboards and sign-in show a "starts when the server opens" state until the stats feed and Discord sign-in exist.
 
 ## Stack
 

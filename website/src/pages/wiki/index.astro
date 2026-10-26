@@ -1,0 +1,91 @@
+---
+import { getCollection } from "astro:content";
+import { ArrowRight } from "@lucide/astro";
+import Base from "../../layouts/Base.astro";
+import PageHero from "../../components/PageHero.astro";
+import mesa from "../../brand/scene-mesa.png";
+
+const sections = ["Getting started", "Playing", "Guards", "Server"] as const;
+const articles = await getCollection("wiki");
+const grouped = sections
+  .map((s) => ({ name: s, items: articles.filter((a) => a.data.section === s).sort((a, b) => a.data.order - b.data.order) }))
+  .filter((g) => g.items.length);
+---
+<Base title="Wiki" description="How MostWanted works: escaping, robberies, bounties, riots, combat and being a guard.">
+  <PageHero title="Wiki" lead="How everything on MostWanted works." image={mesa} />
+  <div class="wrap">
+    {
+      grouped.map((g) => (
+        <section class="section group" aria-labelledby={`wiki-${g.name}`}>
+          <h2 class="label" id={`wiki-${g.name}`}>{g.name}</h2>
+          <ul class="articles">
+            {g.items.map((a) => (
+              <li>
+                <a class="panel article" href={`/wiki/${a.id}`}>
+                  <h3>
+                    {a.data.title} <ArrowRight aria-hidden="true" />
+                  </h3>
+                  <p>{a.data.summary}</p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</Base>
+
+<style>
+  .group {
+    padding-top: var(--s-7);
+  }
+
+  .group .label {
+    margin-bottom: var(--s-4);
+    font-size: 1.5rem;
+    color: var(--orange);
+  }
+
+  .articles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    gap: var(--s-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .article {
+    display: grid;
+    gap: var(--s-2);
+    height: 100%;
+    padding: var(--s-5);
+    color: var(--text);
+    text-decoration: none;
+    transition:
+      border-color 200ms var(--ease),
+      transform 200ms var(--ease);
+  }
+
+  .article:hover {
+    transform: translateY(-3px);
+    border-color: var(--orange);
+  }
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-size: 1.5rem;
+  }
+
+  h3 :global(svg) {
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--orange);
+  }
+
+  p {
+    color: var(--muted);
+  }
+</style>

@@ -1,0 +1,137 @@
+---
+import { Shield, Users, Video } from "@lucide/astro";
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import { site } from "../site";
+import rocks from "../brand/scene-rocks.png";
+
+const apps = [
+  {
+    id: "guard",
+    icon: Shield,
+    title: "Guard",
+    lead: "Patrol the prison, answer alarms, and bring criminals in. Every arrest pays the bounty.",
+    needs: [
+      "You've played MostWanted and know how escapes, robberies and arrests work",
+      "No recent bans or serious warnings",
+      "You'll use guard powers on rule-of-the-game targets, never on rivals",
+      "You agree to the guard code (no helping criminals, no abusing arrests)",
+    ],
+  },
+  {
+    id: "staff",
+    icon: Users,
+    title: "Staff",
+    lead: "Help run the server: handle reports, keep chat clean, and help new players.",
+    needs: ["Active on the server and the Discord", "Calm, fair and good at explaining things", "A clean record", "13 or older"],
+  },
+  {
+    id: "creator",
+    icon: Video,
+    title: "Creator",
+    lead: "Make videos or stream MostWanted. Get a rank, a spot on the Creators page, and early looks at new features.",
+    needs: ["Regular MostWanted content on YouTube, Twitch or TikTok", "Content that follows the rules", "Any audience size"],
+  },
+];
+---
+<Base title="Apply" description="Apply to be a guard, join the staff team, or join the MostWanted creator program.">
+  <PageHero title="Apply" lead="Guards, staff and creators are all picked by application." image={rocks} />
+  <section class="section">
+    <div class="wrap">
+      {!site.open && <p class="note"><strong>Applications open at launch.</strong> They'll run through the MostWanted Discord: link your Minecraft account, fill in the form, and staff get back to you.</p>}
+      <ul class="apps">
+        {
+          apps.map((a) => (
+            <li class="panel app" id={a.id}>
+              <div class="app-head">
+                <a.icon aria-hidden="true" />
+                <h2>{a.title}</h2>
+              </div>
+              <p class="lead-in">{a.lead}</p>
+              <h3 class="label">What we look for</h3>
+              <ul class="needs">
+                {a.needs.map((n) => (
+                  <li>{n}</li>
+                ))}
+              </ul>
+              {site.discord ? (
+                <a class="button primary" href={site.discord}>Apply in Discord</a>
+              ) : (
+                <span class="button" aria-disabled="true">Opens at launch</span>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .apps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-4);
+    margin-top: var(--s-6);
+    padding: 0;
+    list-style: none;
+  }
+
+  .app {
+    display: grid;
+    grid-template-rows: auto auto auto 1fr auto;
+    gap: var(--s-3);
+    padding: var(--s-6) var(--s-5);
+    scroll-margin-top: 6rem;
+  }
+
+  .app:target {
+    border-color: var(--orange);
+  }
+
+  .app-head {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+  }
+
+  .app-head :global(svg) {
+    width: 2rem;
+    height: 2rem;
+    color: var(--orange);
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  .lead-in {
+    color: var(--muted);
+  }
+
+  .label {
+    margin-top: var(--s-2);
+    font-family: var(--pixel);
+  }
+
+  .needs {
+    display: grid;
+    gap: var(--s-2);
+    padding-left: 1.2rem;
+    color: var(--muted);
+  }
+
+  .needs li::marker {
+    color: var(--orange);
+  }
+
+  .button {
+    justify-self: start;
+  }
+
+  @media (max-width: 60rem) {
+    .apps {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

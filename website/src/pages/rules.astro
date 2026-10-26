@@ -1,0 +1,118 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import rocks from "../brand/scene-rocks.png";
+
+const rules = [
+  {
+    title: "Play fair",
+    items: [
+      ["No cheats", "No hacked clients, x-ray, auto-clickers, macros or mods that give you an advantage."],
+      ["No exploits", "Found a bug, a gap in a wall, or a way to duplicate items or cash? Report it. Using it is a ban."],
+      ["One account", "No alts to dodge a ban, farm bounties or help yourself."],
+      ["No real-money trading", "Cash, items and accounts can't be sold or bought for real money."],
+    ],
+  },
+  {
+    title: "Respect people",
+    items: [
+      ["No harassment or hate", "No hate speech, threats, or sharing anyone's personal information."],
+      ["No spam or ads", "Don't spam chat or advertise other servers."],
+      ["Don't impersonate staff", "Pretending to be staff is a ban."],
+      ["Trash talk the game, not the person", "Banter about the game is fine. Going after someone personally isn't."],
+    ],
+  },
+  {
+    title: "Guards",
+    items: [
+      ["Never help criminals", "No letting friends escape, tipping them off, or passing them gear."],
+      ["Only the fair targets", "Arrest or taser players who are escaping, rioting or wanted, nobody else."],
+      ["Off duty is off duty", "An off-duty guard is just another player."],
+    ],
+  },
+];
+---
+<Base title="Rules" description="The rules on MostWanted: fair play, respect, guard conduct and punishments.">
+  <PageHero title="Rules" lead="Fighting, robbing and breaking out are the game. This is what keeps it fair." image={rocks} />
+  <section class="section">
+    <div class="wrap">
+      <p class="note"><strong>Draft.</strong> These are final before the server opens. Staff may act on anything that ruins the game for others.</p>
+      <div class="groups">
+        {
+          rules.map((g, gi) => (
+            <section class="panel group" aria-labelledby={`rules-${gi}`}>
+              <h2 id={`rules-${gi}`}>{g.title}</h2>
+              <ol>
+                {g.items.map(([t, b], i) => (
+                  <li>
+                    <span class="num pixel">{gi + 1}.{i + 1}</span>
+                    <div>
+                      <h3>{t}</h3>
+                      <p>{b}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ))
+        }
+        <section class="panel group" aria-labelledby="rules-minehut">
+          <h2 id="rules-minehut">Minehut and punishments</h2>
+          <p class="text">MostWanted is reached through Minehut, so <a href="https://minehut.com">Minehut's rules</a> apply too. Staff choose the punishment that fits: a warning, a mute, a temporary ban or a permanent one. Cheating and exploiting are a ban the first time. Think a punishment was a mistake? Appeal through <a href="/support">Support</a>.</p>
+        </section>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .groups {
+    display: grid;
+    gap: var(--s-4);
+    margin-top: var(--s-6);
+  }
+
+  .group {
+    padding: var(--s-6);
+  }
+
+  h2 {
+    font-size: 2rem;
+    color: var(--orange);
+  }
+
+  ol {
+    display: grid;
+    gap: var(--s-4);
+    margin-top: var(--s-5);
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: var(--s-3);
+  }
+
+  .num {
+    font-size: 1.5rem;
+    color: var(--sand);
+  }
+
+  h3 {
+    font-family: var(--body);
+    font-size: 1.0625rem;
+    font-weight: 700;
+  }
+
+  li p,
+  .text {
+    color: var(--muted);
+  }
+
+  .text {
+    max-width: var(--measure);
+    margin-top: var(--s-4);
+  }
+</style>

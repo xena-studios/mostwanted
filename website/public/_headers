@@ -1,0 +1,12 @@
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' https://mc-heads.net; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; manifest-src 'self'; require-trusted-types-for 'script'
+  Cross-Origin-Opener-Policy: same-origin
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Content-Type-Options: nosniff
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/site.webmanifest
+  Content-Type: application/manifest+json
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
