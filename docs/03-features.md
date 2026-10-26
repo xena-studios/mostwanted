@@ -34,4 +34,4 @@ Sort ideas as we go. Move things between sections freely.
 
 - [ ] Vehicles (see [gameplay](02-gameplay.md#vehicles))
 - [ ] Seasonal events (holiday prison, riot weekend)
-- [ ] Store / ranks for monetization (cosmetic only, follow Mojang's EULA and Minehut's rules. See [tech](04-tech.md#other-things-we-need))
+- [ ] Website + Tebex store (cosmetic only, follow Mojang's EULA and Minehut's rules. See [website](08-website.md))
