@@ -24,7 +24,63 @@ The rest of the palette comes from the reference logo: chunky blocky letters lit
 - **`#ff9933` text on white doesn't** (~2.1:1). On light backgrounds, use `#893500` or black for text and keep orange for fills.
 - On dark backgrounds, `#ff9933` text is fine.
 
-**In game:** Java chat, scoreboards and menus can use `#ff9933` directly (MiniMessage `<#ff9933>`). Bedrock only has the 16 legacy colours, so Geyser shows it as the nearest one, **gold** (`§6`). Pick text that still reads when it's gold.
+## In-game colours
+
+**Every colour in the game comes from this palette** (decided 2026-10-25): 24 hues, 15° apart, all at full saturation and 60% lightness (`hsl(h, 100%, 60%)`). Chat, scoreboards, tab list, name tags, menus, item names, holograms and boss bars all use these. The only extras are **white and gray** for plain text, since the palette has no neutrals.
+
+Java shows the exact hex (MiniMessage `<#ff9933>`). **Bedrock only has Minecraft's 16 legacy colours**, so Minehut's Geyser shows the nearest one. Several hues collapse into the same Bedrock colour, so **anything players must tell apart (teams, good vs. bad) has to use hues that land on different Bedrock colours.**
+
+| Hue | Hex | Bedrock shows (nearest) |
+| --- | --- | --- |
+| 0 | `#ff3333` | red `§c` |
+| 15 | `#ff6633` | red `§c` |
+| 30 | `#ff9933` | gold `§6` |
+| 45 | `#ffcc33` | gold `§6` |
+| 60 | `#ffff33` | yellow `§e` |
+| 75 | `#ccff33` | yellow `§e` |
+| 90 | `#99ff33` | green `§a` |
+| 105 | `#66ff33` | green `§a` |
+| 120 | `#33ff33` | green `§a` |
+| 135 | `#33ff66` | green `§a` |
+| 150 | `#33ff99` | green `§a` |
+| 165 | `#33ffcc` | aqua `§b` |
+| 180 | `#33ffff` | aqua `§b` |
+| 195 | `#33ccff` | aqua `§b` |
+| 210 | `#3399ff` | blue `§9` |
+| 225 | `#3366ff` | blue `§9` |
+| 240 | `#3333ff` | blue `§9` |
+| 255 | `#6633ff` | blue `§9` |
+| 270 | `#9933ff` | blue `§9` |
+| 285 | `#cc33ff` | light purple `§d` |
+| 300 | `#ff33ff` | light purple `§d` |
+| 315 | `#ff33cc` | light purple `§d` |
+| 330 | `#ff3399` | red `§c` |
+| 345 | `#ff3366` | red `§c` |
+
+(Nearest by RGB distance. Check on a real Bedrock client once we can join through Minehut.)
+
+### Roles (suggested)
+
+Picked so each one is a different colour on Bedrock too:
+
+| Role | Hue | Hex | Bedrock |
+| --- | --- | --- | --- |
+| **Brand / server name / highlights** | 30 | `#ff9933` | gold |
+| **Inmates** (prisoners inside) | 30 | `#ff9933` | gold |
+| **Criminals** (escaped, wanted) | 0 | `#ff3333` | red |
+| **Guards** | 210 | `#3399ff` | blue |
+| **Cash, success, robbery complete** | 120 | `#33ff33` | green |
+| **Bounty, warnings, timers** | 60 | `#ffff33` | yellow |
+| **Info, tips, links** | 180 | `#33ffff` | aqua |
+| **Staff, events, store cosmetics** | 300 | `#ff33ff` | light purple |
+| **Errors, alarms** | 0 | `#ff3333` | red |
+| Plain text | | white / gray | white / gray |
+
+On Java, the in-between hues (15, 45, 75, …) are free for gradients and accents, e.g. a 0 → 30 → 60 fire gradient on the server name, or 210 → 240 on guard titles. Bedrock players just see the nearest colour, so never rely on a gradient to carry meaning.
+
+### Contrast
+
+These are bright colours, made for **dark backgrounds** (chat, scoreboards, menus). On the website's light sand sections, use them for fills and badges with black text, not as text colours.
 
 ### Scene colours
 
