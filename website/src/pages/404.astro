@@ -1,9 +1,15 @@
 ---
 import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
 ---
-<Base title="Not found: MostWanted" noindex>
-  <section class="page wrap">
-    <h1>This page escaped.</h1>
-    <p class="lead">There's nothing at this address. Head back to the <a href="/">home page</a>.</p>
-  </section>
+<Base title="Not found" noindex>
+  <PageHero title="This page escaped" lead="There's nothing at this address.">
+    <p class="actions"><a class="button primary" href="/">Back to the home page</a></p>
+  </PageHero>
 </Base>
+
+<style>
+  .actions {
+    margin-top: var(--s-5);
+  }
+</style>

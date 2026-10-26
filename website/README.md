@@ -14,28 +14,40 @@ npm run preview      # serve dist/ locally
 npm run brand:sync   # copy the logo, background and icons in from ../brand
 ```
 
-The site ships no JavaScript. Pages are Astro components rendered to HTML at build time.
+Pages are Astro components rendered to HTML at build time. The only JavaScript is the address copy button and the player lookup, a few lines each.
 
 ## Layout
 
 ```
 src/
+  site.ts              the server address, Discord/store links, nav, the leaderboards;
+                       flip `open` at launch and every page updates
   pages/
-    index.astro        home: the hero, how it plays, how to join
-    guards.astro       becoming a guard, and the guard code
-    rules.astro        the rules (draft until launch)
-    404.astro          served for unknown paths
-    sitemap.xml.ts     /sitemap.xml (add new routes to its list)
+    index.astro        home: hero, explore cards, player search, how it plays, news
+    news/              news list and posts (from src/content/news/)
+    wiki/              wiki index and articles (from src/content/wiki/)
+    leaderboards.astro the boards (filled by the stats feed once it exists)
+    player.astro       player lookup (/player?name=…)
+    rules, staff, creators, apply, support, store, login, 404, sitemap.xml
+  content/             news posts and wiki articles in Markdown: add a file to publish
+  components/          PageHero (the desert header on inner pages), CopyAddress
   layouts/Base.astro   <head>, header, footer
-  styles/global.css    MostWanted's tokens (from xena-studios/brand), type, buttons, long-form pages
+  styles/global.css    tokens, panels, buttons, forms, long-form text
   brand/               synced from ../brand by npm run brand:sync: don't edit
-public/                copied as-is: _headers (CSP and security headers), robots.txt, icons, og.png
-scripts/sync-brand.mjs copies the brand images in
+public/                _headers (CSP and security headers), _redirects, robots.txt, icons, og.png
 ```
+
+## Writing news and wiki pages
+
+Add a Markdown file to `src/content/news/` (`title`, `date`, `summary`) or `src/content/wiki/` (`title`, `summary`, `section`, `order`) and open a pull request. The sitemap picks it up on its own.
+
+## Before launch
+
+Player search, the leaderboards and sign-in show a "starts when the server opens" state until the backend exists: the stats feed into Cloudflare D1 ([docs/08-website.md](../docs/08-website.md#player-stats)) and Discord sign-in. At launch, set `open`, `discord` and `store` in `src/site.ts`.
 
 ## Look
 
-From [docs/09-brand.md](../docs/09-brand.md) and MostWanted's section in [xena-studios/brand](https://github.com/xena-studios/brand#mostwanted): the blurred pixel desert behind the block wordmark, Desert Orange `#FF9933` on dusk, **Lilita One** for headings (self-hosted from Fontsource) and the system font for body text.
+From [docs/09-brand.md](../docs/09-brand.md) and MostWanted's section in [xena-studios/brand](https://github.com/xena-studios/brand#mostwanted): the blurred pixel desert behind the block wordmark, Desert Orange `#FF9933` on dusk, chunky bevelled panels and buttons like blocks in the game. **Lilita One** for headings, **Rubik** for text and **VT323** (a pixel face) for labels, all self-hosted from Fontsource. Icons are [Lucide](https://lucide.dev), inlined as SVG at build time.
 
 ## Deploy
 

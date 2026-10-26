@@ -1,0 +1,140 @@
+---
+import { Search, Trophy } from "@lucide/astro";
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import { boards, site } from "../site";
+import sun from "../brand/scene-sun.png";
+---
+<Base title="Leaderboards" description="Most Wanted, top escapers, top guards and biggest heists on MostWanted. All-time, monthly and weekly.">
+  <PageHero title="Leaderboards" lead="The most wanted, the fastest out, and the guards who bring them in." image={sun}>
+    <form class="search" action="/player" method="get" role="search">
+      <label class="visually-hidden" for="lb-search">Minecraft username</label>
+      <div class="field">
+        <input id="lb-search" class="input" name="name" type="search" placeholder="Look up a player" autocomplete="off" spellcheck="false" maxlength="32" required />
+        <button class="button primary" type="submit"><Search aria-hidden="true" /> Search</button>
+      </div>
+    </form>
+  </PageHero>
+
+  <section class="section">
+    <div class="wrap">
+      <p class="periods" aria-label="Period"><span class="badge on">All time</span><span class="badge">Monthly</span><span class="badge">Weekly</span></p>
+      <ul class="boards">
+        {
+          boards.map((b) => (
+            <li class="panel board" id={b.id}>
+              <div class="board-head">
+                <h2>{b.name}</h2>
+                <span class="label">{b.stat}</span>
+              </div>
+              <p class="blurb">{b.blurb}</p>
+              <ol class="rows">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <li class="row">
+                    <span class:list={["rank", "pixel", { top: n <= 3 }]}>#{n}</span>
+                    <span class="who">—</span>
+                    <span class="val pixel">—</span>
+                  </li>
+                ))}
+              </ol>
+              {!site.open && (
+                <p class="wait">
+                  <Trophy aria-hidden="true" /> Fills up when the server opens.
+                </p>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .search {
+    max-width: 34rem;
+    margin-top: var(--s-5);
+  }
+
+  .periods {
+    display: flex;
+    gap: var(--s-2);
+    margin-bottom: var(--s-5);
+  }
+
+  .periods .on {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  .boards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(21rem, 1fr));
+    gap: var(--s-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .board {
+    padding: var(--s-5);
+  }
+
+  .board-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s-3);
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  .blurb {
+    margin-top: var(--s-1);
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  .rows {
+    display: grid;
+    gap: var(--s-1);
+    margin-top: var(--s-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-2) var(--s-3);
+    border-radius: 8px;
+    background: var(--night);
+    color: var(--muted);
+  }
+
+  .rank {
+    font-size: 1.375rem;
+  }
+
+  .rank.top {
+    color: var(--sand);
+  }
+
+  .wait {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    margin-top: var(--s-4);
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  .wait :global(svg) {
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--orange);
+  }
+</style>

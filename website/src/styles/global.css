@@ -1,17 +1,26 @@
 /* MostWanted's tokens, from xena-studios/brand (tokens/mostwanted.css): Desert
-   Orange on dusk, neutrals tinted toward orange. */
+   Orange on dusk, neutrals tinted toward orange. The look: big Lilita One
+   headings over the blurred desert, chunky bevelled panels and buttons with a
+   pixel accent face (VT323) for labels, like blocks in the game. */
 :root {
   --orange: #ff9933;
+  --orange-dark: #c46002;
+  --orange-deep: #893500;
+  --sand: #eebd3b;
   --dusk: #150d09;
+  --night: #0f0906;
   --raised: #21150f;
+  --raised-2: #2b1c14;
   --rule: #3b2a20;
   --text: #fbf4ec;
   --muted: #b8a797;
   --ink: #1c110b;
-  --sand: #eebd3b;
+  --green: #33ff66;
+  --red: #ff3333;
 
   --display: "Lilita One", system-ui, sans-serif;
-  --body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --body: "Rubik Variable", Rubik, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --pixel: "VT323", ui-monospace, monospace;
 
   --s-1: 0.25rem;
   --s-2: 0.5rem;
@@ -22,14 +31,14 @@
   --s-7: clamp(3rem, 2rem + 3vw, 4.5rem);
   --s-8: clamp(4.5rem, 3rem + 5vw, 7rem);
 
-  --t-h1: clamp(2.25rem, 1.5rem + 3.5vw, 4rem);
-  --t-h2: clamp(1.875rem, 1.4rem + 2vw, 2.75rem);
+  --t-mega: clamp(3.25rem, 1.5rem + 7vw, 7rem);
+  --t-h2: clamp(2.5rem, 1.4rem + 4.5vw, 5rem);
   --t-h3: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
   --t-lead: clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);
   --t-small: 0.875rem;
 
-  --radius: 12px;
-  --measure: 62ch;
+  --radius: 14px;
+  --measure: 64ch;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 
   color-scheme: dark;
@@ -71,22 +80,27 @@ body {
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
   margin: 0;
   font-family: var(--display);
   font-weight: 400;
-  line-height: 1.1;
+  line-height: 1.05;
   letter-spacing: 0.005em;
   text-wrap: balance;
 }
 
 p,
 ul,
-ol {
+ol,
+dl,
+dd,
+figure {
   margin: 0;
 }
 
-img {
+img,
+svg {
   max-width: 100%;
 }
 
@@ -96,9 +110,9 @@ a {
 }
 
 :focus-visible {
-  outline: 2px solid var(--orange);
+  outline: 3px solid var(--orange);
   outline-offset: 3px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 ::selection {
@@ -107,7 +121,7 @@ a {
 }
 
 .wrap {
-  width: min(100% - 2 * var(--s-5), 72rem);
+  width: min(100% - 2 * var(--s-5), 76rem);
   margin-inline: auto;
 }
 
@@ -117,10 +131,19 @@ a {
   color: var(--muted);
 }
 
+/* The pixel face, for labels, badges and numbers. */
+.pixel {
+  font-family: var(--pixel);
+  font-size: 1.25em;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
 .label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-family: var(--pixel);
+  font-size: 1.25rem;
+  line-height: 1;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -134,75 +157,231 @@ a {
   white-space: nowrap;
 }
 
+/* ---------------------------------------------------------------- sections */
+
+.section {
+  padding-block: var(--s-8) 0;
+}
+
+.section:last-child {
+  padding-bottom: var(--s-8);
+}
+
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-3) var(--s-5);
+  margin-bottom: var(--s-6);
+}
+
+.section-head h2 {
+  font-size: var(--t-h2);
+  text-transform: uppercase;
+}
+
+.section-head h2 .accent {
+  color: var(--orange);
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.more:hover {
+  color: var(--orange);
+}
+
+.more svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+/* ---------------------------------------------------------------- panels and buttons */
+
+/* A bevelled block: light top edge, thick dark bottom edge. */
+.panel {
+  position: relative;
+  border: 2px solid var(--rule);
+  border-bottom-width: 5px;
+  border-radius: var(--radius);
+  background: linear-gradient(to bottom, var(--raised-2), var(--raised));
+  box-shadow:
+    inset 0 2px 0 color-mix(in srgb, var(--text) 8%, transparent),
+    0 10px 24px color-mix(in srgb, black 30%, transparent);
+}
+
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.875rem;
+  gap: var(--s-2);
+  min-height: 3rem;
   padding: 0 var(--s-5);
   border: 2px solid var(--rule);
-  border-radius: 10px;
+  border-bottom-width: 5px;
+  border-radius: 12px;
+  background: linear-gradient(to bottom, var(--raised-2), var(--raised));
   font-family: var(--display);
   font-size: 1.125rem;
-  letter-spacing: 0.01em;
-  text-decoration: none;
+  letter-spacing: 0.02em;
   color: var(--text);
-  background: color-mix(in srgb, var(--dusk) 70%, transparent);
+  text-decoration: none;
+  cursor: pointer;
   transition:
-    border-color 200ms var(--ease),
-    background-color 200ms var(--ease),
-    transform 200ms var(--ease);
+    transform 120ms var(--ease),
+    border-color 150ms var(--ease),
+    filter 150ms var(--ease);
 }
 
 .button:hover {
-  border-color: var(--orange);
+  border-color: color-mix(in srgb, var(--orange) 60%, var(--rule));
 }
 
 .button:active {
-  transform: translateY(1px);
+  transform: translateY(2px);
+}
+
+.button svg {
+  width: 1.15em;
+  height: 1.15em;
 }
 
 .button.primary {
-  border-color: var(--orange);
-  background: var(--orange);
+  border-color: var(--orange-deep);
+  background: linear-gradient(to bottom, #ffb35c, var(--orange) 55%, #f08a22);
   color: var(--ink);
+  box-shadow: inset 0 2px 0 color-mix(in srgb, white 35%, transparent);
 }
 
 .button.primary:hover {
-  background: color-mix(in srgb, var(--orange) 88%, white);
+  filter: brightness(1.06);
 }
 
-/* Long-form pages: rules and guards. */
-.page {
-  padding-block: var(--s-8);
+.button[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.page h1 {
-  font-size: var(--t-h1);
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-1) var(--s-3);
+  border: 2px solid var(--rule);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--dusk) 80%, transparent);
+  font-family: var(--pixel);
+  font-size: 1.125rem;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  color: var(--text);
 }
 
-.page .lead {
-  margin-top: var(--s-4);
+.dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 2px;
+  background: var(--orange);
+  box-shadow: 0 0 10px var(--orange);
 }
+
+.dot.live {
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
+}
+
+/* ---------------------------------------------------------------- forms */
+
+.field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.field .button {
+  flex: 0 0 auto;
+}
+
+.input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  min-height: 3rem;
+  padding: 0 var(--s-4);
+  border: 2px solid var(--rule);
+  border-radius: 12px;
+  background: var(--night);
+  color: var(--text);
+  font: inherit;
+  font-size: 1.0625rem;
+}
+
+.input::placeholder {
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--orange);
+}
+
+/* ---------------------------------------------------------------- empty states */
+
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-3);
+  padding: var(--s-7) var(--s-5);
+  text-align: center;
+}
+
+.empty svg {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--orange);
+}
+
+.empty h3 {
+  font-size: var(--t-h3);
+}
+
+.empty p {
+  max-width: 46ch;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- long-form */
 
 .prose {
   max-width: var(--measure);
-  margin-top: var(--s-7);
 }
 
 .prose h2 {
   margin-top: var(--s-7);
-  font-size: var(--t-h3);
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
   color: var(--orange);
 }
 
-.prose h2:first-child {
+.prose h3 {
+  margin-top: var(--s-6);
+  font-size: var(--t-h3);
+}
+
+.prose > :first-child {
   margin-top: 0;
 }
 
 .prose p,
 .prose ul,
-.prose ol {
+.prose ol,
+.prose table,
+.prose blockquote {
   margin-top: var(--s-4);
 }
 
@@ -210,16 +389,52 @@ a {
   margin-top: var(--s-2);
 }
 
-.prose strong {
-  color: var(--text);
+.prose li::marker {
+  color: var(--orange);
 }
 
-.note {
-  margin-top: var(--s-6);
-  padding: var(--s-4) var(--s-5);
-  border: 1px solid var(--rule);
+.prose code {
+  padding: 0.1em 0.35em;
+  border-radius: 6px;
+  background: var(--raised-2);
+  font-size: 0.92em;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.prose th,
+.prose td {
+  padding: var(--s-2) var(--s-3);
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+}
+
+.prose th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.prose blockquote {
+  padding: var(--s-3) var(--s-5);
   border-left: 4px solid var(--orange);
   border-radius: 8px;
   background: var(--raised);
   color: var(--muted);
+}
+
+.note {
+  padding: var(--s-4) var(--s-5);
+  border: 2px solid var(--rule);
+  border-left: 5px solid var(--orange);
+  border-radius: 10px;
+  background: var(--raised);
+  color: var(--muted);
+}
+
+.note strong {
+  color: var(--text);
 }

@@ -1,0 +1,98 @@
+---
+import { Bug, Flag, Gavel, Mail, MessageCircle } from "@lucide/astro";
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import { site } from "../site";
+import cactus from "../brand/scene-cactus.png";
+
+const ways = [
+  { icon: Flag, title: "Report a player", body: "Cheating, abusing a bug, or a guard breaking the code. Use /report in game, or open a ticket with a screenshot or clip." },
+  { icon: Bug, title: "Report a bug", body: "Something broken? Tell us what happened and how to make it happen again. Exploits go to staff privately, never in public chat." },
+  { icon: Gavel, title: "Appeal a punishment", body: "Think a mute or ban was a mistake? Open an appeal ticket with your username and what happened." },
+  { icon: MessageCircle, title: "Ask a question", body: "Most answers are in the wiki. Still stuck? Ask in the Discord." },
+];
+---
+<Base title="Support" description="Report a player or a bug, appeal a punishment, or get help on MostWanted.">
+  <PageHero title="Support" lead="Report a player or a bug, appeal a punishment, or get help." image={cactus} />
+  <section class="section">
+    <div class="wrap">
+      <ul class="ways">
+        {
+          ways.map((w) => (
+            <li class="panel way">
+              <w.icon aria-hidden="true" />
+              <h2>{w.title}</h2>
+              <p>{w.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="panel contact">
+        <Mail aria-hidden="true" />
+        <div>
+          <h2>Tickets</h2>
+          {
+            site.discord ? (
+              <p>Open a ticket in the <a href={site.discord}>Discord</a>. Staff answer in order.</p>
+            ) : (
+              <p>Tickets run through the MostWanted Discord once the server opens. Until then, email <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+            )
+          }
+        </div>
+        <a class="button" href="/wiki/faq">Read the FAQ</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .ways {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .way {
+    padding: var(--s-6) var(--s-5);
+  }
+
+  .way :global(svg),
+  .contact :global(svg) {
+    width: 2rem;
+    height: 2rem;
+    color: var(--orange);
+  }
+
+  h2 {
+    margin-top: var(--s-3);
+    font-size: 1.75rem;
+  }
+
+  .way p,
+  .contact p {
+    margin-top: var(--s-2);
+    color: var(--muted);
+  }
+
+  .contact {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--s-5);
+    align-items: center;
+    margin-top: var(--s-4);
+    padding: var(--s-6);
+  }
+
+  .contact h2 {
+    margin-top: 0;
+  }
+
+  @media (max-width: 52rem) {
+    .ways,
+    .contact {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

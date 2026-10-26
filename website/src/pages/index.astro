@@ -1,84 +1,82 @@
 ---
 import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import { ArrowRight, ArrowUpRight, Search } from "@lucide/astro";
 import Base from "../layouts/Base.astro";
+import CopyAddress from "../components/CopyAddress.astro";
+import { site } from "../site";
 import wordmark from "../brand/wordmark.png";
 import background from "../brand/background.png";
+import mesa from "../brand/scene-mesa.png";
+import sun from "../brand/scene-sun.png";
+import rocks from "../brand/scene-rocks.png";
+import road from "../brand/scene-road.png";
+import cactus from "../brand/scene-cactus.png";
+import sky from "../brand/scene-sky.png";
 
-// The loop, one role at a time (docs/02-gameplay.md).
+const explore = [
+  { href: "/leaderboards", title: "Leaderboards", body: "Most Wanted, top escapers and every player's stats.", image: sun },
+  { href: "/wiki", title: "Wiki", body: "How escapes, robberies, riots and arrests work.", image: mesa },
+  { href: "/apply", title: "Apply", body: "Become a guard, join the staff or the creator program.", image: rocks },
+  { href: "/news", title: "News", body: "Updates, events and changes.", image: sky },
+  { href: "/store", title: "Store", body: "Cosmetics only. Never pay to win.", image: road },
+  { href: "/support", title: "Support", body: "Report a bug or a player, or get help.", image: cactus },
+];
+
 const roles = [
-  {
-    step: "01",
-    name: "Inmate",
-    body: "You start inside. Find a way out: through a weak wall, down the sewers, with a stolen keycard, or under cover of a riot.",
-  },
-  {
-    step: "02",
-    name: "Criminal",
-    body: "Over the wall, you're wanted. Rob the bank, the jewelry store and the gas station, and get the cash to a hideout before you're caught.",
-  },
-  {
-    step: "03",
-    name: "Guard",
-    body: "Patrol the prison, answer the alarms, and bring criminals in. Every arrest pays the bounty on their head. Guards are picked by application.",
-  },
+  { step: "01", name: "Inmate", body: "You start inside. Find a way out: through a weak wall, down the sewers, with a stolen keycard, or under cover of a riot." },
+  { step: "02", name: "Criminal", body: "Over the wall, you're wanted. Rob the bank, the jewelry store and the gas station, and bank the cash before you're caught." },
+  { step: "03", name: "Guard", body: "Patrol the prison, answer the alarms, and bring criminals in. Every arrest pays the bounty on their head." },
 ];
 
-const features = [
-  { title: "One world, always running", body: "No rounds and no resets. Escapes, robberies and arrests all happen in the same world, around the clock." },
-  { title: "Bounties", body: "Every robbery raises yours. The biggest names end up on the Most Wanted board, and the guard who brings them in collects." },
-  { title: "Riots", body: "Get enough inmates together and take the prison back. Guards come running, which is the best cover there is for an escape." },
-  { title: "Custom gear", body: "Guns, tools, food and contraband made for MostWanted, built to work the same on Java and Bedrock." },
-];
+const news = (await getCollection("news")).sort((a, b) => +b.data.date - +a.data.date).slice(0, 3);
+const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
 ---
 <Base>
   <section class="hero" aria-labelledby="hero-title">
-    <Image
-      class="hero-bg"
-      src={background}
-      alt=""
-      widths={[960, 1440, 1920]}
-      sizes="100vw"
-      loading="eager"
-      fetchpriority="high"
-    />
+    <Image class="hero-bg" src={background} alt="" widths={[960, 1440, 1920]} sizes="100vw" loading="eager" fetchpriority="high" />
     <div class="wrap hero-copy">
       <h1 id="hero-title">
-        <Image class="wordmark" src={wordmark} alt="MostWanted" widths={[640, 1000, 1500, 2000]} sizes="(min-width: 60rem) 52rem, 92vw" loading="eager" />
+        <Image class="wordmark" src={wordmark} alt="MostWanted" widths={[640, 1000, 1500, 2000]} sizes="(min-width: 60rem) 50rem, 92vw" loading="eager" />
       </h1>
       <p class="tagline">Cops vs. prisoners on Java &amp; Bedrock</p>
-      <p class="hero-lead">
-        A Jailbreak-style Minecraft server. Break out, rob the town, and stay ahead of the guards. Or be the guard who
-        brings them back.
-      </p>
-      <p class="status"><span class="dot" aria-hidden="true"></span> In development, not open yet</p>
-      <p class="actions">
-        <a class="button primary" href="#how-it-plays">How it plays</a>
-        <a class="button" href="/guards">Become a guard</a>
-      </p>
+      <div class="hero-actions">
+        <CopyAddress />
+        {
+          site.discord ? (
+            <a class="button" href={site.discord}>Join Discord</a>
+          ) : (
+            <a class="button" href="/news">Follow the launch <ArrowRight aria-hidden="true" /></a>
+          )
+        }
+      </div>
+      <ul class="badges" aria-label="About the server">
+        <li class="badge"><span class:list={["dot", { live: site.open }]} aria-hidden="true"></span>{site.open ? "Online now" : "Opening soon"}</li>
+        <li class="badge">Java + Bedrock</li>
+        <li class="badge">One world, no resets</li>
+        <li class="badge">Never pay to win</li>
+      </ul>
     </div>
   </section>
 
-  <section id="how-it-plays" class="how" aria-labelledby="how-title">
+  <section class="section" aria-labelledby="explore-title">
     <div class="wrap">
-      <h2 id="how-title">How it plays</h2>
-      <p class="lead">Everyone starts as an inmate. Where you end up is up to you.</p>
-      <ol class="roles">
+      <div class="section-head">
+        <h2 id="explore-title">Explore</h2>
+      </div>
+      <ul class="explore">
         {
-          roles.map((r) => (
-            <li class="role">
-              <span class="step" aria-hidden="true">{r.step}</span>
-              <h3>{r.name}</h3>
-              <p>{r.body}</p>
-            </li>
-          ))
-        }
-      </ol>
-      <ul class="features">
-        {
-          features.map((f) => (
+          explore.map((e) => (
             <li>
-              <h3>{f.title}</h3>
-              <p>{f.body}</p>
+              <a class="card" href={e.href}>
+                <Image class="card-bg" src={e.image} alt="" widths={[480, 960]} sizes="(min-width: 60rem) 24rem, 92vw" loading="lazy" />
+                <span class="card-copy">
+                  <span class="card-title">
+                    {e.title} <ArrowRight aria-hidden="true" />
+                  </span>
+                  <span class="card-body">{e.body}</span>
+                </span>
+              </a>
             </li>
           ))
         }
@@ -86,28 +84,62 @@ const features = [
     </div>
   </section>
 
-  <section id="join" class="join" aria-labelledby="join-title">
-    <div class="wrap join-inner">
-      <div>
-        <h2 id="join-title">Join from Java or Bedrock</h2>
-        <p class="lead">
-          One address for both, through Minehut. The server isn't open yet; this is where you'll find it when it is.
-        </p>
+  <section class="section" aria-labelledby="search-title">
+    <div class="wrap">
+      <form class="panel search" action="/player" method="get" role="search">
+        <div>
+          <h2 id="search-title">Look up a player</h2>
+          <p>Escapes, arrests, bounties and records for anyone who's played.</p>
+        </div>
+        <label class="visually-hidden" for="home-search">Minecraft username</label>
+        <div class="field">
+          <input id="home-search" class="input" name="name" type="search" placeholder="Minecraft username" autocomplete="off" spellcheck="false" maxlength="32" required />
+          <button class="button primary" type="submit"><Search aria-hidden="true" /> Search</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="how-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="how-title">How it <span class="accent">plays</span></h2>
+        <a class="more" href="/wiki">Read the wiki <ArrowRight aria-hidden="true" /></a>
       </div>
-      <dl class="address">
-        <div>
-          <dt class="label">Address</dt>
-          <dd><code>play.mostwantedmc.com</code></dd>
-        </div>
-        <div>
-          <dt class="label">Java</dt>
-          <dd>Multiplayer → Add Server → paste the address</dd>
-        </div>
-        <div>
-          <dt class="label">Bedrock</dt>
-          <dd>Phone, console and Windows: steps here when the server opens</dd>
-        </div>
-      </dl>
+      <ol class="roles">
+        {
+          roles.map((r) => (
+            <li class="panel role">
+              <span class="step pixel" aria-hidden="true">{r.step}</span>
+              <h3>{r.name}</h3>
+              <p>{r.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="news-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="news-title">News</h2>
+        <a class="more" href="/news">All news <ArrowRight aria-hidden="true" /></a>
+      </div>
+      <ul class="news">
+        {
+          news.map((n) => (
+            <li>
+              <a class="panel post" href={`/news/${n.id}`}>
+                <time class="label" datetime={n.data.date.toISOString()}>{fmt(n.data.date)}</time>
+                <h3>{n.data.title}</h3>
+                <p>{n.data.summary}</p>
+                <ArrowUpRight class="post-arrow" aria-hidden="true" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 </Base>
@@ -118,7 +150,9 @@ const features = [
   .hero {
     position: relative;
     display: grid;
-    min-height: min(calc(100svh - 4rem), 52rem);
+    align-items: end;
+    min-height: min(100svh, 56rem);
+    padding-top: 4rem;
     overflow: hidden;
     isolation: isolate;
   }
@@ -132,114 +166,202 @@ const features = [
     object-fit: cover;
   }
 
-  /* Darkens toward the bottom so the copy reads over the bright sand, and fades into the page. */
   .hero::after {
     content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
     background:
-      radial-gradient(ellipse at 50% 40%, transparent 30%, color-mix(in srgb, var(--dusk) 55%, transparent) 100%),
-      linear-gradient(to bottom, transparent 45%, color-mix(in srgb, var(--dusk) 70%, transparent) 78%, var(--dusk));
+      linear-gradient(to right, color-mix(in srgb, var(--dusk) 55%, transparent), transparent 70%),
+      linear-gradient(to bottom, transparent 35%, color-mix(in srgb, var(--dusk) 75%, transparent) 75%, var(--dusk));
   }
 
   .hero-copy {
     display: grid;
-    justify-items: center;
-    align-content: center;
-    gap: var(--s-4);
-    padding-block: var(--s-8);
-    text-align: center;
+    justify-items: start;
+    gap: var(--s-5);
+    padding-block: var(--s-8) var(--s-7);
   }
 
   .hero :global(.wordmark) {
     display: block;
-    width: min(52rem, 92vw);
+    width: min(50rem, 92vw);
     height: auto;
-    filter: drop-shadow(0 6px 18px color-mix(in srgb, var(--dusk) 60%, transparent));
+    filter: drop-shadow(0 10px 24px color-mix(in srgb, black 45%, transparent));
+    animation: drop 900ms var(--ease) both;
+  }
+
+  @keyframes drop {
+    from {
+      transform: translateY(-1rem) scale(0.98);
+      opacity: 0;
+    }
   }
 
   .tagline {
     font-family: var(--display);
     font-size: clamp(1.375rem, 1rem + 1.6vw, 2.25rem);
-    text-shadow: 0 2px 14px var(--dusk);
+    text-shadow: 0 3px 0 var(--orange-deep), 0 8px 24px var(--dusk);
   }
 
-  .hero-lead {
-    max-width: 44ch;
-    font-size: var(--t-lead);
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-3);
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    padding: 0;
+    list-style: none;
+  }
+
+  /* ---------------------------------------------------------------- explore */
+
+  .explore {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .card {
+    position: relative;
+    display: grid;
+    align-items: end;
+    min-height: 14rem;
+    overflow: hidden;
+    border: 2px solid var(--rule);
+    border-bottom-width: 5px;
+    border-radius: var(--radius);
     color: var(--text);
-    text-shadow: 0 1px 10px var(--dusk);
+    text-decoration: none;
+    isolation: isolate;
+    transition:
+      transform 250ms var(--ease),
+      border-color 200ms var(--ease);
   }
 
-  .status {
+  .card :global(.card-bg) {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 500ms var(--ease);
+  }
+
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--dusk) 15%, transparent), color-mix(in srgb, var(--dusk) 88%, transparent));
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: var(--orange);
+  }
+
+  .card:hover :global(.card-bg) {
+    transform: scale(1.06);
+  }
+
+  .card-copy {
+    display: grid;
+    gap: var(--s-1);
+    padding: var(--s-5);
+  }
+
+  .card-title {
     display: inline-flex;
     align-items: center;
     gap: var(--s-2);
-    padding: var(--s-1) var(--s-4);
-    border: 1px solid var(--rule);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--dusk) 75%, transparent);
-    font-size: var(--t-small);
-    font-weight: 600;
+    font-family: var(--display);
+    font-size: 1.75rem;
+    line-height: 1.1;
   }
 
-  .dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background: var(--orange);
+  .card-title :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--orange);
+    transition: transform 200ms var(--ease);
   }
 
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--s-3);
-    margin-top: var(--s-3);
+  .card:hover .card-title :global(svg) {
+    transform: translateX(4px);
   }
 
-  /* ---------------------------------------------------------------- how it plays */
-
-  .how {
-    padding-block: var(--s-8);
+  .card-body {
+    color: color-mix(in srgb, var(--text) 82%, transparent);
   }
 
-  .how h2,
-  .join h2 {
-    font-size: var(--t-h2);
+  @media (max-width: 60rem) {
+    .explore {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
-  .how .lead {
-    margin-top: var(--s-4);
+  @media (max-width: 36rem) {
+    .explore {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
+
+  /* ---------------------------------------------------------------- search */
+
+  .search {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: var(--s-5);
+    align-items: center;
+    padding: var(--s-6);
+  }
+
+  .search h2 {
+    font-size: clamp(1.75rem, 1.3rem + 1.5vw, 2.5rem);
+  }
+
+  .search p {
+    margin-top: var(--s-2);
+    color: var(--muted);
+  }
+
+  @media (max-width: 52rem) {
+    .search {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* ---------------------------------------------------------------- roles */
 
   .roles {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--s-5);
-    margin-top: var(--s-7);
+    gap: var(--s-4);
     padding: 0;
     list-style: none;
   }
 
   .role {
     padding: var(--s-6) var(--s-5);
-    border: 1px solid var(--rule);
-    border-top: 4px solid var(--orange);
-    border-radius: var(--radius);
-    background: var(--raised);
   }
 
   .step {
-    font-family: var(--display);
-    font-size: 1rem;
     color: var(--orange);
+    font-size: 1.75rem;
   }
 
   .role h3 {
     margin-top: var(--s-2);
-    font-size: var(--t-h3);
+    font-size: 1.75rem;
   }
 
   .role p {
@@ -247,84 +369,48 @@ const features = [
     color: var(--muted);
   }
 
-  .features {
+  @media (max-width: 52rem) {
+    .roles {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* ---------------------------------------------------------------- news */
+
+  .news {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--s-6) var(--s-7);
-    margin-top: var(--s-7);
-    padding: var(--s-7) 0 0;
-    border-top: 1px solid var(--rule);
+    gap: var(--s-4);
+    padding: 0;
     list-style: none;
   }
 
-  .features h3 {
-    font-size: 1.25rem;
+  .post {
+    display: grid;
+    gap: var(--s-2);
+    padding: var(--s-5) var(--s-7) var(--s-5) var(--s-5);
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 200ms var(--ease);
   }
 
-  .features p {
-    margin-top: var(--s-2);
+  .post:hover {
+    border-color: var(--orange);
+  }
+
+  .post h3 {
+    font-size: 1.75rem;
+  }
+
+  .post p {
     color: var(--muted);
   }
 
-  @media (max-width: 52rem) {
-    .roles,
-    .features {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-
-  /* ---------------------------------------------------------------- join */
-
-  .join {
-    padding-block: var(--s-8);
-    border-top: 1px solid var(--rule);
-  }
-
-  .join-inner {
-    display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    gap: var(--s-7);
-    align-items: center;
-  }
-
-  .join .lead {
-    margin-top: var(--s-4);
-  }
-
-  .address {
-    display: grid;
-    margin: 0;
-    border: 1px solid var(--rule);
-    border-radius: var(--radius);
-    background: var(--raised);
-  }
-
-  .address > div {
-    display: grid;
-    grid-template-columns: 6rem minmax(0, 1fr);
-    gap: var(--s-4);
-    align-items: baseline;
-    padding: var(--s-4) var(--s-5);
-  }
-
-  .address > div + div {
-    border-top: 1px solid var(--rule);
-  }
-
-  .address dd {
-    margin: 0;
-    color: var(--muted);
-  }
-
-  .address code {
-    font-size: 1.125rem;
-    font-weight: 600;
+  .post :global(.post-arrow) {
+    position: absolute;
+    top: var(--s-5);
+    right: var(--s-5);
+    width: 1.5rem;
+    height: 1.5rem;
     color: var(--orange);
-  }
-
-  @media (max-width: 52rem) {
-    .join-inner {
-      grid-template-columns: minmax(0, 1fr);
-    }
   }
 </style>

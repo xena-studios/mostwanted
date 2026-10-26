@@ -1,42 +1,118 @@
 ---
 import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import rocks from "../brand/scene-rocks.png";
+
+const rules = [
+  {
+    title: "Play fair",
+    items: [
+      ["No cheats", "No hacked clients, x-ray, auto-clickers, macros or mods that give you an advantage."],
+      ["No exploits", "Found a bug, a gap in a wall, or a way to duplicate items or cash? Report it. Using it is a ban."],
+      ["One account", "No alts to dodge a ban, farm bounties or help yourself."],
+      ["No real-money trading", "Cash, items and accounts can't be sold or bought for real money."],
+    ],
+  },
+  {
+    title: "Respect people",
+    items: [
+      ["No harassment or hate", "No hate speech, threats, or sharing anyone's personal information."],
+      ["No spam or ads", "Don't spam chat or advertise other servers."],
+      ["Don't impersonate staff", "Pretending to be staff is a ban."],
+      ["Trash talk the game, not the person", "Banter about the game is fine. Going after someone personally isn't."],
+    ],
+  },
+  {
+    title: "Guards",
+    items: [
+      ["Never help criminals", "No letting friends escape, tipping them off, or passing them gear."],
+      ["Only the fair targets", "Arrest or taser players who are escaping, rioting or wanted, nobody else."],
+      ["Off duty is off duty", "An off-duty guard is just another player."],
+    ],
+  },
+];
 ---
-<Base title="Rules: MostWanted" description="The rules on MostWanted, the cops vs. prisoners Minecraft server: fair play, guard conduct and what gets you banned.">
-  <article class="page wrap">
-    <h1>Rules</h1>
-    <p class="lead">Fighting, robbing and breaking out are the game. Everything below is what keeps it fair.</p>
-    <p class="note">These are the draft rules. The full set is final before the server opens, and staff may act on anything that ruins the game for others.</p>
-
-    <div class="prose">
-      <h2>Play fair</h2>
-      <ul>
-        <li><strong>No cheats.</strong> No hacked clients, x-ray, auto-clickers, macros or mods that give you an advantage.</li>
-        <li><strong>No exploits.</strong> Found a bug, a way through a wall that shouldn't be there, or a way to duplicate items or cash? Report it to staff. Using it gets you banned.</li>
-        <li><strong>One account.</strong> No alt accounts to dodge a ban, farm bounties or help yourself.</li>
-        <li><strong>No real-money trading.</strong> Cash, items and accounts can't be sold or bought for real money.</li>
-      </ul>
-
-      <h2>Respect people</h2>
-      <ul>
-        <li>No harassment, hate speech, threats, or sharing anyone's personal information.</li>
-        <li>No spam or advertising other servers.</li>
-        <li>Don't pretend to be staff.</li>
-        <li>Trash talk about the game is fine. Going after someone personally isn't.</li>
-      </ul>
-
-      <h2>Guards</h2>
-      <p>Guards have power over other players, so they're held to a higher standard. See <a href="/guards">Guards</a> for the full code.</p>
-      <ul>
-        <li>No helping criminals: no letting friends escape, tipping them off, or passing them gear.</li>
-        <li>No abusing arrests or tasers on players who aren't breaking out, rioting or wanted.</li>
-        <li>Off duty, a guard is just another player.</li>
-      </ul>
-
-      <h2>Minehut</h2>
-      <p>MostWanted is reached through Minehut, so <a href="https://minehut.com">Minehut's community rules</a> apply too.</p>
-
-      <h2>Punishments</h2>
-      <p>Staff choose the punishment that fits: a warning, a mute, a temporary ban or a permanent one. Cheating and exploiting are a ban from the first time. Think a punishment was a mistake? Appeal in the Discord once it opens.</p>
+<Base title="Rules" description="The rules on MostWanted: fair play, respect, guard conduct and punishments.">
+  <PageHero title="Rules" lead="Fighting, robbing and breaking out are the game. This is what keeps it fair." image={rocks} />
+  <section class="section">
+    <div class="wrap">
+      <p class="note"><strong>Draft.</strong> These are final before the server opens. Staff may act on anything that ruins the game for others.</p>
+      <div class="groups">
+        {
+          rules.map((g, gi) => (
+            <section class="panel group" aria-labelledby={`rules-${gi}`}>
+              <h2 id={`rules-${gi}`}>{g.title}</h2>
+              <ol>
+                {g.items.map(([t, b], i) => (
+                  <li>
+                    <span class="num pixel">{gi + 1}.{i + 1}</span>
+                    <div>
+                      <h3>{t}</h3>
+                      <p>{b}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ))
+        }
+        <section class="panel group" aria-labelledby="rules-minehut">
+          <h2 id="rules-minehut">Minehut and punishments</h2>
+          <p class="text">MostWanted is reached through Minehut, so <a href="https://minehut.com">Minehut's rules</a> apply too. Staff choose the punishment that fits: a warning, a mute, a temporary ban or a permanent one. Cheating and exploiting are a ban the first time. Think a punishment was a mistake? Appeal through <a href="/support">Support</a>.</p>
+        </section>
+      </div>
     </div>
-  </article>
+  </section>
 </Base>
+
+<style>
+  .groups {
+    display: grid;
+    gap: var(--s-4);
+    margin-top: var(--s-6);
+  }
+
+  .group {
+    padding: var(--s-6);
+  }
+
+  h2 {
+    font-size: 2rem;
+    color: var(--orange);
+  }
+
+  ol {
+    display: grid;
+    gap: var(--s-4);
+    margin-top: var(--s-5);
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: var(--s-3);
+  }
+
+  .num {
+    font-size: 1.5rem;
+    color: var(--sand);
+  }
+
+  h3 {
+    font-family: var(--body);
+    font-size: 1.0625rem;
+    font-weight: 700;
+  }
+
+  li p,
+  .text {
+    color: var(--muted);
+  }
+
+  .text {
+    max-width: var(--measure);
+    margin-top: var(--s-4);
+  }
+</style>

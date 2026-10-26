@@ -1,0 +1,126 @@
+---
+import { ArrowRight, Radio, Video } from "@lucide/astro";
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import cactus from "../brand/scene-cactus.png";
+
+// Add creators as they join the program: { name, platform, url }.
+const creators: { name: string; platform: string; url: string }[] = [];
+---
+<Base title="Creators" description="Videos and streams from MostWanted's creators, and how to join the creator program.">
+  <PageHero title="Creators" lead="Escapes, heists and riots, from the people who play them best." image={cactus} />
+
+  <section class="section">
+    <div class="wrap">
+      <h2 class="live-title"><span class="dot live" aria-hidden="true"></span> Live now</h2>
+      <div class="panel empty">
+        <Radio aria-hidden="true" />
+        <h3>Nobody's live right now</h3>
+        <p>When creators stream MostWanted, their streams show up here.</p>
+      </div>
+
+      <div class="section-head program-head">
+        <h2>Our <span class="accent">creators</span></h2>
+      </div>
+      {
+        creators.length ? (
+          <ul class="creators">
+            {creators.map((c) => (
+              <li>
+                <a class="panel creator" href={c.url}>
+                  <h3>{c.name}</h3>
+                  <p class="label">{c.platform}</p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div class="panel program">
+            <Video aria-hidden="true" class="program-icon" />
+            <div>
+              <h3>Join the creator program</h3>
+              <p>Make videos or stream MostWanted on YouTube, Twitch or TikTok? Creators get a rank, a spot on this page, and early looks at new features.</p>
+              <ul>
+                <li>Post MostWanted content regularly</li>
+                <li>Keep it within the <a href="/rules">rules</a></li>
+                <li>Any audience size: we care about good content</li>
+              </ul>
+            </div>
+            <a class="button primary" href="/apply#creator">Apply <ArrowRight aria-hidden="true" /></a>
+          </div>
+        )
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .live-title {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    margin-bottom: var(--s-4);
+    font-size: 2rem;
+  }
+
+  .program-head {
+    margin-top: var(--s-8);
+  }
+
+  .program {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--s-5);
+    align-items: center;
+    padding: var(--s-6);
+  }
+
+  .program :global(.program-icon) {
+    width: 3rem;
+    height: 3rem;
+    color: var(--orange);
+  }
+
+  .program h3 {
+    font-size: 1.75rem;
+  }
+
+  .program p,
+  .program li {
+    color: var(--muted);
+  }
+
+  .program p {
+    margin-top: var(--s-2);
+  }
+
+  .program ul {
+    margin-top: var(--s-3);
+    padding-left: 1.2rem;
+  }
+
+  .program li::marker {
+    color: var(--orange);
+  }
+
+  .creators {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: var(--s-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .creator {
+    display: block;
+    padding: var(--s-5);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  @media (max-width: 52rem) {
+    .program {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

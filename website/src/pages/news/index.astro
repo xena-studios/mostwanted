@@ -1,0 +1,69 @@
+---
+import { getCollection } from "astro:content";
+import { ArrowUpRight } from "@lucide/astro";
+import Base from "../../layouts/Base.astro";
+import PageHero from "../../components/PageHero.astro";
+import sky from "../../brand/scene-sky.png";
+
+const posts = (await getCollection("news")).sort((a, b) => +b.data.date - +a.data.date);
+const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+---
+<Base title="News" description="Updates, events and changes on MostWanted.">
+  <PageHero title="News" lead="Updates, events and changes." image={sky} />
+  <section class="section">
+    <ul class="wrap posts">
+      {
+        posts.map((p) => (
+          <li>
+            <a class="panel post" href={`/news/${p.id}`}>
+              <time class="label" datetime={p.data.date.toISOString()}>{fmt(p.data.date)}</time>
+              <h2>{p.data.title}</h2>
+              <p>{p.data.summary}</p>
+              <ArrowUpRight class="arrow" aria-hidden="true" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .posts {
+    display: grid;
+    gap: var(--s-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .post {
+    display: grid;
+    gap: var(--s-2);
+    padding: var(--s-6) var(--s-8) var(--s-6) var(--s-6);
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 200ms var(--ease);
+  }
+
+  .post:hover {
+    border-color: var(--orange);
+  }
+
+  h2 {
+    font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem);
+  }
+
+  p {
+    max-width: var(--measure);
+    color: var(--muted);
+  }
+
+  .post :global(.arrow) {
+    position: absolute;
+    top: var(--s-6);
+    right: var(--s-6);
+    width: 1.75rem;
+    height: 1.75rem;
+    color: var(--orange);
+  }
+</style>

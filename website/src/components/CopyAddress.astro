@@ -1,0 +1,96 @@
+---
+// The server address with a copy button. The button needs the small script
+// below; without JavaScript the address is still there to select.
+import { Copy } from "@lucide/astro";
+import { site } from "../site";
+
+interface Props {
+  size?: "big" | "small";
+}
+
+const { size = "big" } = Astro.props;
+---
+<div class:list={["copy-address", size]}>
+  <code class="addr">{site.address}</code>
+  <button type="button" class="copy" data-copy={site.address} aria-label={`Copy the server address, ${site.address}`}>
+    <Copy aria-hidden="true" /> <span class="copy-text">Copy</span>
+  </button>
+</div>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>("button[data-copy]")) {
+    const text = button.querySelector(".copy-text");
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.copy ?? "");
+        if (text) text.textContent = "Copied!";
+      } catch {
+        if (text) text.textContent = "Select it";
+      }
+      setTimeout(() => {
+        if (text) text.textContent = "Copy";
+      }, 1600);
+    });
+  }
+</script>
+
+<style>
+  .copy-address {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    padding: var(--s-2) var(--s-2) var(--s-2) var(--s-5);
+    border: 2px solid var(--orange-deep);
+    border-bottom-width: 5px;
+    border-radius: 999px;
+    background: linear-gradient(to bottom, #ffb35c, var(--orange) 55%, #f08a22);
+    color: var(--ink);
+    box-shadow: inset 0 2px 0 color-mix(in srgb, white 35%, transparent), 0 10px 26px color-mix(in srgb, var(--orange) 25%, transparent);
+  }
+
+  .addr {
+    font-family: var(--body);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    user-select: all;
+  }
+
+  .copy {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 2.5rem;
+    padding: 0 var(--s-4);
+    border: 0;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ink) 18%, transparent);
+    color: var(--ink);
+    font: 600 0.9375rem var(--body);
+    cursor: pointer;
+    transition: background-color 150ms var(--ease);
+  }
+
+  .copy:hover {
+    background: color-mix(in srgb, var(--ink) 28%, transparent);
+  }
+
+  .copy :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .small .addr {
+    font-size: 1rem;
+  }
+
+  .small .copy {
+    min-height: 2rem;
+  }
+
+  @media (max-width: 30rem) {
+    .addr {
+      font-size: 1.0625rem;
+    }
+  }
+</style>
