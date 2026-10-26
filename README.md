@@ -1,10 +1,10 @@
-# MostWanted
+![MostWanted by Xena Studios. The MOSTWANTED wordmark over the pixel desert at sunset, blurred, with "Cops vs. prisoners on Java & Bedrock."](.github/assets/banner.png)
 
-![MostWanted](brand/out/key-art-1280x720.png)
+**Cops vs. prisoners on Java & Bedrock.**
 
-A Jailbreak-style cops vs. prisoners Minecraft server (Java + Bedrock) by [Xena Studios](https://xenastudios.co). Break out, rob the city, and stay ahead of the guards. Or be the guard who brings them back.
+MostWanted is a Jailbreak-style Minecraft server by [Xena Studios](https://xenastudios.co). Break out, rob the town, and stay ahead of the guards. Or be the guard who brings them back.
 
-**[mostwantedmc.com](https://mostwantedmc.com)** (coming soon)
+In development: the server isn't open yet. It will be at `play.mostwantedmc.com`.
 
 This repo holds everything the server needs: the game plugin, its build and CI, and the design docs.
 
