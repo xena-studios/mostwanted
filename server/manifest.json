@@ -6,8 +6,9 @@
     "name": "Leaf",
     "version": "26.3 build 12",
     "file": "leaf-26.3-12.jar",
-    "url": "https://github.com/Winds-Studio/Leaf/releases/download/ver-26.3/leaf-26.3-12.jar",
-    "sha256": "7bf8096fa8c52cfbffba3ba12bf22d0136be69870b6fff53d30b92c25da78a25"
+    "url": "https://api.leafmc.one/v2/projects/leaf/versions/26.3/builds/12/downloads/leaf-26.3-12.jar",
+    "sha256": "7bf8096fa8c52cfbffba3ba12bf22d0136be69870b6fff53d30b92c25da78a25",
+    "note": "From Leaf's download API, which keeps every build. (Leaf's GitHub release swaps its jar for each new build, so a link there breaks.)"
   },
   "plugins": [
     {
