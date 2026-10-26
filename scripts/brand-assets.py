@@ -85,6 +85,8 @@ def main() -> None:
     # Link previews (Discord, X, iMessage) and the Discord server banner.
     key_art("og-1200x630.png", 1200, 630, WORDMARK, 0.78)
     key_art("discord-banner-960x540.png", 960, 540, WORDMARK, 0.78)
+    # The Discord bot's profile banner (17:6): the desert alone, since the avatar is the logo.
+    background(1360, 480, blur=6).save(OUT / "discord-bot-banner-1360x480.png", optimize=True)
     # Profile pictures and the server-list icon. The Minecraft server icon must be 64x64.
     icon("icon-1024.png", 1024, blur=10)
     icon("icon-512.png", 512, blur=10)

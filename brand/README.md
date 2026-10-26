@@ -26,6 +26,7 @@ Edit these; everything in `out/` is generated from them.
 | [`out/key-art-1280x720.png`](out/key-art-1280x720.png) | Video thumbnails, Minehut listing |
 | [`out/og-1200x630.png`](out/og-1200x630.png) | Link previews (Discord, X, iMessage) |
 | [`out/discord-banner-960x540.png`](out/discord-banner-960x540.png) | Discord server banner |
+| [`out/discord-bot-banner-1360x480.png`](out/discord-bot-banner-1360x480.png) | The Discord bot's profile banner (no logo: its avatar is the logo) |
 | [`out/icon-1024.png`](out/icon-1024.png), [`out/icon-512.png`](out/icon-512.png) | Profile pictures: Discord, TikTok, YouTube, store |
 | [`out/apple-touch-icon-180.png`](out/apple-touch-icon-180.png), [`out/favicon-32.png`](out/favicon-32.png) | The website's iOS icon and favicon |
 | [`out/server-icon.png`](out/server-icon.png) | The 64×64 `server-icon.png` the server shows in the multiplayer list |
