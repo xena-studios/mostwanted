@@ -1,0 +1,330 @@
+---
+import { Image } from "astro:assets";
+import Base from "../layouts/Base.astro";
+import wordmark from "../brand/wordmark.png";
+import background from "../brand/background.png";
+
+// The loop, one role at a time (docs/02-gameplay.md).
+const roles = [
+  {
+    step: "01",
+    name: "Inmate",
+    body: "You start inside. Find a way out: through a weak wall, down the sewers, with a stolen keycard, or under cover of a riot.",
+  },
+  {
+    step: "02",
+    name: "Criminal",
+    body: "Over the wall, you're wanted. Rob the bank, the jewelry store and the gas station, and get the cash to a hideout before you're caught.",
+  },
+  {
+    step: "03",
+    name: "Guard",
+    body: "Patrol the prison, answer the alarms, and bring criminals in. Every arrest pays the bounty on their head. Guards are picked by application.",
+  },
+];
+
+const features = [
+  { title: "One world, always running", body: "No rounds and no resets. Escapes, robberies and arrests all happen in the same world, around the clock." },
+  { title: "Bounties", body: "Every robbery raises yours. The biggest names end up on the Most Wanted board, and the guard who brings them in collects." },
+  { title: "Riots", body: "Get enough inmates together and take the prison back. Guards come running, which is the best cover there is for an escape." },
+  { title: "Custom gear", body: "Guns, tools, food and contraband made for MostWanted, built to work the same on Java and Bedrock." },
+];
+---
+<Base>
+  <section class="hero" aria-labelledby="hero-title">
+    <Image
+      class="hero-bg"
+      src={background}
+      alt=""
+      widths={[960, 1440, 1920]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+    />
+    <div class="wrap hero-copy">
+      <h1 id="hero-title">
+        <Image class="wordmark" src={wordmark} alt="MostWanted" widths={[640, 1000, 1500, 2000]} sizes="(min-width: 60rem) 52rem, 92vw" loading="eager" />
+      </h1>
+      <p class="tagline">Cops vs. prisoners on Java &amp; Bedrock</p>
+      <p class="hero-lead">
+        A Jailbreak-style Minecraft server. Break out, rob the town, and stay ahead of the guards. Or be the guard who
+        brings them back.
+      </p>
+      <p class="status"><span class="dot" aria-hidden="true"></span> In development, not open yet</p>
+      <p class="actions">
+        <a class="button primary" href="#how-it-plays">How it plays</a>
+        <a class="button" href="/guards">Become a guard</a>
+      </p>
+    </div>
+  </section>
+
+  <section id="how-it-plays" class="how" aria-labelledby="how-title">
+    <div class="wrap">
+      <h2 id="how-title">How it plays</h2>
+      <p class="lead">Everyone starts as an inmate. Where you end up is up to you.</p>
+      <ol class="roles">
+        {
+          roles.map((r) => (
+            <li class="role">
+              <span class="step" aria-hidden="true">{r.step}</span>
+              <h3>{r.name}</h3>
+              <p>{r.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <ul class="features">
+        {
+          features.map((f) => (
+            <li>
+              <h3>{f.title}</h3>
+              <p>{f.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section id="join" class="join" aria-labelledby="join-title">
+    <div class="wrap join-inner">
+      <div>
+        <h2 id="join-title">Join from Java or Bedrock</h2>
+        <p class="lead">
+          One address for both, through Minehut. The server isn't open yet; this is where you'll find it when it is.
+        </p>
+      </div>
+      <dl class="address">
+        <div>
+          <dt class="label">Address</dt>
+          <dd><code>play.mostwantedmc.com</code></dd>
+        </div>
+        <div>
+          <dt class="label">Java</dt>
+          <dd>Multiplayer → Add Server → paste the address</dd>
+        </div>
+        <div>
+          <dt class="label">Bedrock</dt>
+          <dd>Phone, console and Windows: steps here when the server opens</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---------------------------------------------------------------- hero */
+
+  .hero {
+    position: relative;
+    display: grid;
+    min-height: min(calc(100svh - 4rem), 52rem);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .hero :global(.hero-bg) {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Darkens toward the bottom so the copy reads over the bright sand, and fades into the page. */
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(ellipse at 50% 40%, transparent 30%, color-mix(in srgb, var(--dusk) 55%, transparent) 100%),
+      linear-gradient(to bottom, transparent 45%, color-mix(in srgb, var(--dusk) 70%, transparent) 78%, var(--dusk));
+  }
+
+  .hero-copy {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: var(--s-4);
+    padding-block: var(--s-8);
+    text-align: center;
+  }
+
+  .hero :global(.wordmark) {
+    display: block;
+    width: min(52rem, 92vw);
+    height: auto;
+    filter: drop-shadow(0 6px 18px color-mix(in srgb, var(--dusk) 60%, transparent));
+  }
+
+  .tagline {
+    font-family: var(--display);
+    font-size: clamp(1.375rem, 1rem + 1.6vw, 2.25rem);
+    text-shadow: 0 2px 14px var(--dusk);
+  }
+
+  .hero-lead {
+    max-width: 44ch;
+    font-size: var(--t-lead);
+    color: var(--text);
+    text-shadow: 0 1px 10px var(--dusk);
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    padding: var(--s-1) var(--s-4);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--dusk) 75%, transparent);
+    font-size: var(--t-small);
+    font-weight: 600;
+  }
+
+  .dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--orange);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-3);
+    margin-top: var(--s-3);
+  }
+
+  /* ---------------------------------------------------------------- how it plays */
+
+  .how {
+    padding-block: var(--s-8);
+  }
+
+  .how h2,
+  .join h2 {
+    font-size: var(--t-h2);
+  }
+
+  .how .lead {
+    margin-top: var(--s-4);
+  }
+
+  .roles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-5);
+    margin-top: var(--s-7);
+    padding: 0;
+    list-style: none;
+  }
+
+  .role {
+    padding: var(--s-6) var(--s-5);
+    border: 1px solid var(--rule);
+    border-top: 4px solid var(--orange);
+    border-radius: var(--radius);
+    background: var(--raised);
+  }
+
+  .step {
+    font-family: var(--display);
+    font-size: 1rem;
+    color: var(--orange);
+  }
+
+  .role h3 {
+    margin-top: var(--s-2);
+    font-size: var(--t-h3);
+  }
+
+  .role p {
+    margin-top: var(--s-3);
+    color: var(--muted);
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-6) var(--s-7);
+    margin-top: var(--s-7);
+    padding: var(--s-7) 0 0;
+    border-top: 1px solid var(--rule);
+    list-style: none;
+  }
+
+  .features h3 {
+    font-size: 1.25rem;
+  }
+
+  .features p {
+    margin-top: var(--s-2);
+    color: var(--muted);
+  }
+
+  @media (max-width: 52rem) {
+    .roles,
+    .features {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* ---------------------------------------------------------------- join */
+
+  .join {
+    padding-block: var(--s-8);
+    border-top: 1px solid var(--rule);
+  }
+
+  .join-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: var(--s-7);
+    align-items: center;
+  }
+
+  .join .lead {
+    margin-top: var(--s-4);
+  }
+
+  .address {
+    display: grid;
+    margin: 0;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--raised);
+  }
+
+  .address > div {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: var(--s-4);
+    align-items: baseline;
+    padding: var(--s-4) var(--s-5);
+  }
+
+  .address > div + div {
+    border-top: 1px solid var(--rule);
+  }
+
+  .address dd {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .address code {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--orange);
+  }
+
+  @media (max-width: 52rem) {
+    .join-inner {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

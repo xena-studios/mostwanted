@@ -1,6 +1,6 @@
 # Website and store
 
-Decided 2026-10-25.
+Decided 2026-10-25. **v1 is built** in [`website/`](../website/): home (how it plays, how to join), guards and rules. The store, vote, status and stats pages come once the server, Tebex and the stats feed exist.
 
 ## Stack
 

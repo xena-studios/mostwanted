@@ -1,0 +1,16 @@
+// mostwantedmc.com: the Astro build (dist/) as a Cloudflare Worker with static
+// assets only, no Worker code, the same setup as xenastudios.co. Headers, the
+// CSP among them, are in public/_headers.
+{
+  "name": "mostwanted-website",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  // Only the custom domain (mostwantedmc.com, attached once by hand): no
+  // workers.dev or preview addresses, and the deploy token never needs DNS access.
+  "workers_dev": false,
+  "preview_urls": false
+}

@@ -1,0 +1,193 @@
+---
+import "@fontsource/lilita-one/latin-400.css";
+import "../styles/global.css";
+import { Image } from "astro:assets";
+import monogram from "../brand/monogram.png";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Keep the page out of search results, with no canonical or og:url (the 404 page). */
+  noindex?: boolean;
+}
+
+const {
+  title = "MostWanted: a cops vs. prisoners Minecraft server",
+  description = "MostWanted is a Jailbreak-style Minecraft server for Java and Bedrock. Break out, rob the town, and stay ahead of the guards. Or be the guard who brings them back.",
+  noindex = false,
+} = Astro.props;
+
+// build.format "file" makes the pathname /index.html or /<page>.html; the
+// canonical address has neither, matching the sitemap and trailingSlash "never".
+const path = Astro.url.pathname.replace(/(?:index)?\.html$/, "");
+const canonical = new URL(path, Astro.site);
+const og = new URL("/og.png", Astro.site);
+const year = new Date().getFullYear();
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <meta name="theme-color" content="#150D09" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="MostWanted" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {!noindex && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={og} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The MOSTWANTED wordmark over a pixel-art desert at sunset." />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="wrap bar">
+        <a class="home" href="/" aria-label="MostWanted, home">
+          <Image src={monogram} alt="" widths={[96, 192]} sizes="3rem" class="mark" loading="eager" />
+          <span class="name">MostWanted</span>
+        </a>
+        <nav aria-label="Main">
+          <ul>
+            <li><a href="/#how-it-plays">How it plays</a></li>
+            <li><a href="/#join">Join</a></li>
+            <li><a href="/guards">Guards</a></li>
+            <li><a href="/rules">Rules</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap foot">
+        <p>
+          MostWanted by <a href="https://xenastudios.co">Xena Studios</a> ·
+          <a href="https://github.com/xena-studios/mostwanted">Source on GitHub</a>
+        </p>
+        <p class="legal">
+          © {year} Xena Studios. Not an official Minecraft product. Not approved by or associated with Mojang or
+          Microsoft.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: var(--s-4);
+    top: -4rem;
+    z-index: 10;
+    padding: var(--s-2) var(--s-4);
+    border-radius: 8px;
+    background: var(--orange);
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .skip:focus {
+    top: var(--s-4);
+  }
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    border-bottom: 1px solid color-mix(in srgb, var(--rule) 70%, transparent);
+    background: color-mix(in srgb, var(--dusk) 82%, transparent);
+    backdrop-filter: blur(12px);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-5);
+    min-height: 4rem;
+  }
+
+  .home {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-3);
+    text-decoration: none;
+    color: var(--text);
+  }
+
+  .home :global(.mark) {
+    width: 3rem;
+    height: auto;
+  }
+
+  .name {
+    font-family: var(--display);
+    font-size: 1.375rem;
+  }
+
+  nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-1) var(--s-5);
+    padding: 0;
+    list-style: none;
+  }
+
+  nav a {
+    display: inline-block;
+    padding-block: var(--s-2);
+    color: var(--muted);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 150ms var(--ease);
+  }
+
+  nav a:hover {
+    color: var(--text);
+  }
+
+  @media (max-width: 40rem) {
+    .name {
+      display: none;
+    }
+
+    nav ul {
+      gap: var(--s-1) var(--s-4);
+      font-size: var(--t-small);
+    }
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--rule);
+    padding-block: var(--s-6);
+    color: var(--muted);
+    font-size: var(--t-small);
+  }
+
+  .foot {
+    display: grid;
+    gap: var(--s-2);
+  }
+
+  .foot a {
+    color: var(--text);
+  }
+
+  .legal {
+    font-size: 0.8125rem;
+  }
+</style>
