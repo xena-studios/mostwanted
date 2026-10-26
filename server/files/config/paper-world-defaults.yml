@@ -1,0 +1,19 @@
+# Only what MostWanted changes; Paper fills in the rest on start.
+# The config format version Paper 26.3 writes; Paper warns without it.
+_version: 31
+chunks:
+  # Spread world saves out so autosaves don't spike the tick.
+  max-auto-save-chunks-per-tick: 8
+  # Stops fast players (and cheaters) from outrunning chunk loading.
+  prevent-moving-into-unloaded-chunks: true
+collisions:
+  # Crowds in the yard and mess hall: cap how many entities push each other.
+  max-entity-collisions: 2
+environment:
+  optimize-explosions: true
+hopper:
+  # Nothing in the game listens for hopper moves.
+  disable-move-event: true
+misc:
+  # Faster redstone with the same behaviour players expect.
+  redstone-implementation: ALTERNATE_CURRENT

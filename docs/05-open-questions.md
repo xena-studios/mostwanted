@@ -32,3 +32,7 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 - **Brand:** orange `#ff9933`, desert theme, blocky Minecraft-style logo. In-game colours only from the 24-hue `hsl(h, 100%, 60%)` palette. See [brand](09-brand.md). (2026-10-25)
 - **Player stats on the website:** `core` pushes stats to a Cloudflare Worker + D1; the website reads from D1, never from the game server. (2026-10-25)
 - **Repo layout:** `core/`, `website/`, `resource-pack/`, `server/` alongside the docs. (2026-10-25)
+- **Server plugins (approved):** LuckPerms, ViaVersion, GrimAC, LibertyBans, xUtilities, zChat, FancyNpcs, FancyHolograms, FastAsyncWorldEdit. `core` handles zones, name tags/tab/scoreboard, game logs and stats instead of WorldGuard, TAB, PlaceholderAPI, CoreProtect and Plan. See [server stack](07-server-stack.md). (2026-10-26)
+- **Discord:** our own bot, not DiscordSRV. See [Discord bot](10-discord-bot.md). (2026-10-26)
+- **Messages:** coloured symbols for everyday messages, banners for big moments. See [brand](09-brand.md#messages). (2026-10-26)
+- **Server setup:** pinned in `server/manifest.json`, installed by `server/install.sh`, boot-tested in CI. (2026-10-26)

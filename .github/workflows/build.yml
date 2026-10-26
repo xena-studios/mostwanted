@@ -5,7 +5,7 @@ name: Build
 on:
   push:
     branches: [main]
-    paths: ["**", "!**.md", "!website/**", "!.github/workflows/website.yml"]
+    paths: ["**", "!**.md", "!website/**", "!.github/workflows/website.yml", "!server/**", "!bot/**", "!.github/workflows/server.yml"]
   pull_request:
   workflow_dispatch:
 
@@ -29,7 +29,7 @@ jobs:
           code=false
           while read -r file; do
             case $file in
-              *.md | website/* | .github/workflows/website.yml) ;;
+              *.md | website/* | server/* | bot/* | .github/workflows/website.yml | .github/workflows/server.yml) ;;
               *) code=true ;;
             esac
           done < <(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only)

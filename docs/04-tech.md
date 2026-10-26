@@ -116,6 +116,7 @@ The full install list, with versions, links, start command and config checklist,
 - **xLimbo:** needs a proxy to send players back. Not needed without one.
 - **WorldEdit:** FastAsyncWorldEdit replaces it.
 - **spark (plugin):** already built into Paper/Leaf.
+- **WorldGuard, TAB, PlaceholderAPI, CoreProtect, Plan, Chunky, VaultUnlocked, PacketEvents, DiscordSRV:** `core` or our bot covers each, or it isn't needed. Why, one by one: [server stack](07-server-stack.md#what-core-does-instead).
 
 ## What we build ourselves
 
@@ -123,7 +124,8 @@ One plugin, **MostWanted** (the `core` module), in **Java 25**, built with Gradl
 
 | # | System | What it does |
 | --- | --- | --- |
-| 1 | **Player state** | Inmate / criminal / guard (on/off duty), saved in PostgreSQL. Detects crossing the prison boundary (WorldGuard region). |
+| 1 | **Player state** | Inmate / criminal / guard (on/off duty), saved in PostgreSQL. |
+| 1b | **Zones** | The prison boundary, safe zones, robbery spots and hideouts, marked with a FAWE selection and stored in PostgreSQL. A chunk-indexed lookup tells the other systems when a player crosses one (instead of WorldGuard). |
 | 2 | **Combat rules** | Who can damage who (the table in [gameplay](02-gameplay.md#combat)), safe zones, death = arrest. |
 | 3 | **Arrests** | Handcuffs, taser, jail time based on bounty, losing unbanked cash. |
 | 4 | **Bounty** | Goes up from robberies and killing guards. Paid to the guard who makes the arrest. |
@@ -135,14 +137,49 @@ One plugin, **MostWanted** (the `core` module), in **Java 25**, built with Gradl
 | 10 | **Custom items** | Registry of every custom item (guns, food, tools, contraband) using item model components. Each is a vanilla item underneath. |
 | 11 | **Shops** | Criminal base shop, guard armory. Chest GUIs for everyone (no Floodgate forms, see [Java + Bedrock](#java--bedrock)). |
 | 12 | **Indirect criminal kills** | Traps, snitching, stealing, sabotage (once we pick which). |
-| 13 | **Guard duty** | On/off duty, guard loadout, guards-online count. The guard rank itself comes from LuckPerms through DiscordSRV. |
-| 14 | **HUD** | Bounty, cash, wanted level, robbery status: boss bar / action bar, plus placeholders for TAB. |
+| 13 | **Guard duty** | On/off duty, guard loadout, guards-online count. The guard rank itself comes from LuckPerms, synced from Discord by our bot ([Discord bot](10-discord-bot.md)). |
+| 14 | **HUD** | Bounty, cash, wanted level, robbery status: boss bar, action bar and sidebar scoreboard. Name tags and the tab list in each role's colour (guards blue, wanted criminals red), updated when the state changes (instead of TAB). |
+| 14b | **Messages** | One place that sends every message in the [message style](09-brand.md#messages): ✔ ✖ ★ ⚑ ⓘ one-liners, and banners with a title and sound for big moments. |
+| 14c | **Game log** | Arrests, robberies, riots, purchases and staff actions, written to PostgreSQL for staff and the stats feed (instead of CoreProtect). |
+| 14d | **Bedrock support** | Detects Bedrock players (once Minehut tells us how they're marked) and exempts them from GrimAC's checks. |
 | 15 | **Stats & leaderboards** | Escapes, arrests, cash earned, robberies, per period. Holograms in game, and a push to the website every ~2 min (see [player stats](08-website.md#player-stats)). |
 
 Outside the plugin:
 
 - **Resource pack pipeline:** source art + models in this repo → build the Java pack → host it on **GitHub releases** (Minehut only accepts packs from approved hosts). Bedrock pack depends on what Minehut allows, see [resource pack](06-resource-pack.md). Automate it in CI. See [resource pack](06-resource-pack.md).
-- **Guard applications:** start with a Discord form/ticket bot that already exists. Build our own bot only if it gets in the way.
+- **The Discord bot** in [`bot/`](../bot/): account linking, guard role sync, applications, tickets and live alerts. See [Discord bot](10-discord-bot.md).
+
+## How `core` stays fast
+
+`core` runs everything for up to 100 players on one shared CPU core, so speed is a rule, not a hope. These are checked in review ([CONTRIBUTING.md](../CONTRIBUTING.md#what-a-change-has-to-keep-true)) and measured before launch.
+
+**Do nothing until something happens**
+- Event-driven: no loop that runs every tick over every player. The few timers (robbery open/close, riot clock, jail time) are one scheduled task each, started when needed and cancelled when done.
+- Movement is the hottest event. Its handler returns immediately unless the player changed block, and zone checks only run when they changed chunk or crossed a zone edge.
+
+**Keep the hot path in memory**
+- Each online player's state (role, cash, bounty, zone) lives in memory, loaded once on join. Gameplay never waits on the database.
+- Zones are indexed by chunk: finding "which zone am I in" looks at the few zones touching that chunk, not all of them.
+- Config, messages and item definitions are parsed once on load or `/mostwanted reload`, never per event.
+
+**Database off the main thread, in batches**
+- PostgreSQL through a small HikariCP pool (a handful of connections). Every query runs async.
+- Changes are written behind: stats and cash changes collect in memory and save in batches every few seconds, and on quit and shutdown. Nothing is lost on a clean stop; a crash loses seconds, not sessions.
+
+**Cheap updates for 100 players**
+- Name tags, tab list and scoreboard update only what changed, for the players who can see it. Nothing redraws every second.
+- Guns are hitscan (one ray trace per shot through the Paper API), not projectile entities.
+- Holograms and NPCs are packet-based (FancyHolograms, FancyNpcs): no real entities to tick.
+
+**Robust**
+- Paper API only: no NMS or reflection into server internals, so it keeps running on Leaf and through Paper updates.
+- Each system is a module that can be switched off in config; one failing module logs an error and turns itself off, the rest keep running.
+- Players are stored by UUID. Bedrock players (through Minehut) included.
+
+**Measured**
+- Unit tests for the rules (who can hurt who, bounty maths, zone lookups); boot checks on Leaf and Paper in CI.
+- spark profiles on a full playtest, and a 100-bot load test before launch: the target is a steady 20 TPS with MSPT under 30.
+- A jar size budget in CI, like the plugins repo, so a library shaded in by mistake fails the build.
 
 ## Other things we need
 

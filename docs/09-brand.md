@@ -96,6 +96,53 @@ From the reference desert scene (below). For backgrounds, illustrations and the 
 | Sand | `#f2a96a` |
 | Sand shadow | `#bd7046` |
 
+## Messages
+
+Decided 2026-10-26: **symbols for everyday messages, banners for big moments** (options B + D from the mock-ups). It reads like a police radio: alarms, bounties and arrests at a glance.
+
+### Everyday: one line, a coloured symbol, grey text
+
+No server tag on system messages. The symbol says what kind of message it is, so it still reads on Bedrock where some colours merge:
+
+| Symbol | Colour | Means | Example |
+| --- | --- | --- | --- |
+| ✔ | green `#33ff33` | Done, turned on | ✔ Teleported to **spawn**. |
+| ✖ | red `#ff3333` | Refused, error | ✖ You can't do that while cuffed. |
+| ★ | yellow `#ffff33` | Money, bounty | ★ Your bounty is now **$2,500**. |
+| ⚑ | red `#ff3333` / blue `#3399ff` | Alarm, arrest (red for criminals' side, blue for guards') | ⚑ The **bank** is open. Guards have been alerted. |
+| ⓘ | aqua `#33ffff` | Info, tips, links | ⓘ Bank your cash at a hideout before a guard finds you. |
+| ✉ | aqua `#33ffff` | Private messages | ✉ You → **Alex**: meet at the gas station |
+
+- Text is **grey**; names and values are **white**; money and bounties are always **yellow `$1,200`**, everywhere (chat, scoreboard, holograms).
+- Guards' names are **blue**, wanted criminals' **red**, in chat, name tags and the tab list.
+
+### Player chat: a rank tag, no brackets
+
+`Inmate Alex: never` · `Guard Steve: freeze!` · `Mod Sam: please keep it clean`
+
+Inmate orange (hue 30), Guard blue (hue 210), staff light purple (hue 300). The tag colour follows the palette; the name is white; the message is white.
+
+### Big moments: a banner, a title and a sound
+
+Only for robberies opening, riots, a new Most Wanted, and server events. Nothing routine gets one, so they stay special.
+
+```
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+        ⚑ RIOT IN CELL BLOCK B ⚑
+   Inmates have taken the yard. Guards, respond!
+          Ends in 2:00 · /riot info
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+```
+
+Plus a screen title (**RIOT!** / Cell Block B), a sound, and the action bar for whoever it affects (`★ $2,500 bounty | WANTED`).
+
+### Where it's set
+
+- **xUtilities** and **zChat**: their full configs in [`server/files/plugins/`](../server/files/plugins/) use these symbols and colours.
+- **LuckPerms** rank prefixes ([`server/setup/luckperms.txt`](../server/setup/luckperms.txt)): name tags and the tab list.
+- **`core`**: one message module sends everything else, so new messages follow the style by default.
+- Check every symbol on a Bedrock client: ⚑ and ⓘ are the ones most likely to be missing from its font. Swap any that don't render.
+
 ## Look and feel
 
 **The files** (logos, key art, icons) are in [`brand/`](../brand/).

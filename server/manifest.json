@@ -1,0 +1,107 @@
+{
+  "_comment": "Everything the game server runs, pinned with checksums. server/install.sh reads this. Approved list (2026-10-26): see docs/07-server-stack.md for why each is here and what core does instead of the rest. Update a version here (with its sha512 from Modrinth) in a pull request; never download by hand.",
+  "minecraft": "26.3",
+  "java": 25,
+  "server": {
+    "name": "Leaf",
+    "version": "26.3 build 12",
+    "file": "leaf-26.3-12.jar",
+    "url": "https://api.leafmc.one/v2/projects/leaf/versions/26.3/builds/12/downloads/leaf-26.3-12.jar",
+    "sha256": "7bf8096fa8c52cfbffba3ba12bf22d0136be69870b6fff53d30b92c25da78a25",
+    "note": "From Leaf's download API, which keeps every build. (Leaf's GitHub release swaps its jar for each new build, so a link there breaks.)"
+  },
+  "plugins": [
+    {
+      "name": "LuckPerms",
+      "slug": "luckperms",
+      "version": "v5.5.71-bukkit",
+      "modrinthVersionId": "b0mk8uS6",
+      "file": "LuckPerms-Bukkit-5.5.71.jar",
+      "url": "https://cdn.modrinth.com/data/Vebnzrzj/versions/b0mk8uS6/LuckPerms-Bukkit-5.5.71.jar",
+      "sha512": "188a91f0a543d23bfda32385fca6db63d61e49c8a422bd452a260bd9cbc6a7d7fe45071199e9fca8f3ce43c2b41ee84fd315bd15464577028ff3951a7d4fab27",
+      "why": "Ranks: prisoner, guard, staff"
+    },
+    {
+      "name": "ViaVersion",
+      "slug": "viaversion",
+      "version": "5.12.1",
+      "modrinthVersionId": "5WgnasGG",
+      "file": "ViaVersion-5.12.1.jar",
+      "url": "https://cdn.modrinth.com/data/P1OZGk5p/versions/5WgnasGG/ViaVersion-5.12.1.jar",
+      "sha512": "b2e5c03689e2265410613a928640076cfcd576e7a3dc7ca1276a76dbe624f2f5467348c3b3eaf8b5987ed7662afb93cc5cb9373035f4c5512884116e4bb6add9",
+      "why": "Newer clients can join when Minecraft updates"
+    },
+    {
+      "name": "GrimAC",
+      "slug": "grimac",
+      "version": "2.3.74",
+      "modrinthVersionId": "baDrVvfo",
+      "file": "grimac-bukkit-2.3.74.jar",
+      "url": "https://cdn.modrinth.com/data/LJNGWSvH/versions/baDrVvfo/grimac-bukkit-2.3.74.jar",
+      "sha512": "3ac8793dccccc05b6ed671cdaea0fdc3309240ceb9fd6d6dee1c35a6aa8ea58be95e0e929278e56a604a6ce3dd1db4ac882510d473b09a91e9635fdb934b424a",
+      "why": "Anti-cheat"
+    },
+    {
+      "name": "LibertyBans",
+      "slug": "libertybans",
+      "version": "1.2.0-M1",
+      "modrinthVersionId": "TUuNKL02",
+      "file": "LibertyBans_Release-1.2.0-M1.jar",
+      "url": "https://cdn.modrinth.com/data/PgXAUxLZ/versions/TUuNKL02/LibertyBans_Release-1.2.0-M1.jar",
+      "sha512": "caba7a0a108bd802bb92bd5f3865de69e4856c57fa8bb86150467b77b578fff689ac120e019fb4379d6c16e5b01d42306cbc1a3e8673de592542495b534037f3",
+      "why": "Bans, mutes, warnings",
+      "note": "Milestone build: the only one for 26.3 so far."
+    },
+    {
+      "name": "xUtilities",
+      "slug": "xutilities",
+      "version": "2.0.0",
+      "modrinthVersionId": "ZSzlhCmf",
+      "file": "xutilities-2.0.0.jar",
+      "url": "https://cdn.modrinth.com/data/4OigYUMF/versions/ZSzlhCmf/xutilities-2.0.0.jar",
+      "sha512": "0fb3d7ccd161ff10076c8bc21595d8e0855fdb3253f2e90a3efb6c9d5368ef2f0e7cbcf53489f0965bf11766b73f5a4680e1a77d97350219625239f4d160e413",
+      "why": "Ours: everyday commands"
+    },
+    {
+      "name": "zChat",
+      "slug": "zchat",
+      "version": "3.0.0",
+      "modrinthVersionId": "Uj7VQBOZ",
+      "file": "zchat-3.0.0.jar",
+      "url": "https://cdn.modrinth.com/data/qFiXWxCM/versions/Uj7VQBOZ/zchat-3.0.0.jar",
+      "sha512": "7cf238a497058a904738814b28b3c8b8f231d8213034a365fc289f16abc42dd65edf1c562baba47cacd5ffcc681eb0d87dc6a77e3a33e0f1b8e62450b557959f",
+      "why": "Ours: chat format and filter"
+    },
+    {
+      "name": "FancyNpcs",
+      "slug": "fancynpcs",
+      "version": "2.12.1",
+      "modrinthVersionId": "LigxTtVw",
+      "file": "FancyNpcs-2.12.1.jar",
+      "url": "https://cdn.modrinth.com/data/EeyAn23L/versions/LigxTtVw/FancyNpcs-2.12.1.jar",
+      "sha512": "a370600889f7c08058fc0a7ead3549382efa6e17d3f95f7224822921e3899260d51ad6fe0fb3fe36fa4f61903698de27d1e4ce9804e9ee716733b55f5251ea07",
+      "why": "Shopkeepers, armory, info NPCs"
+    },
+    {
+      "name": "FancyHolograms",
+      "slug": "fancyholograms",
+      "version": "2.12.0",
+      "modrinthVersionId": "dBBdi95S",
+      "file": "FancyHolograms-2.12.0.jar",
+      "url": "https://cdn.modrinth.com/data/5QNgOj66/versions/dBBdi95S/FancyHolograms-2.12.0.jar",
+      "sha512": "93ea248525fa2bf8efcd13456e35833c069a0bea2bdddc1cc6a61b68f00681b91f928443dbe82a974041253a9393eca8203743382063cda56c6fb39259ed4a21",
+      "why": "Leaderboards, robbery signs, floating text"
+    },
+    {
+      "name": "FastAsyncWorldEdit",
+      "slug": "fastasyncworldedit",
+      "version": "2.16.1",
+      "modrinthVersionId": "b9Fl6Ct5",
+      "file": "FastAsyncWorldEdit-Bukkit-2.16.1.jar",
+      "url": "https://cdn.modrinth.com/data/z4HZZnLr/versions/b9Fl6Ct5/FastAsyncWorldEdit-Bukkit-2.16.1.jar",
+      "sha512": "239344f1e906aac37ffed4939ea30a5ba1a1a3935dd4930067e25b8f9864b081ce3ad72473f4a93af8235a70824900649c4450983b2b3dda57d2df655ea3cb4b",
+      "why": "Building the map (replaces WorldEdit)",
+      "note": "For building the map. Can come off the live server once the map is done."
+    }
+  ]
+}
