@@ -64,6 +64,8 @@ def icon(name: str, size: int, blur: float) -> None:
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
+    # The blurred desert alone, no logo: the website's hero background.
+    background(1920, 1080, blur=6).save(OUT / "background-1920x1080.png", optimize=True)
     # Website hero, video thumbnails, Minehut listing.
     key_art("key-art-1920x1080.png", 1920, 1080, WORDMARK, 0.72)
     key_art("key-art-1280x720.png", 1280, 720, WORDMARK, 0.72)
@@ -74,6 +76,9 @@ def main() -> None:
     icon("icon-1024.png", 1024, blur=10)
     icon("icon-512.png", 512, blur=10)
     icon("server-icon.png", 64, blur=10)
+    # The website: iOS home-screen icon and favicon.
+    icon("apple-touch-icon-180.png", 180, blur=10)
+    icon("favicon-32.png", 32, blur=10)
     for path in sorted(OUT.iterdir()):
         print(path.relative_to(ROOT))
 
