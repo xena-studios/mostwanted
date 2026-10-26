@@ -14,3 +14,5 @@ rootProject.name = "mostwanted"
 
 // The game: every system the server runs, in one plugin.
 include("core")
+// The database tables, migrations and message style, shared by core and backend.
+include("common")
