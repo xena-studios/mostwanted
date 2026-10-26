@@ -52,6 +52,12 @@ def place(canvas: Image.Image, logo: Image.Image, width_share: float, shadow: bo
     return out
 
 
+def scene(name: str, box: tuple[int, int, int, int], width: int = 960, height: int = 600) -> None:
+    """A crop of the desert (left, top, right, bottom in desert pixels), lightly blurred: website card art."""
+    crop = DESERT.crop(box).resize((width, height), Image.Resampling.NEAREST)
+    crop.filter(ImageFilter.GaussianBlur(width / 400)).save(OUT / name, optimize=True)
+
+
 def key_art(name: str, width: int, height: int, logo: Image.Image, share: float) -> None:
     image = place(background(width, height, blur=6), logo, share)
     image.convert("RGB").save(OUT / name, optimize=True)
@@ -66,6 +72,13 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     # The blurred desert alone, no logo: the website's hero background.
     background(1920, 1080, blur=6).save(OUT / "background-1920x1080.png", optimize=True)
+    # Card art for the website, each a different part of the desert.
+    scene("scene-mesa.png", (0, 80, 480, 380))
+    scene("scene-sun.png", (400, 120, 880, 420))
+    scene("scene-rocks.png", (800, 140, 1280, 440))
+    scene("scene-road.png", (400, 400, 880, 700))
+    scene("scene-cactus.png", (0, 380, 480, 680))
+    scene("scene-sky.png", (300, 0, 780, 300))
     # Website hero, video thumbnails, Minehut listing.
     key_art("key-art-1920x1080.png", 1920, 1080, WORDMARK, 0.72)
     key_art("key-art-1280x720.png", 1280, 720, WORDMARK, 0.72)

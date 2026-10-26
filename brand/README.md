@@ -21,6 +21,7 @@ Edit these; everything in `out/` is generated from them.
 | File | Use |
 | --- | --- |
 | [`out/background-1920x1080.png`](out/background-1920x1080.png) | The blurred desert with no logo: website hero background |
+| `out/scene-*.png` | Crops of the desert (mesa, sun, rocks, road, cactus, sky): website card art |
 | [`out/key-art-1920x1080.png`](out/key-art-1920x1080.png) | Website hero, trailers, big banners |
 | [`out/key-art-1280x720.png`](out/key-art-1280x720.png) | Video thumbnails, Minehut listing |
 | [`out/og-1200x630.png`](out/og-1200x630.png) | Link previews (Discord, X, iMessage) |
