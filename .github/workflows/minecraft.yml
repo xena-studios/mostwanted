@@ -2,7 +2,8 @@ name: New Minecraft
 
 # On Mondays, or by hand from the Actions tab, opens a PR when Paper has a
 # stable build of a Minecraft version newer than the one we build against (see
-# scripts/new-minecraft.sh). The PR builds and boots the plugins on it. Merge it
+# scripts/new-minecraft.sh). The PR builds and boots the plugins on it, on Paper
+# and on Leaf (which fails until Leaf has a build for it). Merge it
 # when the server is ready to move: Leaf, the other plugins, and Minehut too.
 on:
   schedule:

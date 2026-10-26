@@ -16,7 +16,7 @@ Needs a JDK 25.
 ./gradlew build                   # compile and test every plugin
 ./gradlew :core:runServer         # a Paper server with the plugin, in core/run/
 ./gradlew compileJava -Pxena.newestPaper=<paper-api version>   # against a newer Paper, failing on removals
-scripts/boot-test.sh --project paper --version 26.3 \
+scripts/boot-test.sh --project leaf --version 26.3 \
   --checks core/boot-checks.txt core/build/libs/core-*.jar
 ```
 
@@ -46,7 +46,7 @@ The server has to hold a lot of players in one world on modest hardware, so:
 ## Tests
 
 - **Unit tests** (JUnit) for logic that doesn't need a server. Put them next to the code they test.
-- **Boot checks.** Each plugin's `boot-checks.txt` lists console commands CI runs on a real Paper server, with the output each must log. A new command or feature should add a line there.
+- **Boot checks.** Each plugin's `boot-checks.txt` lists console commands CI runs on real Leaf and Paper servers, with the output each must log. A new command or feature should add a line there.
 
 ## Pull requests
 
@@ -55,7 +55,7 @@ The server has to hold a lot of players in one world on modest hardware, so:
 3. Add a line for it to the plugin's `CHANGELOG.md` under `## Unreleased` (add the heading if it isn't there).
 4. Run `./gradlew build` and open the PR. The template asks for the rest.
 
-CI builds, tests, boot-tests on Paper, and compiles against the newest Paper; CodeQL scans the change for security problems. `main` only takes changes through pull requests, and its required check, `build-ok`, has to pass. A Markdown-only PR skips the build. PRs are labelled by folder on their own.
+CI builds, tests, boot-tests on Leaf and Paper, and compiles against the newest Paper; CodeQL scans the change for security problems. `main` only takes changes through pull requests (no force pushes or deletion), and its required check, `build-ok`, has to pass. A Markdown-only PR skips the build. PRs are labelled by folder on their own.
 
 Commit messages follow [Conventional Commits](https://www.conventionalcommits.org), with the module or area as the scope: `feat(core): arrest a criminal with handcuffs`, `fix(core): ...`, `docs(tech): ...`, `build: ...`, `ci: ...`.
 
