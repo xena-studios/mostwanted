@@ -3,7 +3,7 @@
 # it, and fails if a plugin logged an error or warning, a command's expected
 # output never appeared, or the server didn't start and stop cleanly.
 #
-#   scripts/boot-test.sh [--project paper|folia] [--version 1.21.11] \
+#   scripts/boot-test.sh [--project paper|leaf|folia] [--version 26.3] \
 #     [--checks file]... [--run "console command"]... [--expect "log text"]... plugin.jar...
 #
 # Steps run in order. Each --expect waits for text logged after the --run before
@@ -12,11 +12,13 @@
 # during startup; blank lines and lines starting with # are skipped. A step
 # that starts with "paper " or "folia " runs only on that server.
 #
-# Server jars, Mojang's jar and libraries are cached in .cache/servers/.
+# Server jars, Mojang's jar and libraries are cached in .cache/servers/. Paper and
+# Folia come from PaperMC; Leaf from its GitHub releases (set GH_TOKEN to avoid
+# GitHub's rate limit). Every jar is checked against its published SHA-256.
 set -euo pipefail
 
 project=paper
-version=1.21.11
+version=26.3
 steps=()
 jars=()
 while (($#)); do
@@ -41,11 +43,23 @@ cache="$root/.cache/servers"
 dir="$root/build/boot/$project-$version"
 log="$dir/console.log"
 
-# ---- the server jar, verified against Paper's checksum ----
+# ---- the server jar, verified against its published checksum ----
 mkdir -p "$cache"
-build=$(curl -fsS "https://fill.papermc.io/v3/projects/$project/versions/$version/builds/latest")
-url=$(grep -o '"url":"[^"]*"' <<<"$build" | head -1 | cut -d'"' -f4)
-sha=$(grep -o '"sha256":"[^"]*"' <<<"$build" | head -1 | cut -d'"' -f4)
+if [[ $project == leaf ]]; then
+  # Leaf publishes each Minecraft version as a release tagged ver-<version>,
+  # with the newest build's jar attached as leaf-<version>-<build>.jar.
+  release=$(curl -fsS ${GH_TOKEN:+-H "Authorization: Bearer $GH_TOKEN"} \
+    "https://api.github.com/repos/Winds-Studio/Leaf/releases/tags/ver-$version")
+  asset=$(jq -c --arg v "$version" '[.assets[] | select(.name | startswith("leaf-\($v)-") and endswith(".jar"))] | last' <<<"$release")
+  [[ $asset != null ]] || { echo "Leaf has no jar for $version" >&2; exit 2; }
+  url=$(jq -r '.browser_download_url' <<<"$asset")
+  sha=$(jq -r '.digest // "" | ltrimstr("sha256:")' <<<"$asset")
+  [[ -n $sha ]] || { echo "Leaf's $version jar has no published checksum" >&2; exit 2; }
+else
+  build=$(curl -fsS "https://fill.papermc.io/v3/projects/$project/versions/$version/builds/latest")
+  url=$(grep -o '"url":"[^"]*"' <<<"$build" | head -1 | cut -d'"' -f4)
+  sha=$(grep -o '"sha256":"[^"]*"' <<<"$build" | head -1 | cut -d'"' -f4)
+fi
 server_jar="$cache/${url##*/}"
 if [[ ! -f $server_jar ]]; then
   echo "Downloading ${url##*/}"
