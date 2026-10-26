@@ -64,9 +64,10 @@ Grim exempts Bedrock players from checks so they don't get false flags, but it f
 
 | | |
 | --- | --- |
-| Leaf (all plugins) | 8–9 GB (`-Xms` = `-Xmx`) |
+| Leaf (all plugins) | 8 GB heap (`-Xms` = `-Xmx`) + ~1–1.5 GB outside the heap |
 | PostgreSQL | 0.5–1 GB |
 | OS + Raptor | 1–1.5 GB |
+| Discord bot | ~0.1 GB |
 
 ## Start command, configs and setup
 

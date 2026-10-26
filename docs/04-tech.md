@@ -57,9 +57,10 @@ Bedrock players ──┘    (Geyser, DDoS protection,        └─ Leaf 26.3 g
 6 vCores (shared), 12 GB RAM, 100 GB NVMe, 2 Gbps unmetered, daily backups. Ordered 2026-10-25.
 
 **Fitting it in 12 GB:**
-- Leaf game server: **~8–9 GB** (`-Xms` = `-Xmx`, Paper's recommended flags)
+- Leaf game server: **8 GB heap** (`-Xms` = `-Xmx`, Paper's recommended flags), plus ~1–1.5 GB Java uses outside the heap
 - PostgreSQL: ~0.5–1 GB (keep `shared_buffers` small)
 - OS + Raptor: ~1–1.5 GB
+- Discord bot: ~0.1 GB
 - **Staging runs on your own PC**, not the VPS.
 
 **What to expect:** shared cores, so single-core speed is the limit. Rough guess: **~15–30 players**. Fine for building, testing and launch. Run spark during the first playtest.
@@ -186,7 +187,7 @@ Outside the plugin:
 - **Minehut External confirmed** before anything else (see the ⚠️ above).
 - **Mojang EULA + Minehut rules.** Real-money store = cosmetics only, no gameplay advantages. No gambling mechanics in-game.
 - **Staff tools.** Punishments (LibertyBans), anti-cheat alerts (Grim), block logs (CoreProtect), and reports. Guards are players with power over others, so staff need to be able to review guard abuse too. Minehut staff can't moderate external servers for us.
-- **Backups and a recovery drill.** OVH daily backup + Raptor's backups for world files + nightly PostgreSQL dumps, and actually test restoring one.
+- **Backups and a recovery drill.** Raptor's backup system for the world files and nightly PostgreSQL dumps, with a copy kept off the VPS, plus OVH's daily backup. Actually test restoring one.
 - **Monitoring.** spark for lag spikes, Plan for player trends, alerts to Discord when the server goes down.
 
 ## Build order

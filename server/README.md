@@ -28,7 +28,7 @@ git clone https://github.com/xena-studios/mostwanted.git
 cp mostwanted/server/.env.example /srv/mostwanted/.env   # then fill it in
 mostwanted/server/install.sh /srv/mostwanted
 echo eula=true > /srv/mostwanted/eula.txt               # Minecraft's EULA: https://aka.ms/MinecraftEULA
-cd /srv/mostwanted && ./start.sh                        # MEMORY=9G by default
+cd /srv/mostwanted && ./start.sh                        # MEMORY=8G by default
 ```
 
 Then, once:
