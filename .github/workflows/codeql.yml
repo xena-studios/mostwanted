@@ -1,7 +1,7 @@
 name: CodeQL
 
 # Code scanning: the plugins' Java (traced through a real Gradle build, for the
-# most accurate dataflow) and the workflows. Findings show on pull requests and
+# most accurate dataflow), the workflows, and the website. Findings show on pull requests and
 # in the Security tab. Dependencies are Renovate's: it opens a fix PR as soon as
 # one has a known vulnerability.
 on:
@@ -28,6 +28,8 @@ jobs:
           - language: java-kotlin
             build-mode: manual
           - language: actions
+            build-mode: none
+          - language: javascript-typescript
             build-mode: none
     steps:
       - uses: actions/checkout@v7

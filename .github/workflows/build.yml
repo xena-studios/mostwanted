@@ -1,11 +1,11 @@
 name: Build
 
-# Everything but Markdown. Pull requests always run, so the `build-ok` check main
+# Everything but Markdown and the website (website.yml builds that). Pull requests always run, so the `build-ok` check main
 # requires always reports; `changes` skips the rest when only Markdown changed.
 on:
   push:
     branches: [main]
-    paths: ["**", "!**.md"]
+    paths: ["**", "!**.md", "!website/**", "!.github/workflows/website.yml"]
   pull_request:
   workflow_dispatch:
 
@@ -29,7 +29,7 @@ jobs:
           code=false
           while read -r file; do
             case $file in
-              *.md) ;;
+              *.md | website/* | .github/workflows/website.yml) ;;
               *) code=true ;;
             esac
           done < <(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only)
