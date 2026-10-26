@@ -98,6 +98,9 @@ From the reference desert scene (below). For backgrounds, illustrations and the 
 
 ## Look and feel
 
+**The files** (logos, key art, icons) are in [`brand/`](../brand/).
+
+
 The reference art (2026-10-25) sets the style:
 
 - **Pixel art.** A desert at sunset: a big pale sun low on the horizon, a dusty pink-mauve sky with streaky clouds, red-brown mesas and rock steps, a sand road leading into the distance, saguaro cacti and scrub.
@@ -113,7 +116,7 @@ The reference is a chunky, Minecraft-style block wordmark:
 - A darker **extruded bottom face** (`#893500`) so the letters look like 3D blocks
 - A few **pixel notches** in a neighbouring shade, like worn sandstone
 
-The logo is the word **MOSTWANTED** in this style. Make it as a vector (SVG) so it works from favicon to banner, and keep a flat one-colour version for small sizes and Bedrock.
+The logo is the word **MOSTWANTED** in this style, plus an **MW** monogram for square and small spaces (server icon, avatars, favicon). Both are in [`brand/source/`](../brand/source/). Make it as a vector (SVG) so it works from favicon to banner, and keep a flat one-colour version for small sizes and Bedrock.
 
 ## Desert theme
 
@@ -134,5 +137,5 @@ What "desert" can mean across the server, site and store:
 ## Still to decide
 
 - [x] The name: **MostWanted**
-- [ ] The logo: MOSTWANTED in the blocky style above
+- [x] The logo: MOSTWANTED wordmark and MW monogram, in [`brand/`](../brand/)
 - [ ] A secondary colour, if we want one (a desert sky blue would contrast well with orange)

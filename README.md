@@ -1,5 +1,7 @@
 # MostWanted
 
+![MostWanted](brand/out/key-art-1280x720.png)
+
 A Jailbreak-style cops vs. prisoners Minecraft server (Java + Bedrock) by [Xena Studios](https://xenastudios.co). Break out, rob the city, and stay ahead of the guards. Or be the guard who brings them back.
 
 **[mostwantedmc.com](https://mostwantedmc.com)** (coming soon)
@@ -13,6 +15,7 @@ core/          MostWanted, the game plugin: every system the server runs
 website/       the website, with the store built in (Astro, Tebex)
 resource-pack/ source art and models for the custom items
 server/        the configs the live server runs (no secrets)
+brand/         the logo, key art and icons
 build-logic/   the Gradle conventions every plugin applies
 docs/          the design: gameplay, tech, server stack, decisions
 ideas/         raw ideas and name candidates
