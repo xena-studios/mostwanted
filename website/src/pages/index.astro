@@ -32,7 +32,22 @@ const roles = [
 const news = (await getCollection("news")).sort((a, b) => +b.data.date - +a.data.date).slice(0, 3);
 const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
 ---
-<Base>
+<Base
+  schema={[
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      name: "MostWanted",
+      description: "A Jailbreak-style cops vs. prisoners Minecraft server for Java and Bedrock. Break out, rob the town, and stay ahead of the guards.",
+      url: new URL("/", Astro.site).href,
+      image: new URL("/og.png", Astro.site).href,
+      genre: ["Cops and robbers", "Multiplayer"],
+      gamePlatform: ["Minecraft: Java Edition", "Minecraft: Bedrock Edition"],
+      playMode: "MultiPlayer",
+      publisher: { "@type": "Organization", name: "Xena Studios", url: "https://xenastudios.co" },
+    },
+  ]}
+>
   <section class="hero" aria-labelledby="hero-title">
     <Image class="hero-bg" src={background} alt="" widths={[960, 1440, 1920]} sizes="100vw" loading="eager" fetchpriority="high" />
     <div class="wrap hero-copy">

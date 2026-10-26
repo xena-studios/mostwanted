@@ -3,9 +3,15 @@ import "@fontsource/lilita-one/latin-400.css";
 import "@fontsource-variable/rubik/wght.css";
 import "@fontsource/vt323/latin-400.css";
 import "../styles/global.css";
+// The Latin files of each face, preloaded so text renders in the right font
+// first time instead of swapping (and shifting the layout) a moment later.
+import lilitaLatin from "@fontsource/lilita-one/files/lilita-one-latin-400-normal.woff2?url";
+import rubikLatin from "@fontsource-variable/rubik/files/rubik-latin-wght-normal.woff2?url";
+import vt323Latin from "@fontsource/vt323/files/vt323-latin-400-normal.woff2?url";
 import { Image } from "astro:assets";
 import { LogIn, Menu } from "@lucide/astro";
 import monogram from "../brand/monogram.png";
+import xenaLogo from "../brand/xena.svg?raw";
 import { nav, site } from "../site";
 
 interface Props {
@@ -13,12 +19,18 @@ interface Props {
   description?: string;
   /** Keep the page out of search results, with no canonical or og:url (the 404 page). */
   noindex?: boolean;
+  /** "article" for news posts. */
+  type?: "website" | "article";
+  /** Structured data (schema.org) for this page, merged with the site's own. */
+  schema?: Record<string, unknown>[];
 }
 
 const {
   title,
   description = "MostWanted is a Jailbreak-style cops vs. prisoners Minecraft server for Java and Bedrock. Break out, rob the town, and stay ahead of the guards.",
   noindex = false,
+  type = "website",
+  schema = [],
 } = Astro.props;
 const fullTitle = title ? `${title} · MostWanted` : "MostWanted: a cops vs. prisoners Minecraft server";
 
@@ -28,7 +40,39 @@ const path = Astro.url.pathname.replace(/(?:index)?\.html$/, "") || "/";
 const canonical = new URL(path, Astro.site);
 const og = new URL("/og.png", Astro.site);
 const year = new Date().getFullYear();
+// The XENA logo from xena-studios/brand, cropped to its ink (the export carries
+// half a cap height of clear space, 50 units a side) and drawn in currentColor.
+const [, xw, xh] = xenaLogo.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)!;
+const xenaSvg = xenaLogo
+  .replace(/ width="[^"]*" height="[^"]*"/, "")
+  .replace(/viewBox="[^"]*"/, `viewBox="50 50 ${+xw - 100} ${+xh - 100}" class="xena" aria-hidden="true"`)
+  .replace(/fill="#[0-9A-Fa-f]{6}"/g, 'fill="currentColor"');
+
 const current = (href: string) => path === href || path.startsWith(`${href}/`);
+
+// schema.org: who runs the site, and the site itself, on every page.
+const home = new URL("/", Astro.site).href;
+const structured = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${home}#org`,
+    name: "MostWanted",
+    url: home,
+    logo: new URL("/icon.png", Astro.site).href,
+    parentOrganization: { "@type": "Organization", name: "Xena Studios", url: "https://xenastudios.co" },
+    sameAs: [site.source],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${home}#site`,
+    name: "MostWanted",
+    url: home,
+    publisher: { "@id": `${home}#org` },
+  },
+  ...schema,
+];
 ---
 <!doctype html>
 <html lang="en">
@@ -42,8 +86,13 @@ const current = (href: string) => path === href || path.startsWith(`${href}/`);
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap.xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preload" href={lilitaLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={rubikLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={vt323Latin} as="font" type="font/woff2" crossorigin />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={type} />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="MostWanted" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
@@ -53,6 +102,7 @@ const current = (href: string) => path === href || path.startsWith(`${href}/`);
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="The MOSTWANTED wordmark over a pixel-art desert at sunset." />
     <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify(structured)} />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -145,7 +195,10 @@ const current = (href: string) => path === href || path.startsWith(`${href}/`);
         </div>
       </div>
       <div class="wrap legal">
-        <p>© {year} Xena Studios.</p>
+        <p class="studio">
+          <a href="https://xenastudios.co" aria-label="Xena Studios"><Fragment set:html={xenaSvg} /></a>
+          <span>© {year} Xena Studios</span>
+        </p>
         <p>Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
       </div>
     </footer>
@@ -389,11 +442,42 @@ const current = (href: string) => path === href || path.startsWith(`${href}/`);
     color: var(--orange);
   }
 
+  .studio {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-3) var(--s-5);
+  }
+
+  .studio a {
+    display: block;
+    color: var(--text);
+    transition: color 150ms var(--ease);
+  }
+
+  .studio a:hover {
+    color: var(--orange);
+  }
+
+  .studio :global(.xena) {
+    display: block;
+    width: auto;
+    height: 0.875rem;
+  }
+
+  .studio span {
+    font-family: var(--pixel);
+    font-size: 1.125rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
   .legal {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     justify-content: space-between;
-    gap: var(--s-2) var(--s-5);
+    gap: var(--s-3) var(--s-5);
     padding-block: var(--s-5);
     border-top: 1px solid var(--rule);
     font-size: 0.8125rem;

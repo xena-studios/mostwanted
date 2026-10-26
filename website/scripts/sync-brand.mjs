@@ -1,5 +1,5 @@
 // Copies the site's images from ../brand (this repo's brand folder, built by
-// scripts/brand-assets.py). The copies are committed, so the site only changes
+// scripts/brand-assets.py), and the XENA logo from xena-studios/brand. The copies are committed, so the site only changes
 // when someone syncs on purpose.
 //
 //   npm run brand:sync
@@ -26,9 +26,19 @@ const files = [
   ["out/og-1200x630.png", "public/og.png"],
 ];
 
-for (const [from, to] of files) {
-  const dest = path.join(ROOT, to);
-  fs.mkdirSync(path.dirname(dest), { recursive: true });
-  fs.copyFileSync(path.join(BRAND, from), dest);
-}
-console.log(`synced ${files.length} files from brand/`);
+// From a checkout of xena-studios/brand: the XENA logo for the footer, as on
+// raptorpanel.net and xenastudios.co. Expects ../../brand, or set XENA_BRAND_DIR.
+const XENA = path.resolve(process.env.XENA_BRAND_DIR ?? path.join(ROOT, "../../brand"));
+const xenaFiles = [["logo/xena.svg", "src/brand/xena.svg"]];
+
+const copy = (base, list) => {
+  for (const [from, to] of list) {
+    const dest = path.join(ROOT, to);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.copyFileSync(path.join(base, from), dest);
+  }
+};
+copy(BRAND, files);
+if (fs.existsSync(path.join(XENA, "logo/xena.svg"))) copy(XENA, xenaFiles);
+else console.warn(`No xena-studios/brand checkout at ${XENA}: kept the current xena.svg.`);
+console.log(`synced ${files.length + xenaFiles.length} files`);

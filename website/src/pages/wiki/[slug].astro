@@ -13,7 +13,7 @@ const { Content, headings } = await render(article);
 const sections = ["Getting started", "Playing", "Guards", "Server"];
 const all = (await getCollection("wiki")).sort((a, b) => sections.indexOf(a.data.section) - sections.indexOf(b.data.section) || a.data.order - b.data.order);
 ---
-<Base title={`${article.data.title} · Wiki`} description={article.data.summary}>
+<Base title={`${article.data.title} · Wiki`} description={`${article.data.summary} A guide to MostWanted, the cops vs. prisoners Minecraft server.`}>
   <PageHero title={article.data.title} lead={article.data.summary} image={mesa} />
   <section class="section">
     <div class="wrap layout">

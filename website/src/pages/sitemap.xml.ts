@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 
-const pages = ["/", "/news", "/leaderboards", "/player", "/wiki", "/rules", "/staff", "/creators", "/apply", "/support", "/store"];
+const pages = ["/", "/news", "/leaderboards", "/wiki", "/rules", "/staff", "/creators", "/apply", "/support", "/store"];
 
 export const GET: APIRoute = async ({ site }) => {
   const news = (await getCollection("news")).map((p) => `/news/${p.id}`);

@@ -8,7 +8,7 @@ import sky from "../../brand/scene-sky.png";
 const posts = (await getCollection("news")).sort((a, b) => +b.data.date - +a.data.date);
 const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
 ---
-<Base title="News" description="Updates, events and changes on MostWanted.">
+<Base title="News" description="News, updates, events and patch notes from MostWanted, the cops vs. prisoners Minecraft server for Java and Bedrock.">
   <PageHero title="News" lead="Updates, events and changes." image={sky} />
   <section class="section">
     <ul class="wrap posts">

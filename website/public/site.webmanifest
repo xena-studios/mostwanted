@@ -1,0 +1,20 @@
+{
+  "name": "MostWanted",
+  "short_name": "MostWanted",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#150D09",
+  "theme_color": "#150D09",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

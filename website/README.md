@@ -11,7 +11,8 @@ npm install
 npm run dev          # http://localhost:4321, with hot reload
 npm run build        # static site in dist/
 npm run preview      # serve dist/ locally
-npm run brand:sync   # copy the logo, background and icons in from ../brand
+npm run brand:sync   # copy the logo, background and icons in from ../brand,
+                     # and the XENA footer logo from a xena-studios/brand checkout at ../../brand
 ```
 
 Pages are Astro components rendered to HTML at build time. The only JavaScript is the address copy button and the player lookup, a few lines each.
@@ -48,6 +49,10 @@ Player search, the leaderboards and sign-in show a "starts when the server opens
 ## Look
 
 From [docs/09-brand.md](../docs/09-brand.md) and MostWanted's section in [xena-studios/brand](https://github.com/xena-studios/brand#mostwanted): the blurred pixel desert behind the block wordmark, Desert Orange `#FF9933` on dusk, chunky bevelled panels and buttons like blocks in the game. **Lilita One** for headings, **Rubik** for text and **VT323** (a pixel face) for labels, all self-hosted from Fontsource. Icons are [Lucide](https://lucide.dev), inlined as SVG at build time.
+
+## Checks
+
+Before a release, run Lighthouse against `npx wrangler dev` (it applies `public/_headers`, so the CSP is real). On 2026-10-26 every page scored 100 for performance, accessibility, best practices and SEO, on mobile and desktop. The one exception is `/login` at SEO 66, on purpose: it's `noindex`, and so is `/player`.
 
 ## Deploy
 
