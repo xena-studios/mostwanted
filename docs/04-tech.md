@@ -137,7 +137,7 @@ One plugin, **PrisonBreak** (the `core` module), in **Java 25**, built with Grad
 | 12 | **Indirect criminal kills** | Traps, snitching, stealing, sabotage (once we pick which). |
 | 13 | **Guard duty** | On/off duty, guard loadout, guards-online count. The guard rank itself comes from LuckPerms through DiscordSRV. |
 | 14 | **HUD** | Bounty, cash, wanted level, robbery status: boss bar / action bar, plus placeholders for TAB. |
-| 15 | **Stats & leaderboards** | Escapes, arrests, cash earned, robberies. Holograms + Discord. |
+| 15 | **Stats & leaderboards** | Escapes, arrests, cash earned, robberies, per period. Holograms in game, and a push to the website every ~2 min (see [player stats](08-website.md#player-stats)). |
 
 Outside the plugin:
 

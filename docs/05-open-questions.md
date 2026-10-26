@@ -30,4 +30,5 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 - **Custom items:** our own plugin + pack pipeline, no ItemsAdder/Nexo. (2026-10-25)
 - **Website and store:** Astro on Cloudflare, store through Tebex Headless, cosmetics only. See [website](08-website.md). (2026-10-25)
 - **Brand:** orange `#ff9933`, desert theme, blocky Minecraft-style logo. In-game colours only from the 24-hue `hsl(h, 100%, 60%)` palette. See [brand](09-brand.md). (2026-10-25)
+- **Player stats on the website:** `core` pushes stats to a Cloudflare Worker + D1; the website reads from D1, never from the game server. (2026-10-25)
 - **Repo layout:** `core/`, `website/`, `resource-pack/`, `server/` alongside the docs. (2026-10-25)
