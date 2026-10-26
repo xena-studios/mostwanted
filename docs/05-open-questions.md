@@ -29,4 +29,5 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 - **Guns:** our own hitscan guns, no gun plugin. (2026-10-25)
 - **Custom items:** our own plugin + pack pipeline, no ItemsAdder/Nexo. (2026-10-25)
 - **Website and store:** Astro on Cloudflare, store through Tebex Headless, cosmetics only. See [website](08-website.md). (2026-10-25)
+- **Brand:** orange `#ff9933`, desert theme, blocky Minecraft-style logo. See [brand](09-brand.md). (2026-10-25)
 - **Repo layout:** `core/`, `website/`, `resource-pack/`, `server/` alongside the docs. (2026-10-25)

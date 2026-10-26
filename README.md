@@ -29,6 +29,7 @@ scripts/       boot tests, changelogs and the new-Minecraft check
 | [`docs/06-resource-pack.md`](docs/06-resource-pack.md) | Custom textures and items on Java + Bedrock |
 | [`docs/07-server-stack.md`](docs/07-server-stack.md) | Install list: server software, every plugin + version, start command, config |
 | [`docs/08-website.md`](docs/08-website.md) | The website and store: Astro, Cloudflare, Tebex, what we sell |
+| [`docs/09-brand.md`](docs/09-brand.md) | The look: orange `#ff9933`, desert theme, palette and logo style |
 | [`ideas/names.md`](ideas/names.md) | Server name candidates |
 
 ## Building
