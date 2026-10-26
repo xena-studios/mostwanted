@@ -149,7 +149,29 @@ Outside the plugin:
 
 - **Resource pack pipeline:** source art + models in this repo → build the Java pack → host it on **GitHub releases** (Minehut only accepts packs from approved hosts). Bedrock pack depends on what Minehut allows, see [resource pack](06-resource-pack.md). Automate it in CI. See [resource pack](06-resource-pack.md).
 - **The backend** in [`backend/`](../backend/): one Java app with the website's API (`api.mostwantedmc.com`: accounts, linking, tickets, applications, the staff panel, stats) and the Discord bot (rank sync, DMs, alerts). See [accounts and the API](08-website.md#accounts-and-the-api) and [Discord](10-discord-bot.md).
-- **`common`:** the database tables, migrations and message text shared by `core` and `backend`.
+- **`common`:** the database tables, migrations, connection pool and message style shared by `core` and `backend` ([below](#the-backend-and-common)).
+
+## The backend and `common`
+
+Decided 2026-10-26. **Java, like `core`**, so the game, the API and the bot share one module, [`common`](../common/), for the tables. Change a column and the build fails everywhere it's used, instead of the live server. That's worth more than the memory a lighter language (Go) would save.
+
+| Part | Pick | Why |
+| --- | --- | --- |
+| Runtime | **Java 25, virtual threads** | A thread per request costs nearly nothing, so the code stays plain. |
+| API | **[Javalin](https://javalin.io)** on Jetty | Small and explicit (a route is a function), quick to start, light on memory. Jetty serves HTTPS with the Origin CA certificate and checks Cloudflare's client certificate itself, so no nginx. |
+| Discord | **[JDA](https://github.com/discord-jda/JDA)** | The main Java Discord library. |
+| Database | **PostgreSQL, HikariCP, [Flyway](https://flywaydb.org), [jOOQ](https://www.jooq.org)** (in `common`) | Flyway brings the tables up to date on start; jOOQ's classes are generated from the migrations, so queries are checked by the compiler. LISTEN/NOTIFY tells `core` and `backend` when something changed. |
+| JSON | **Jackson** | Javalin's default. |
+| Sign-in | **The JDK's HTTP client** for Discord OAuth; our own sessions | Two calls to Discord. Session tokens are random, stored hashed, sent as `HttpOnly` cookies. No auth framework to trust. |
+| Rate limits | **Bucket4j**, in memory | Per IP and per account, behind Cloudflare's. |
+| Logs | **SLF4J + Logback** | Raptor shows the console; Logback keeps daily files. |
+| Tests | **JUnit + [Testcontainers](https://testcontainers.com)** | Database tests run against a real PostgreSQL in CI. |
+
+**Running it:** one jar as its own Raptor server, 256 MB heap with the Serial GC (the lightest for a small heap), ~300–400 MB in all. `/health` lets the bot alert 🔒│admin when the API is down.
+
+**`core` stays small:** it bundles `common` (our code only) and has Paper download jOOQ, Flyway, HikariCP and the PostgreSQL driver on first start (Paper's library loader), rather than shading them into the plugin jar.
+
+**Not used:** Spring Boot (heavy and slow to start for a few dozen routes), Quarkus and Micronaut (more framework than we need), Hibernate (hides the SQL it runs; jOOQ keeps it visible).
 
 ## How `core` stays fast
 

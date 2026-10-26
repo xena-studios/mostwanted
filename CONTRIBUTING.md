@@ -20,13 +20,14 @@ scripts/boot-test.sh --project leaf --version 26.3 \
   --checks core/boot-checks.txt core/build/libs/core-*.jar
 ```
 
-The jars land in `<module>/build/libs/`.
+The jars land in `<module>/build/libs/`. The database tests in `common` need Docker (they run a real PostgreSQL); without it they're skipped.
 
 ## How the repo fits together
 
 ```
-build-logic/   the xena.java and xena.plugin Gradle conventions every plugin applies
+build-logic/   the Gradle conventions: xena.java for every Java module, xena.plugin for plugins
 core/          the game plugin (MostWanted): every system the server runs
+common/        the database tables (migrations), pool and message style, shared by core and backend
 website/       the website and store
 resource-pack/ source art and models for the custom items
 server/        the game server: pinned plugins, install/start/test scripts, configs (never secrets)
@@ -47,6 +48,7 @@ The server has to hold a lot of players in one world on modest hardware, so:
 - **Java and Bedrock both work.** Bedrock players join through Minehut's Geyser, with no Floodgate, so: chest GUIs, no Bedrock forms, nothing that needs a Java-only client feature. Every custom item is a vanilla item underneath, so the game still works without the resource pack.
 - **Colours come from the palette** in [docs/09-brand.md](docs/09-brand.md#in-game-colours). Anything players must tell apart uses hues that stay different on Bedrock.
 - **Players are stored by UUID**, never by name.
+- **Tables change through a new migration** in `common`, never by editing a merged one. See [common/README.md](common/README.md#changing-the-tables).
 - **Paper API only.** No NMS, so the plugin keeps running on Leaf and on every Paper update.
 - **The hot path stays in memory.** Gameplay reads player state, zones and config from memory; the database is only written behind, in batches, off the main thread. Movement handlers return early unless the player changed block. The full list: [How core stays fast](docs/04-tech.md#how-core-stays-fast).
 - **Every message follows the [message style](docs/09-brand.md#messages)**: a coloured symbol per kind, grey text, banners only for big moments.
