@@ -60,7 +60,7 @@ Bedrock players ──┘    (Geyser, DDoS protection,        └─ Leaf 26.3 g
 - Leaf game server: **8 GB heap** (`-Xms` = `-Xmx`, Paper's recommended flags), plus ~1–1.5 GB Java uses outside the heap
 - PostgreSQL: ~0.5–1 GB (keep `shared_buffers` small)
 - OS + Raptor: ~1–1.5 GB
-- Discord bot: ~0.1 GB
+- backend (website API + Discord bot): ~0.4 GB
 - **Staging runs on your own PC**, not the VPS.
 
 **What to expect:** shared cores, so single-core speed is the limit. Rough guess: **~15–30 players**. Fine for building, testing and launch. Run spark during the first playtest.
@@ -141,14 +141,15 @@ One plugin, **MostWanted** (the `core` module), in **Java 25**, built with Gradl
 | 13 | **Guard duty** | On/off duty, guard loadout, guards-online count. The guard rank itself comes from LuckPerms, synced from Discord by our bot ([Discord bot](10-discord-bot.md)). |
 | 14 | **HUD** | Bounty, cash, wanted level, robbery status: boss bar, action bar and sidebar scoreboard. Name tags and the tab list in each role's colour (guards blue, wanted criminals red), updated when the state changes (instead of TAB). |
 | 14b | **Messages** | One place that sends every message in the [message style](09-brand.md#messages): ✔ ✖ ★ ⚑ ⓘ one-liners, and banners with a title and sound for big moments. |
-| 14c | **Game log** | Arrests, robberies, riots, purchases and staff actions, written to PostgreSQL for staff and the stats feed (instead of CoreProtect). |
+| 14c | **Game log** | Arrests, robberies, riots, purchases and staff actions, written to PostgreSQL for staff and the website (instead of CoreProtect). |
 | 14d | **Bedrock support** | Detects Bedrock players (once Minehut tells us how they're marked) and exempts them from GrimAC's checks. |
-| 15 | **Stats & leaderboards** | Escapes, arrests, cash earned, robberies, per period. Holograms in game, and a push to the website every ~2 min (see [player stats](08-website.md#player-stats)). |
+| 15 | **Stats & leaderboards** | Escapes, arrests, cash earned, robberies, per period. Holograms in game; the website reads them from PostgreSQL through the API (see [player stats](08-website.md#player-stats)). |
 
 Outside the plugin:
 
 - **Resource pack pipeline:** source art + models in this repo → build the Java pack → host it on **GitHub releases** (Minehut only accepts packs from approved hosts). Bedrock pack depends on what Minehut allows, see [resource pack](06-resource-pack.md). Automate it in CI. See [resource pack](06-resource-pack.md).
-- **The Discord bot** in [`bot/`](../bot/): account linking, guard role sync, applications, tickets and live alerts. See [Discord bot](10-discord-bot.md).
+- **The backend** in [`backend/`](../backend/): one Java app with the website's API (`api.mostwantedmc.com`: accounts, linking, tickets, applications, the staff panel, stats) and the Discord bot (rank sync, DMs, alerts). See [accounts and the API](08-website.md#accounts-and-the-api) and [Discord](10-discord-bot.md).
+- **`common`:** the database tables, migrations and message text shared by `core` and `backend`.
 
 ## How `core` stays fast
 
@@ -188,7 +189,13 @@ Outside the plugin:
 - **Mojang EULA + Minehut rules.** Real-money store = cosmetics only, no gameplay advantages. No gambling mechanics in-game.
 - **Staff tools.** Punishments (LibertyBans), anti-cheat alerts (Grim), block logs (CoreProtect), and reports. Guards are players with power over others, so staff need to be able to review guard abuse too. Minehut staff can't moderate external servers for us.
 - **Backups and a recovery drill.** Raptor's backup system for the world files and nightly PostgreSQL dumps, with a copy kept off the VPS, plus OVH's daily backup. Actually test restoring one.
-- **Monitoring.** spark for lag spikes, Plan for player trends, alerts to Discord when the server goes down.
+- **Monitoring.** spark for lag spikes; the bot alerts 🔒│admin when the game, API or database goes down or the server lags.
+- **Before launch:**
+  - Terms and Privacy pages, and a "delete my account" button (collect as little as possible: many players are kids).
+  - VPS hardening: SSH keys only, no root login, automatic security updates, PostgreSQL only on localhost, `.env` files readable only by their service, firewall (443 from Cloudflare only, 25565 from Minehut only).
+  - 2FA on Cloudflare, GitHub, OVH, Discord, Tebex and Minehut.
+  - `support@mostwantedmc.com` through Cloudflare Email Routing.
+  - A 100-bot stress test (the VPS estimate is 15–30 players; the server has 100 slots).
 
 ## Build order
 
@@ -196,7 +203,7 @@ Outside the plugin:
 2. **Core loop:** player state, combat rules, arrests, bounty, economy, one robbery. Playable on a test map.
 3. **Custom items + guns + resource pack** (Java first, then Bedrock if Minehut supports custom Bedrock packs).
 4. **Escapes, riots, shops, HUD.**
-5. **Discord:** linking, guard rank sync, applications.
+5. **Website accounts and backend:** sign-in, linking, guard rank sync, tickets, applications, notifications. (The Discord server itself is built.)
 6. **Polish:** stats, leaderboards, indirect kills, more robberies.
 7. **Playtest at the VPS's limit**, fix what spark shows, launch, then upgrade the box as players grow.
 

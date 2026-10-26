@@ -30,7 +30,7 @@ core/          the game plugin (MostWanted): every system the server runs
 website/       the website and store
 resource-pack/ source art and models for the custom items
 server/        the game server: pinned plugins, install/start/test scripts, configs (never secrets)
-bot/           the Discord bot (planned)
+backend/       the website API and Discord bot (planned), and backend/discord-setup/ for the Discord server
 brand/         the logo, key art and icons (scripts/brand-assets.py builds brand/out/)
 docs/          the design: gameplay, tech, server stack, decisions
 scripts/       boot-test.sh, changelog.sh, new-minecraft.sh

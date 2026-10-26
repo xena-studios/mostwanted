@@ -7,3 +7,4 @@ build/
 # Paper servers for boot tests and runServer
 .cache/
 run/
+backend/discord-setup/.build-state.json

@@ -43,7 +43,7 @@ Approved 2026-10-26. The rule: **get a plugin where it's a hard, solved problem;
 | WorldGuard | **Zones**: prison boundary, safe zones, robbery spots, hideouts. Marked with a FAWE selection. | The game reacts to zones constantly. A chunk-indexed lookup in `core` is faster than asking another plugin, and adventure mode already stops griefing. |
 | TAB, PlaceholderAPI | **Name tags, tab list, sidebar scoreboard** through the Paper API | Guard blue / wanted red is game state: `core` updates it the moment it changes, instead of TAB polling placeholders. Two fewer plugins. |
 | CoreProtect | **Game event logs**: arrests, robberies, riots, purchases | No block griefing in adventure mode, and CoreProtect doesn't run on 26.3. |
-| Plan | **Stats** in PostgreSQL, shown on the website | Plan runs its own web server and is memory-heavy; the stats feed covers it. |
+| Plan | **Stats** in PostgreSQL, shown on the website | Plan runs its own web server and is memory-heavy; our API serves the stats. |
 | Chunky | Nothing | The map is hand-built; no terrain to pre-generate. |
 | VaultUnlocked, PacketEvents | Nothing | Nothing else reads our cash; Grim bundles its own PacketEvents. |
 | DiscordSRV | Our **Discord bot** ([Discord bot](10-discord-bot.md)) | Linking and role sync exactly how we want them. |
@@ -67,7 +67,7 @@ Grim exempts Bedrock players from checks so they don't get false flags, but it f
 | Leaf (all plugins) | 8 GB heap (`-Xms` = `-Xmx`) + ~1–1.5 GB outside the heap |
 | PostgreSQL | 0.5–1 GB |
 | OS + Raptor | 1–1.5 GB |
-| Discord bot | ~0.1 GB |
+| backend (API + Discord bot) | ~0.4 GB (256 MB heap) |
 
 ## Start command, configs and setup
 

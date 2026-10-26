@@ -51,26 +51,7 @@ The site shows each player's stats (escapes, arrests, robberies and so on) and l
 
 ### How the data gets to the site
 
-```
-Leaf server (OVH VPS)                       Cloudflare
-┌───────────────────────┐   every ~2 min   ┌────────────────────────────┐
-│ core plugin           │   HTTPS POST     │ Worker: /api/ingest        │
-│  counts stats as they │ ───────────────▶ │  checks the secret token   │
-│  happen               │   (outbound)     │  writes to D1 (SQLite)     │
-│        │              │                  │        │                   │
-│        ▼              │                  │        ▼                   │
-│ PostgreSQL            │                  │ Website reads D1:          │
-│  (source of truth)    │                  │  /player/<name>            │
-└───────────────────────┘                  │  /leaderboards             │
-                                           └────────────────────────────┘
-```
-
-- **The game server pushes; the website never calls the game server.** The VPS only makes outbound requests (like the Tebex plugin), so its IP stays hidden behind Minehut and a busy website can't lag the game.
-- **PostgreSQL on the VPS is the source of truth.** `core` writes stats there as they happen. Cloudflare **D1** holds a copy for the website.
-- **Sync:** every couple of minutes, `core` sends the stats that changed since the last successful sync (and once more on shutdown). If Cloudflare is unreachable, it keeps the changes and sends them next time. Nothing is lost; the site is just a few minutes behind.
-- **Auth:** the ingest endpoint only accepts requests signed with a secret shared between the server and the Worker. The secret lives in the server's config and Cloudflare's secrets, never in this repo.
-- **Cost:** the site already runs on Cloudflare; Workers and D1's free tiers should cover a server our size. Check the current limits when building.
-- **Live bits** (who's online, today's top bounties) push on the same channel, every minute.
+`core` writes stats to **PostgreSQL** on the VPS as they happen (in batches, off the main thread). The website reads them through the **API** at `api.mostwantedmc.com` ([below](#accounts-and-the-api)), the same database the game uses: no copy, no sync. Leaderboards and player pages are cached at Cloudflare for a minute or two, so most visits never reach the VPS. If the VPS is down, the site stays up and these pages say so.
 
 ### What we track
 
@@ -100,9 +81,53 @@ Each stat is a counter or a record in PostgreSQL, keyed by **UUID** (the player'
 - **Opt-out:** a `/stats private` command hides a player's page and removes them from the website boards (not from in-game ones).
 - Staff in vanish, and banned players, don't appear.
 
+## Accounts and the API
+
+Decided 2026-10-26. **Players have website accounts**, and everything tied to a person lives there: support tickets, applications, purchases, linked accounts. People without Discord can get support, and people without the website can use Discord or the game.
+
+**Signing in, no passwords:**
+- **Discord:** "Sign in with Discord" (the same Discord app as the bot, scope `identify` only).
+- **Minecraft:** `/website` in game shows a 6-character code to enter on the site. Works on Bedrock, where chat links can't be clicked. (Microsoft sign-in needs Mojang to approve our app; not worth the wait.)
+- Signed in one way, link the other from your account page. No passwords or email means nothing to reset or leak.
+
+**Your account page:** tickets and replies, applications and their status, purchases (from Tebex), linked accounts, stats. A "delete my account" button.
+
+**Support and applications can start anywhere, and all land on the website:**
+
+| From | How |
+| --- | --- |
+| Website | The support and apply forms |
+| Discord | `/support`, `/apply`, or the buttons in 🎫│support and 📝│apply. An account is made from the Discord user if needed |
+| Game | `/support <message>`. An account is made from the Minecraft player if needed |
+
+**Notifications** (a staff reply, an application decision) arrive on the site, as a Discord DM if linked, and in game (immediately if online, otherwise on next join).
+
+**Staff panel:** a staff-only part of the site for tickets, applications and punishments. Access comes from the player's in-game rank.
+
+### The API
+
+```
+Browser ──▶ mostwantedmc.com (Astro on a Cloudflare Worker)
+   └──────▶ api.mostwantedmc.com (proxied by Cloudflare) ──▶ VPS: backend (Java)
+                                                                  │
+                                         core (game) ──▶ PostgreSQL ◀── backend
+```
+
+- **One Java app, `backend`:** the API and the Discord bot together ([Discord](10-discord-bot.md)). It shares the `common` module with `core`, so the API, bot and game use the same tables. Its own Raptor server: game restarts don't touch it.
+- **One database:** PostgreSQL holds accounts, links, tickets, applications, purchases, stats and game data. When staff reply, `core` and the bot hear about it instantly (`LISTEN/NOTIFY`) and tell the player in game and on Discord.
+- **Reaching the VPS without exposing it:** `api.mostwantedmc.com` is a **proxied** DNS record (Cloudflare's IP shows, not ours), and:
+  1. The firewall allows port 443 **only from [Cloudflare's IP ranges](https://www.cloudflare.com/ips/)**, refreshed daily by a small job. Scanners can't connect, so they can't link our certificate to our IP.
+  2. A **Cloudflare Origin CA** certificate on the VPS, with SSL mode **Full (strict)**.
+  3. **Authenticated Origin Pulls:** Cloudflare presents its client certificate and the VPS rejects anything without it, so other Cloudflare customers can't reach us through Cloudflare either.
+- **Sessions:** cookies for `.mostwantedmc.com` that scripts can't read (`HttpOnly`, `Secure`, `SameSite=Lax`). The site calls the API cross-origin, so the API only allows `https://mostwantedmc.com`.
+- **Tebex** sends purchases to `api.mostwantedmc.com/tebex`; the backend checks each one's signature.
+- **Load can't lag the game:** Cloudflare rate-limits the API, Turnstile guards every form, the API rate-limits per user and IP, and public pages are cached.
+
+Before sign-in goes live: **Terms** and **Privacy** pages on the site (Discord shows them when signing in, Tebex requires them). Collect as little as possible: many players are kids.
+
 ## Protecting the interactive parts
 
-Decided 2026-10-26. **Bot Fight Mode is off** on mostwantedmc.com (and xenastudios.co). On the free plan it challenges every non-browser request with no way to exempt a path, which would break the stats feed from the game server, Tebex purchase webhooks, Discord sign-in and server-list vote callbacks. Its script was also blocked by our CSP, so it did nothing.
+Decided 2026-10-26. **Bot Fight Mode is off** on mostwantedmc.com (and xenastudios.co). On the free plan it challenges every non-browser request with no way to exempt a path, which would break Tebex purchase webhooks, Discord sign-in and server-list vote callbacks. Its script was also blocked by our CSP, so it did nothing.
 
 What protects the site instead, all on Cloudflare's free plan:
 
@@ -110,9 +135,10 @@ What protects the site instead, all on Cloudflare's free plan:
 | --- | --- |
 | DDoS | Cloudflare's DDoS protection, always on |
 | Common attacks | Cloudflare's free managed WAF ruleset, on |
-| Spam on forms (sign-in, apply, report) | **Turnstile** on each form, when the forms are built |
-| Flooding the API (player search, stats) | A **rate-limiting rule** on `/api/*`, when the API exists |
-| Fake stats | The stats feed is **signed with a shared secret**; anything unsigned is rejected |
+| Spam on forms (sign-in, apply, support) | **Turnstile** on each form, when the forms are built |
+| Flooding the API | A Cloudflare **rate-limiting rule** on `api.mostwantedmc.com`, plus per-user limits in the API |
+| Reaching the VPS directly | Firewall to Cloudflare's IPs only, Origin CA certificate, Authenticated Origin Pulls ([above](#the-api)) |
+| Fake purchases | Tebex webhooks are **signature-checked** |
 | Account abuse | **Discord sign-in** for anything tied to an account |
 
 ## What we sell
