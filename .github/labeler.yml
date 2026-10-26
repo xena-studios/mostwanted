@@ -11,6 +11,9 @@ resource-pack:
 server:
   - changed-files:
       - any-glob-to-any-file: server/**
+brand:
+  - changed-files:
+      - any-glob-to-any-file: [brand/**, scripts/brand-assets.py]
 build:
   - changed-files:
       - any-glob-to-any-file: [build-logic/**, gradle/**, "*.gradle.kts", scripts/**, .github/workflows/**]
