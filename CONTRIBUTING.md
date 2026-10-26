@@ -29,7 +29,8 @@ build-logic/   the xena.java and xena.plugin Gradle conventions every plugin app
 core/          the game plugin (MostWanted): every system the server runs
 website/       the website and store
 resource-pack/ source art and models for the custom items
-server/        the configs the live server runs (never secrets)
+server/        the game server: pinned plugins, install/start/test scripts, configs (never secrets)
+bot/           the Discord bot (planned)
 brand/         the logo, key art and icons (scripts/brand-assets.py builds brand/out/)
 docs/          the design: gameplay, tech, server stack, decisions
 scripts/       boot-test.sh, changelog.sh, new-minecraft.sh
@@ -47,6 +48,8 @@ The server has to hold a lot of players in one world on modest hardware, so:
 - **Colours come from the palette** in [docs/09-brand.md](docs/09-brand.md#in-game-colours). Anything players must tell apart uses hues that stay different on Bedrock.
 - **Players are stored by UUID**, never by name.
 - **Paper API only.** No NMS, so the plugin keeps running on Leaf and on every Paper update.
+- **The hot path stays in memory.** Gameplay reads player state, zones and config from memory; the database is only written behind, in batches, off the main thread. Movement handlers return early unless the player changed block. The full list: [How core stays fast](docs/04-tech.md#how-core-stays-fast).
+- **Every message follows the [message style](docs/09-brand.md#messages)**: a coloured symbol per kind, grey text, banners only for big moments.
 
 ## Tests
 
