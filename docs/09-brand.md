@@ -26,6 +26,28 @@ The rest of the palette comes from the reference logo: chunky blocky letters lit
 
 **In game:** Java chat, scoreboards and menus can use `#ff9933` directly (MiniMessage `<#ff9933>`). Bedrock only has the 16 legacy colours, so Geyser shows it as the nearest one, **gold** (`§6`). Pick text that still reads when it's gold.
 
+### Scene colours
+
+From the reference desert scene (below). For backgrounds, illustrations and the website, not for text.
+
+| Role | Hex |
+| --- | --- |
+| Dusk sky | `#a46865` |
+| Sunset glow | `#fddfb4` |
+| Sun | `#fefef5` |
+| Far mesa | `#945754` |
+| Near rock | `#864231` |
+| Sand | `#f2a96a` |
+| Sand shadow | `#bd7046` |
+
+## Look and feel
+
+The reference art (2026-10-25) sets the style:
+
+- **Pixel art.** A desert at sunset: a big pale sun low on the horizon, a dusty pink-mauve sky with streaky clouds, red-brown mesas and rock steps, a sand road leading into the distance, saguaro cacti and scrub.
+- **The key art layout:** that scene, **blurred**, with the blocky orange wordmark centred on top. It works for the website hero, the Minehut listing banner, Discord, the server icon (logo only) and video thumbnails.
+- **Warm and dusty, never neon.** The palette stays in sand, rust and dusk pink. Orange `#ff9933` is the only "loud" colour, and it belongs to the logo and buttons.
+
 ## Logo style
 
 The reference is a chunky, Minecraft-style block wordmark:
@@ -44,7 +66,7 @@ What "desert" can mean across the server, site and store:
 - **The map:** a sun-baked penitentiary out in the desert. Sandstone and terracotta walls, a canyon or mesa around it, a dusty town with the bank and stores, an oasis, dirt roads for chases. Escaping into open desert should feel exposed.
 - **Events:** sandstorms (lower visibility, a good cover for escapes), heat waves, a supply train or convoy crossing the desert.
 - **Items and cosmetics:** bandanas, cowboy-hat-style cosmetics, cactus and tumbleweed trails, sand-coloured jumpsuits, "wanted" posters for top bounties.
-- **Website:** warm sand background, sunset-orange gradients, the blocky logo, wanted-poster cards for the leaderboard.
+- **Website:** the blurred pixel-art desert as the hero, the blocky logo on top, sand-coloured sections below, wanted-poster cards for the leaderboard.
 - **Words:** "the Yard", "Solitary", "the Badlands", "the Pit", "Wanted", "Most Wanted".
 
 ## Still to decide
