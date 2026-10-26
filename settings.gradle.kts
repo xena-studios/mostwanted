@@ -10,7 +10,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "prison-break"
+rootProject.name = "mostwanted"
 
 // The game: every system the server runs, in one plugin.
 include("core")

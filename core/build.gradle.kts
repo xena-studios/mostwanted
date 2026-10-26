@@ -6,6 +6,6 @@ version = "0.1.0"
 description = "The prison break game: teams, arrests, robberies, riots, guns and the rest."
 
 paperPluginYaml {
-    name = "PrisonBreak"
-    main = "co.xenastudios.prisonbreak.PrisonBreak"
+    name = "MostWanted"
+    main = "co.xenastudios.mostwanted.MostWanted"
 }

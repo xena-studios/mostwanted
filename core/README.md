@@ -1,4 +1,4 @@
-# PrisonBreak (core)
+# MostWanted (core)
 
 The game plugin: every system the server runs. What it will do is in [what we build](../docs/04-tech.md#what-we-build-ourselves).
 
@@ -8,7 +8,7 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25.
 
 | Command | Permission | What it does |
 | --- | --- | --- |
-| `/prisonbreak info` (`/pb info`) | `prisonbreak.admin` | The plugin version and the server it's on |
+| `/mostwanted info` (`/mw info`) | `mostwanted.admin` | The plugin version and the server it's on |
 
 ## Building
 
