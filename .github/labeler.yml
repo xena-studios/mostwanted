@@ -11,9 +11,12 @@ resource-pack:
 server:
   - changed-files:
       - any-glob-to-any-file: server/**
-bot:
+common:
   - changed-files:
-      - any-glob-to-any-file: bot/**
+      - any-glob-to-any-file: common/**
+backend:
+  - changed-files:
+      - any-glob-to-any-file: backend/**
 brand:
   - changed-files:
       - any-glob-to-any-file: [brand/**, scripts/brand-assets.py]
