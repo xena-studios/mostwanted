@@ -100,6 +100,21 @@ Each stat is a counter or a record in PostgreSQL, keyed by **UUID** (the player'
 - **Opt-out:** a `/stats private` command hides a player's page and removes them from the website boards (not from in-game ones).
 - Staff in vanish, and banned players, don't appear.
 
+## Protecting the interactive parts
+
+Decided 2026-10-26. **Bot Fight Mode is off** on mostwantedmc.com (and xenastudios.co). On the free plan it challenges every non-browser request with no way to exempt a path, which would break the stats feed from the game server, Tebex purchase webhooks, Discord sign-in and server-list vote callbacks. Its script was also blocked by our CSP, so it did nothing.
+
+What protects the site instead, all on Cloudflare's free plan:
+
+| Threat | Protection |
+| --- | --- |
+| DDoS | Cloudflare's DDoS protection, always on |
+| Common attacks | Cloudflare's free managed WAF ruleset, on |
+| Spam on forms (sign-in, apply, report) | **Turnstile** on each form, when the forms are built |
+| Flooding the API (player search, stats) | A **rate-limiting rule** on `/api/*`, when the API exists |
+| Fake stats | The stats feed is **signed with a shared secret**; anything unsigned is rejected |
+| Account abuse | **Discord sign-in** for anything tied to an account |
+
 ## What we sell
 
 **Cosmetics only** (Mojang's EULA): no gameplay advantages.
