@@ -17,7 +17,7 @@ There are two teams. The prisoner team has two states.
 | **Guards** | | Stop escapes, arrest criminals, collect bounties |
 
 - **Everyone starts as a prisoner** (decided). There's no team-select menu.
-- **Becoming a guard:** join the Discord and apply. Staff review it, and approved players get the guard rank in-game. That makes guards a trusted, moderated role, which matters since they can arrest and shoot people.
+- **Becoming a guard:** apply on the website (or with `/apply` in Discord). Staff review it, and approved players get the guard rank in-game. That makes guards a trusted, moderated role, which matters since they can arrest and shoot people.
 - **On/off duty:** approved guards can probably go off duty and play as a prisoner. Decide whether off-duty guards keep their prisoner progress separate.
 - **Not enough guards:** with up to 100 players and guards coming only from applications, we need enough guards online at peak times. Options: recruit lots of guards, show "guards online" so prisoners know the risk, and scale robbery payouts with how many guards are on.
 - An inmate becomes a **criminal** once they cross the prison boundary.

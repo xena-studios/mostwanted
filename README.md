@@ -15,7 +15,7 @@ core/          MostWanted, the game plugin: every system the server runs
 website/       the website, with the store built in (Astro, Tebex)
 resource-pack/ source art and models for the custom items
 server/        the game server: pinned plugins, install and start scripts, configs (no secrets)
-bot/           the Discord bot (planned)
+backend/       the website API and the Discord bot in one Java app (planned), and the Discord server's setup script
 brand/         the logo, key art and icons
 build-logic/   the Gradle conventions every plugin applies
 docs/          the design: gameplay, tech, server stack, decisions
@@ -34,7 +34,7 @@ scripts/       boot tests, changelogs and the new-Minecraft check
 | [`docs/07-server-stack.md`](docs/07-server-stack.md) | Install list: server software, every plugin + version, start command, config |
 | [`docs/08-website.md`](docs/08-website.md) | The website and store: Astro, Cloudflare, Tebex, what we sell |
 | [`docs/09-brand.md`](docs/09-brand.md) | The look: orange `#ff9933`, desert theme, palette and logo style |
-| [`docs/10-discord-bot.md`](docs/10-discord-bot.md) | The Discord bot: linking, role sync, applications, tickets |
+| [`docs/10-discord-bot.md`](docs/10-discord-bot.md) | Discord: the server's layout, the app, and what the bot does |
 | [`ideas/names.md`](ideas/names.md) | Server name candidates |
 
 ## Building

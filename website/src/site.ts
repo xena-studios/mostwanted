@@ -25,7 +25,7 @@ export const nav = [
   { href: "/store", label: "Store" },
 ];
 
-// The boards the stats feed fills (docs/08-website.md#leaderboards).
+// The boards the API fills (docs/08-website.md#leaderboards).
 export const boards = [
   { id: "most-wanted", name: "Most Wanted", stat: "Bounty", blurb: "The highest bounties on the server right now." },
   { id: "escapes", name: "Top Escapers", stat: "Escapes", blurb: "Most times over the wall." },
