@@ -9,7 +9,7 @@ database:
   port: 5432
   name: mostwanted
   user: mostwanted
-  password: ""
+  # password: required, and never committed. MostWanted won't start without one.
   # Connections kept open. Few are needed: every write goes through one thread.
   pool-size: 4
 

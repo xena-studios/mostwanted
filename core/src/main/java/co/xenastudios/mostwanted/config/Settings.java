@@ -23,7 +23,7 @@ public record Settings(DatabaseConfig database, Duration saveEvery, ZoneId zone,
         }
         String password = db.getString("password", "");
         if (password.isEmpty()) {
-            throw new IllegalArgumentException("database.password is empty in config.yml");
+            throw new IllegalArgumentException("database.password isn't set in config.yml");
         }
         DatabaseConfig database = new DatabaseConfig(
                 db.getString("host", "localhost"),
