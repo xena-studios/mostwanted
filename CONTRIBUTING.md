@@ -20,6 +20,8 @@ scripts/boot-test.sh --project leaf --version 26.3 \
   --checks core/boot-checks.txt core/build/libs/core-*.jar
 ```
 
+`core` needs PostgreSQL, for `runServer` and the boot test alike: start one with the `docker run` line in [core/README.md](core/README.md#building-and-running). CI starts its own.
+
 The jars land in `<module>/build/libs/`. The database tests in `common` need Docker (they run a real PostgreSQL); without it they're skipped.
 
 ## How the repo fits together
@@ -56,7 +58,7 @@ The server has to hold a lot of players in one world on modest hardware, so:
 ## Tests
 
 - **Unit tests** (JUnit) for logic that doesn't need a server. Put them next to the code they test.
-- **Boot checks.** Each plugin's `boot-checks.txt` lists console commands CI runs on real Leaf and Paper servers, with the output each must log. A new command or feature should add a line there.
+- **Boot checks.** Each plugin's `boot-checks.txt` lists console commands CI runs on real Leaf and Paper servers, with the output each must log (and `file:` lines for configs to put in place first). A new command or feature should add a line there.
 
 ## Pull requests
 
