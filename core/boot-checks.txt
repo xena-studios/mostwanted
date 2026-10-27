@@ -1,5 +1,9 @@
-# The plugin on a real server, from the console. CI runs this on every change.
+# The plugin on a real server, from the console. CI runs this on every change,
+# with a PostgreSQL next to it (core/boot/config.yml).
+file: core/boot/config.yml plugins/MostWanted/config.yml
 run: mostwanted info
 expect: MostWanted 0.1.0 on
 run: mw info
-expect: MostWanted 0.1.0 on
+expect: database connected
+run: mw player Nobody
+expect: ɪѕɴ'ᴛ ᴏɴʟɪɴᴇ

@@ -86,6 +86,15 @@ jobs:
         target:
           - { version: "26.3", java: 25 }
     name: boot (${{ matrix.project }} ${{ matrix.target.version }})
+    # The database core needs; core/boot/config.yml points at it.
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: mostwanted
+          POSTGRES_PASSWORD: boot-test
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 2s --health-timeout 2s --health-retries 15
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-java@v6
