@@ -5,7 +5,7 @@ name: Build
 on:
   push:
     branches: [main]
-    paths: ["**", "!**.md", "!website/**", "!.github/workflows/website.yml", "!server/**", "!bot/**", "!.github/workflows/server.yml"]
+    paths: ["**", "!**.md", "!website/**", "!.github/workflows/website.yml", "!server/**", "!backend/discord-setup/**", "!.github/workflows/server.yml"]
   pull_request:
   workflow_dispatch:
 
@@ -29,7 +29,7 @@ jobs:
           code=false
           while read -r file; do
             case $file in
-              *.md | website/* | server/* | bot/* | .github/workflows/website.yml | .github/workflows/server.yml) ;;
+              *.md | website/* | server/* | backend/discord-setup/* | .github/workflows/website.yml | .github/workflows/server.yml) ;;
               *) code=true ;;
             esac
           done < <(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only)
@@ -51,10 +51,11 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: jars
-          # Plugin jars only, not build-logic.
+          # Plugin jars only: not build-logic, and not common, which plugins bundle.
           path: |
             */build/libs/*.jar
             !build-logic/build/libs/*
+            !common/build/libs/*
           if-no-files-found: error
 
   # Compiles against the newest Paper API, failing on anything it marks for

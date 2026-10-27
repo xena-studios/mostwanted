@@ -9,7 +9,7 @@
 lp group default setweight 0
 lp group default meta setprefix 0 "<#ff9933>Inmate</#ff9933> "
 
-# Guards: picked by application, synced from the Discord role by the MostWanted bot (bot/).
+# Guards: picked by application, synced from the Discord role by the MostWanted bot (backend/).
 lp creategroup guard
 lp group guard permission set zchat.group.guard true
 lp group guard setweight 10
