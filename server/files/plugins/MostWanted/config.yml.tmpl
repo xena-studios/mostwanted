@@ -1,0 +1,23 @@
+# MostWanted (core): the full config, rendered by install.sh with the database
+# settings from .env. Keep it in step with core/src/main/resources/config.yml.
+# Changes need a restart.
+
+# PostgreSQL, shared with LuckPerms, LibertyBans and the backend. MostWanted
+# won't start without it: playing on a blank state would overwrite real ones.
+database:
+  host: ${DB_HOST}
+  port: ${DB_PORT}
+  name: ${DB_NAME}
+  user: ${DB_USER}
+  password: '${DB_PASSWORD}'
+  # Connections kept open. Few are needed: every write goes through one thread.
+  pool-size: 4
+
+# How often changed players are written to the database. A crash loses at most
+# this much; quitting and stopping the server always save.
+save-every-seconds: 5
+
+# The clock on the scoreboard. One zone for everyone, so screenshots match the logs.
+clock:
+  timezone: America/New_York
+  label: ET

@@ -1,0 +1,11 @@
+# config.yml for the boot test: the throwaway PostgreSQL that CI starts next to the
+# server (see .github/workflows/build.yml). Locally:
+#   docker run --rm -d -p 5432:5432 -e POSTGRES_USER=mostwanted \
+#     -e POSTGRES_PASSWORD=boot-test postgres:18-alpine
+database:
+  host: localhost
+  port: 5432
+  name: mostwanted
+  user: mostwanted
+  password: boot-test
+  pool-size: 2
