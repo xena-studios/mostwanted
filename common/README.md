@@ -8,7 +8,7 @@ Database            the HikariCP pool; brings the schema up to date on start
 DatabaseConfig      where PostgreSQL is; never prints the password
 Notifications       LISTEN/NOTIFY: tells core and backend something changed, instantly
 db/ (generated)     a jOOQ class per table, generated from the migrations
-style/              the palette, the message kinds (✔ ✖ ★ ⚑ ⓘ ✉) and money format ($1,200)
+style/              the palette, message kinds (✔ ✖ ★ ⚑ ⓘ ✉), small caps and money format ($1,200)
 ```
 
 ## The database

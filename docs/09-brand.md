@@ -98,50 +98,110 @@ From the reference desert scene (below). For backgrounds, illustrations and the 
 
 ## Messages
 
-Decided 2026-10-26: **symbols for everyday messages, banners for big moments** (options B + D from the mock-ups). It reads like a police radio: alarms, bounties and arrests at a glance.
+Decided 2026-10-26: **symbols for everyday messages, banners for big moments** (options B + D from the mock-ups). It reads like a police radio: alarms, bounties and arrests at a glance. Updated 2026-10-27: **small caps for system text**, to match the [scoreboard and tab list](#scoreboard-and-tab-list).
 
-### Everyday: one line, a coloured symbol, grey text
+### The rule everything follows
+
+- **Labels and system text: small caps, grey.** `ʏᴏᴜʀ ʙᴏᴜɴᴛʏ ɪѕ ɴᴏᴡ`
+- **Names, places and values: normal case, white.** `Alex`, `Cell Block B`, `2:14`
+- **Money and bounties: always yellow `$1,200`**, everywhere (chat, scoreboard, holograms).
+- **Section headers: bold capitals**, orange, red while an alarm is on. `PROFILE`, `HEIST`
+- **Roles in their colour:** guards' names blue, wanted criminals' red, in chat, name tags and the tab list.
+
+Message files keep plain text. `core` converts it to small caps once when messages load (`SmallCaps` in [`common`](../common/)), so writing a message stays easy. Keep system messages short: small caps are slower to read in long sentences.
+
+### Everyday: one line, a coloured symbol, grey small caps
 
 No server tag on system messages. The symbol says what kind of message it is, so it still reads on Bedrock where some colours merge:
 
 | Symbol | Colour | Means | Example |
 | --- | --- | --- | --- |
-| ✔ | green `#33ff33` | Done, turned on | ✔ Teleported to **spawn**. |
-| ✖ | red `#ff3333` | Refused, error | ✖ You can't do that while cuffed. |
-| ★ | yellow `#ffff33` | Money, bounty | ★ Your bounty is now **$2,500**. |
-| ⚑ | red `#ff3333` / blue `#3399ff` | Alarm, arrest (red for criminals' side, blue for guards') | ⚑ The **bank** is open. Guards have been alerted. |
-| ⓘ | aqua `#33ffff` | Info, tips, links | ⓘ Bank your cash at a hideout before a guard finds you. |
-| ✉ | aqua `#33ffff` | Private messages | ✉ You → **Alex**: meet at the gas station |
-
-- Text is **grey**; names and values are **white**; money and bounties are always **yellow `$1,200`**, everywhere (chat, scoreboard, holograms).
-- Guards' names are **blue**, wanted criminals' **red**, in chat, name tags and the tab list.
+| ✔ | green `#33ff33` | Done, turned on | ✔ ᴛᴇʟᴇᴘᴏʀᴛᴇᴅ ᴛᴏ **Spawn**. |
+| ✖ | red `#ff3333` | Refused, error | ✖ ʏᴏᴜ ᴄᴀɴ'ᴛ ᴅᴏ ᴛʜᴀᴛ ᴡʜɪʟᴇ ᴄᴜꜰꜰᴇᴅ. |
+| ★ | yellow `#ffff33` | Money, bounty | ★ ʏᴏᴜʀ ʙᴏᴜɴᴛʏ ɪѕ ɴᴏᴡ **$2,500**. |
+| ⚑ | red `#ff3333` / blue `#3399ff` | Alarm, arrest (red for criminals' side, blue for guards') | ⚑ ᴛʜᴇ **Bank** ɪѕ ᴏᴘᴇɴ. ɢᴜᴀʀᴅѕ ʜᴀᴠᴇ ʙᴇᴇɴ ᴀʟᴇʀᴛᴇᴅ. |
+| ⓘ | aqua `#33ffff` | Info, tips, links | ⓘ ʙᴀɴᴋ ʏᴏᴜʀ ᴄᴀѕʜ ᴀᴛ ᴀ ʜɪᴅᴇᴏᴜᴛ ʙᴇꜰᴏʀᴇ ᴀ ɢᴜᴀʀᴅ ꜰɪɴᴅѕ ʏᴏᴜ. |
+| ✉ | aqua `#33ffff` | Private messages | ✉ ʏᴏᴜ → **Alex**: meet at the gas station |
 
 ### Player chat: a rank tag, no brackets
 
-`Inmate Alex: never` · `Guard Steve: freeze!` · `Mod Sam: please keep it clean`
+`ɪɴᴍᴀᴛᴇ Alex: never` · `ɢᴜᴀʀᴅ Steve: freeze!` · `ᴍᴏᴅ Sam: please keep it clean`
 
-Inmate orange (hue 30), Guard blue (hue 210), staff light purple (hue 300). The tag colour follows the palette; the name is white; the message is white.
+The tag in small caps: inmate orange (hue 30), guard blue (hue 210), staff light purple (hue 300). The name is white (blue for guards); the message stays exactly as typed, in white.
 
 ### Big moments: a banner, a title and a sound
 
 Only for robberies opening, riots, a new Most Wanted, and server events. Nothing routine gets one, so they stay special.
 
 ```
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
         ⚑ RIOT IN CELL BLOCK B ⚑
-   Inmates have taken the yard. Guards, respond!
-          Ends in 2:00 · /riot info
-▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+   ɪɴᴍᴀᴛᴇѕ ʜᴀᴠᴇ ᴛᴀᴋᴇɴ ᴛʜᴇ ʏᴀʀᴅ. ɢᴜᴀʀᴅѕ, ʀᴇѕᴘᴏɴᴅ!
+          ᴇɴᴅѕ ɪɴ 2:00 · /riot info
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 ```
 
-Plus a screen title (**RIOT!** / Cell Block B), a sound, and the action bar for whoever it affects (`★ $2,500 bounty | WANTED`).
+The bars and headline in red (or the event's colour), bold. Plus a screen title (**RIOT!** / Cell Block B), a sound, and the action bar for whoever it affects (`⚑ ʀɪᴏᴛ | ᴘʀɪѕᴏɴ ᴘᴠᴘ ɪѕ ᴏɴ | 1:52`).
+
+## Scoreboard and tab list
+
+Decided 2026-10-27, modelled on AZEscape's. Two-tone bold title everywhere: **Most** white + **Wanted** orange.
+
+### Scoreboard (sidebar)
+
+```
+        MostWanted                  title, bold
+◷ 23:24 ET · 10/27/26               clock, grey
+                                    
+PROFILE                             header, bold orange
+★ ʀᴏʟᴇ: Inmate                      role in its colour
+⛃ ᴄᴀѕʜ: $443                        money yellow
+⌂ ʙᴀɴᴋ: $1,200
+                                    
+⧗ ѕᴇɴᴛᴇɴᴄᴇ: 2:14                    what the role is doing
+⚔ ᴇѕᴄᴀᴘᴇѕ: 3
+☠ ᴀʀʀᴇѕᴛᴇᴅ: 4
+                                    
+ᴍᴏѕᴛᴡᴀɴᴛᴇᴅᴍᴄ.ᴄᴏᴍ                    footer, orange
+```
+
+- **The clock stays** (date and time, Eastern, the server's timezone, labelled `ET`): screenshots then show when something happened, for reports, appeals and staff checking the logs.
+- **The middle follows the role:** inmates see their sentence, escapes and arrests; criminals their bounty and wanted level (`★★★★★`, red stars filled); guards their duty, arrests and the current alarm.
+- **Live events add a red section** while they're on: `HEIST` (the robbery, its timer, guards online), `RIOT` (where, time left, guards online).
+- Each line has a grey icon; no red score numbers down the side (hidden with Paper's number format).
+- Updated only when a value changes, never on a timer, apart from the clock once a minute.
+
+### Tab list
+
+```
+MostWanted
+[head] MrZCookies
+ʏᴏᴜ ᴀʀᴇ ᴘʟᴀʏɪɴɢ ᴏɴ ᴍᴏѕᴛᴡᴀɴᴛᴇᴅ
+ᴡᴇ ʜᴀᴠᴇ 24 ᴘʟᴀʏᴇʀѕ ᴏɴʟɪɴᴇ              the number orange
+
+[players]
+
+ɢᴜᴀʀᴅѕ 6 · ᴄʀɪᴍɪɴᴀʟѕ 6 · ɪɴᴍᴀᴛᴇѕ 12
+ᴍᴏѕᴛᴡᴀɴᴛᴇᴅᴍᴄ.ᴄᴏᴍ
+```
+
+- Players sorted staff, guards, criminals (highest bounty first), then inmates.
+- Each entry: the role tag in small caps and colour, then the name (blue for guards, red for criminals, white otherwise).
+- Your own head next to your name in the header (a player-head text component; Java only).
+
+### Bedrock
+
+Bedrock players get the same layouts, with three differences to check on a real client once we can join through Minehut:
+- If its font lacks the small-caps letters or an icon, `core` sends Bedrock players plain capitals and icons it can draw (`core` knows who's on Bedrock).
+- Only 16 colours, so hues merge as in the [palette table](#in-game-colours).
+- It shows the sidebar's score numbers, and no heads in the tab list.
 
 ### Where it's set
 
-- **xUtilities** and **zChat**: their full configs in [`server/files/plugins/`](../server/files/plugins/) use these symbols and colours.
-- **LuckPerms** rank prefixes ([`server/setup/luckperms.txt`](../server/setup/luckperms.txt)): name tags and the tab list.
-- **`core`**: one message module sends everything else, so new messages follow the style by default.
-- Check every symbol on a Bedrock client: ⚑ and ⓘ are the ones most likely to be missing from its font. Swap any that don't render.
+- **xUtilities** and **zChat**: their full configs in [`server/files/plugins/`](../server/files/plugins/) use these symbols, colours and small caps.
+- **LuckPerms** rank prefixes ([`server/setup/luckperms.txt`](../server/setup/luckperms.txt)): name tags.
+- **`core`**: one message module sends everything else, and draws the scoreboard and tab list, so new messages follow the style by default.
+- Check every symbol on a Bedrock client: ⚑, ⓘ and the scoreboard icons are the ones most likely to be missing from its font. Swap any that don't render.
 
 ## Look and feel
 

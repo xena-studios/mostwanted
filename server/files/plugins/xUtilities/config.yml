@@ -1,7 +1,7 @@
 # xUtilities for MostWanted: the full config, so every setting is reviewed in a
 # pull request. Changed from the defaults: MostWanted's message style
 # (docs/09-brand.md#messages): no prefix, a coloured symbol per kind of message
-# (✔ done, ✖ refused, ⓘ info), grey text and white names; and info-commands (our links).
+# (✔ done, ✖ refused, ⓘ info), grey small-caps text and white names; and info-commands (our links).
 # xUtilities: every command you need. None you don't.
 # Docs: https://docs.xenastudios.co/xutilities/configuration/
 #
@@ -33,20 +33,20 @@ theme:
 messages:
   error:
     # The console or a command block ran a command only players can use.
-    player-only: "<#ff3333>✖</#ff3333> Only players can use this command."
+    player-only: "<#ff3333>✖</#ff3333> ᴏɴʟʏ ᴘʟᴀʏᴇʀѕ ᴄᴀɴ ᴜѕᴇ ᴛʜɪѕ ᴄᴏᴍᴍᴀɴᴅ."
     # The sender lacks the command's permission.
-    no-permission: "<#ff3333>✖</#ff3333> You don't have permission to do that."
+    no-permission: "<#ff3333>✖</#ff3333> ʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪѕѕɪᴏɴ ᴛᴏ ᴅᴏ ᴛʜᴀᴛ."
     # No online player has that name. <player> is the name typed.
-    player-not-found: "<#ff3333>✖</#ff3333> No player named <highlight><player></highlight> is online."
+    player-not-found: "<#ff3333>✖</#ff3333> ɴᴏ ᴘʟᴀʏᴇʀ ɴᴀᴍᴇᴅ <highlight><player></highlight> ɪѕ ᴏɴʟɪɴᴇ."
     # The command was typed wrong. <usage> is how to type it.
-    usage: "<#ff3333>✖</#ff3333> Usage: <usage>"
+    usage: "<#ff3333>✖</#ff3333> ᴜѕᴀɢᴇ: <usage>"
     # The command hit an error. The console has the details.
-    failed: "<#ff3333>✖</#ff3333> Something went wrong. The console has the details."
+    failed: "<#ff3333>✖</#ff3333> ѕᴏᴍᴇᴛʜɪɴɢ ᴡᴇɴᴛ ᴡʀᴏɴɢ. ᴛʜᴇ ᴄᴏɴѕᴏʟᴇ ʜᴀѕ ᴛʜᴇ ᴅᴇᴛᴀɪʟѕ."
 
   # The words filled in for <state>.
   state:
-    enabled: "enabled"
-    disabled: "disabled"
+    enabled: "ᴇɴᴀʙʟᴇᴅ"
+    disabled: "ᴅɪѕᴀʙʟᴇᴅ"
 
 # Every command has the same settings:
 #   enabled            false removes the command entirely
@@ -62,8 +62,8 @@ commands:
     aliases: ["gms", "gm0"]
     permission: "xutilities.command.survival"
     permission-others: "xutilities.command.survival.others"
-    message-self: "<#33ff33>✔</#33ff33> Your gamemode is now <highlight><mode></highlight>."
-    message-others: "<#33ff33>✔</#33ff33> Set <highlight><player></highlight>'s gamemode to <highlight><mode></highlight>."
+    message-self: "<#33ff33>✔</#33ff33> ʏᴏᴜʀ ɢᴀᴍᴇᴍᴏᴅᴇ ɪѕ ɴᴏᴡ <highlight><mode></highlight>."
+    message-others: "<#33ff33>✔</#33ff33> ѕᴇᴛ <highlight><player></highlight>'ѕ ɢᴀᴍᴇᴍᴏᴅᴇ ᴛᴏ <highlight><mode></highlight>."
 
   # /creative [player]
   creative:
@@ -71,8 +71,8 @@ commands:
     aliases: ["gmc", "gm1"]
     permission: "xutilities.command.creative"
     permission-others: "xutilities.command.creative.others"
-    message-self: "<#33ff33>✔</#33ff33> Your gamemode is now <highlight><mode></highlight>."
-    message-others: "<#33ff33>✔</#33ff33> Set <highlight><player></highlight>'s gamemode to <highlight><mode></highlight>."
+    message-self: "<#33ff33>✔</#33ff33> ʏᴏᴜʀ ɢᴀᴍᴇᴍᴏᴅᴇ ɪѕ ɴᴏᴡ <highlight><mode></highlight>."
+    message-others: "<#33ff33>✔</#33ff33> ѕᴇᴛ <highlight><player></highlight>'ѕ ɢᴀᴍᴇᴍᴏᴅᴇ ᴛᴏ <highlight><mode></highlight>."
 
   # /adventure [player]
   adventure:
@@ -80,8 +80,8 @@ commands:
     aliases: ["gma", "gm2"]
     permission: "xutilities.command.adventure"
     permission-others: "xutilities.command.adventure.others"
-    message-self: "<#33ff33>✔</#33ff33> Your gamemode is now <highlight><mode></highlight>."
-    message-others: "<#33ff33>✔</#33ff33> Set <highlight><player></highlight>'s gamemode to <highlight><mode></highlight>."
+    message-self: "<#33ff33>✔</#33ff33> ʏᴏᴜʀ ɢᴀᴍᴇᴍᴏᴅᴇ ɪѕ ɴᴏᴡ <highlight><mode></highlight>."
+    message-others: "<#33ff33>✔</#33ff33> ѕᴇᴛ <highlight><player></highlight>'ѕ ɢᴀᴍᴇᴍᴏᴅᴇ ᴛᴏ <highlight><mode></highlight>."
 
   # /spectator [player]
   spectator:
@@ -89,8 +89,8 @@ commands:
     aliases: ["gmsp", "gm3"]
     permission: "xutilities.command.spectator"
     permission-others: "xutilities.command.spectator.others"
-    message-self: "<#33ff33>✔</#33ff33> Your gamemode is now <highlight><mode></highlight>."
-    message-others: "<#33ff33>✔</#33ff33> Set <highlight><player></highlight>'s gamemode to <highlight><mode></highlight>."
+    message-self: "<#33ff33>✔</#33ff33> ʏᴏᴜʀ ɢᴀᴍᴇᴍᴏᴅᴇ ɪѕ ɴᴏᴡ <highlight><mode></highlight>."
+    message-others: "<#33ff33>✔</#33ff33> ѕᴇᴛ <highlight><player></highlight>'ѕ ɢᴀᴍᴇᴍᴏᴅᴇ ᴛᴏ <highlight><mode></highlight>."
 
   # /gamemode <mode> [player]. Offers the modes whose own command is on, and needs
   # that command's permission too. <mode> can be a name, a number or an alias such as gmc.
@@ -106,10 +106,10 @@ commands:
     aliases: ["flight", "togglefly", "toggleflymode"]
     permission: "xutilities.command.fly"
     permission-others: "xutilities.command.fly.others"
-    message-on-self: "<#33ff33>✔</#33ff33> Flight <success><state></success>."
-    message-off-self: "<#33ff33>✔</#33ff33> Flight <error><state></error>."
-    message-on-others: "<#33ff33>✔</#33ff33> Flight <success><state></success> for <highlight><player></highlight>."
-    message-off-others: "<#33ff33>✔</#33ff33> Flight <error><state></error> for <highlight><player></highlight>."
+    message-on-self: "<#33ff33>✔</#33ff33> ꜰʟɪɢʜᴛ <success><state></success>."
+    message-off-self: "<#33ff33>✔</#33ff33> ꜰʟɪɢʜᴛ <error><state></error>."
+    message-on-others: "<#33ff33>✔</#33ff33> ꜰʟɪɢʜᴛ <success><state></success> ꜰᴏʀ <highlight><player></highlight>."
+    message-off-others: "<#33ff33>✔</#33ff33> ꜰʟɪɢʜᴛ <error><state></error> ꜰᴏʀ <highlight><player></highlight>."
 
   # /speed <speed> [player]: fly speed while flying, walk speed otherwise. min and max bound
   # what it accepts, on a 1 to 10 scale (Minecraft's 0.1 to 1.0; walking is 2 by default).
@@ -124,17 +124,17 @@ commands:
     # The words filled in for <type>: which speed changed.
     type-flying: "flying"
     type-walking: "walking"
-    message-self: "<#33ff33>✔</#33ff33> Your <type> speed is now <highlight><speed></highlight>."
-    message-others: "<#33ff33>✔</#33ff33> Set <highlight><player></highlight>'s <type> speed to <highlight><speed></highlight>."
-    message-invalid: "<#ff3333>✖</#ff3333> Speed must be from <min> to <max>."
+    message-self: "<#33ff33>✔</#33ff33> ʏᴏᴜʀ <type> ѕᴘᴇᴇᴅ ɪѕ ɴᴏᴡ <highlight><speed></highlight>."
+    message-others: "<#33ff33>✔</#33ff33> ѕᴇᴛ <highlight><player></highlight>'ѕ <type> ѕᴘᴇᴇᴅ ᴛᴏ <highlight><speed></highlight>."
+    message-invalid: "<#ff3333>✖</#ff3333> ѕᴘᴇᴇᴅ ᴍᴜѕᴛ ʙᴇ ꜰʀᴏᴍ <min> ᴛᴏ <max>."
 
   # /top: teleports you to the highest block above you, or in the Nether, the highest below the roof.
   top:
     enabled: true
     aliases: []
     permission: "xutilities.command.top"
-    message-success: "<#33ff33>✔</#33ff33> Teleported to the top."
-    message-unsafe: "<#ff3333>✖</#ff3333> There's no safe block to stand on here."
+    message-success: "<#33ff33>✔</#33ff33> ᴛᴇʟᴇᴘᴏʀᴛᴇᴅ ᴛᴏ ᴛʜᴇ ᴛᴏᴘ."
+    message-unsafe: "<#ff3333>✖</#ff3333> ᴛʜᴇʀᴇ'ѕ ɴᴏ ѕᴀꜰᴇ ʙʟᴏᴄᴋ ᴛᴏ ѕᴛᴀɴᴅ ᴏɴ ʜᴇʀᴇ."
 
   # /setrotation <yaw> <pitch> [player]: sets which way a player faces.
   setrotation:
@@ -142,8 +142,8 @@ commands:
     aliases: []
     permission: "xutilities.command.setrotation"
     permission-others: "xutilities.command.setrotation.others"
-    message-self: "<#33ff33>✔</#33ff33> Now facing yaw <highlight><yaw></highlight>, pitch <highlight><pitch></highlight>."
-    message-others: "<#33ffff>ⓘ</#33ffff> <highlight><player></highlight> is now facing yaw <highlight><yaw></highlight>, pitch <highlight><pitch></highlight>."
+    message-self: "<#33ff33>✔</#33ff33> ɴᴏᴡ ꜰᴀᴄɪɴɢ ʏᴀᴡ <highlight><yaw></highlight>, ᴘɪᴛᴄʜ <highlight><pitch></highlight>."
+    message-others: "<#33ffff>ⓘ</#33ffff> <highlight><player></highlight> ɪѕ ɴᴏᴡ ꜰᴀᴄɪɴɢ ʏᴀᴡ <highlight><yaw></highlight>, ᴘɪᴛᴄʜ <highlight><pitch></highlight>."
 
   # /ping [player]: network latency in milliseconds. Everyone has it by default.
   ping:
@@ -151,16 +151,16 @@ commands:
     aliases: []
     permission: "xutilities.command.ping"
     permission-others: "xutilities.command.ping.others"
-    message-self: "<#33ffff>ⓘ</#33ffff> Your ping is <highlight><ping>ms</highlight>."
-    message-others: "<#33ffff>ⓘ</#33ffff> <highlight><player></highlight>'s ping is <highlight><ping>ms</highlight>."
+    message-self: "<#33ffff>ⓘ</#33ffff> ʏᴏᴜʀ ᴘɪɴɢ ɪѕ <highlight><ping>ms</highlight>."
+    message-others: "<#33ffff>ⓘ</#33ffff> <highlight><player></highlight>'ѕ ᴘɪɴɢ ɪѕ <highlight><ping>ms</highlight>."
 
   # /back: returns you to where you were before your last teleport, or where you died.
   back:
     enabled: true
     aliases: []
     permission: "xutilities.command.back"
-    message-success: "<#33ff33>✔</#33ff33> Teleported back to your previous location."
-    message-none: "<#ff3333>✖</#ff3333> You have nowhere to go back to."
+    message-success: "<#33ff33>✔</#33ff33> ᴛᴇʟᴇᴘᴏʀᴛᴇᴅ ʙᴀᴄᴋ ᴛᴏ ʏᴏᴜʀ ᴘʀᴇᴠɪᴏᴜѕ ʟᴏᴄᴀᴛɪᴏɴ."
+    message-none: "<#ff3333>✖</#ff3333> ʏᴏᴜ ʜᴀᴠᴇ ɴᴏᴡʜᴇʀᴇ ᴛᴏ ɢᴏ ʙᴀᴄᴋ ᴛᴏ."
 
   # /heal [player]: restores health, and these extras.
   heal:
@@ -171,8 +171,8 @@ commands:
     restore-hunger: true
     extinguish-fire: true
     clear-negative-effects: true
-    message-self: "<#33ff33>✔</#33ff33> You've been <success>healed</success>."
-    message-others: "<#33ff33>✔</#33ff33> Healed <highlight><player></highlight>."
+    message-self: "<#33ff33>✔</#33ff33> ʏᴏᴜ'ᴠᴇ ʙᴇᴇɴ <success>ʜᴇᴀʟᴇᴅ</success>."
+    message-others: "<#33ff33>✔</#33ff33> ʜᴇᴀʟᴇᴅ <highlight><player></highlight>."
 
   # /feed [player]: restores hunger.
   feed:
@@ -180,8 +180,8 @@ commands:
     aliases: []
     permission: "xutilities.command.feed"
     permission-others: "xutilities.command.feed.others"
-    message-self: "<#33ff33>✔</#33ff33> You've been <success>fed</success>."
-    message-others: "<#33ff33>✔</#33ff33> Fed <highlight><player></highlight>."
+    message-self: "<#33ff33>✔</#33ff33> ʏᴏᴜ'ᴠᴇ ʙᴇᴇɴ <success>ꜰᴇᴅ</success>."
+    message-others: "<#33ff33>✔</#33ff33> ꜰᴇᴅ <highlight><player></highlight>."
 
   # /repair [all] [player]: repairs the held item, or with all, the whole inventory.
   repair:
@@ -189,9 +189,9 @@ commands:
     aliases: ["fix"]
     permission: "xutilities.command.repair"
     permission-others: "xutilities.command.repair.others"
-    message-self: "<#33ff33>✔</#33ff33> Your gear has been <success>repaired</success>."
-    message-others: "<#33ff33>✔</#33ff33> Repaired <highlight><player></highlight>'s gear."
-    message-nothing: "<#ff3333>✖</#ff3333> Nothing needs repairing."
+    message-self: "<#33ff33>✔</#33ff33> ʏᴏᴜʀ ɢᴇᴀʀ ʜᴀѕ ʙᴇᴇɴ <success>ʀᴇᴘᴀɪʀᴇᴅ</success>."
+    message-others: "<#33ff33>✔</#33ff33> ʀᴇᴘᴀɪʀᴇᴅ <highlight><player></highlight>'ѕ ɢᴇᴀʀ."
+    message-nothing: "<#ff3333>✖</#ff3333> ɴᴏᴛʜɪɴɢ ɴᴇᴇᴅѕ ʀᴇᴘᴀɪʀɪɴɢ."
 
   # /clear [player]: empties the inventory. include-armor: false keeps armour and the off-hand.
   clear:
@@ -200,8 +200,8 @@ commands:
     permission: "xutilities.command.clear"
     permission-others: "xutilities.command.clear.others"
     include-armor: true
-    message-self: "<#33ff33>✔</#33ff33> Your inventory has been <success>cleared</success>."
-    message-others: "<#33ff33>✔</#33ff33> Cleared <highlight><player></highlight>'s inventory."
+    message-self: "<#33ff33>✔</#33ff33> ʏᴏᴜʀ ɪɴᴠᴇɴᴛᴏʀʏ ʜᴀѕ ʙᴇᴇɴ <success>ᴄʟᴇᴀʀᴇᴅ</success>."
+    message-others: "<#33ff33>✔</#33ff33> ᴄʟᴇᴀʀᴇᴅ <highlight><player></highlight>'ѕ ɪɴᴠᴇɴᴛᴏʀʏ."
 
   # /enderchest [player]: opens your Ender Chest, or another player's.
   enderchest:
@@ -211,9 +211,9 @@ commands:
     permission-others: "xutilities.command.enderchest.others"
     # Played as the chest opens.
     sound: "block.ender_chest.open 0.5"
-    message-others: "<#33ff33>✔</#33ff33> Opened <highlight><player></highlight>'s ender chest."
+    message-others: "<#33ff33>✔</#33ff33> ᴏᴘᴇɴᴇᴅ <highlight><player></highlight>'ѕ ᴇɴᴅᴇʀ ᴄʜᴇѕᴛ."
     # Folia only: the other player is too far away to share their chest safely.
-    message-too-far: "<#ff3333>✖</#ff3333> <highlight><player></highlight> is too far away to open their ender chest."
+    message-too-far: "<#ff3333>✖</#ff3333> <highlight><player></highlight> ɪѕ ᴛᴏᴏ ꜰᴀʀ ᴀᴡᴀʏ ᴛᴏ ᴏᴘᴇɴ ᴛʜᴇɪʀ ᴇɴᴅᴇʀ ᴄʜᴇѕᴛ."
 
   # Workstation menus: open the real menu without the block. When it opens, message is
   # sent and sound is played; leave either blank for none. A sound is its Minecraft name,
@@ -279,25 +279,25 @@ info-commands:
   # Off until the Discord exists: then set enabled: true and the invite link.
   discord:
     enabled: false
-    message: "<#33ffff>ⓘ</#33ffff> Join the Discord: <click:open_url:'https://discord.gg/INVITE'><hover:show_text:'<gray>Click to open'><highlight><underlined>discord.gg/INVITE"
+    message: "<#33ffff>ⓘ</#33ffff> ᴊᴏɪɴ ᴛʜᴇ ᴅɪѕᴄᴏʀᴅ: <click:open_url:'https://discord.gg/INVITE'><hover:show_text:'<gray>ᴄʟɪᴄᴋ ᴛᴏ ᴏᴘᴇɴ'><highlight><underlined>discord.gg/INVITE"
   store:
     enabled: true
     aliases: [shop, buy]
-    message: "<#33ffff>ⓘ</#33ffff> The store (cosmetics only): <click:open_url:'https://mostwantedmc.com/store'><hover:show_text:'<gray>Click to open'><highlight><underlined>mostwantedmc.com/store"
+    message: "<#33ffff>ⓘ</#33ffff> ᴛʜᴇ ѕᴛᴏʀᴇ (ᴄᴏѕᴍᴇᴛɪᴄѕ ᴏɴʟʏ): <click:open_url:'https://mostwantedmc.com/store'><hover:show_text:'<gray>ᴄʟɪᴄᴋ ᴛᴏ ᴏᴘᴇɴ'><highlight><underlined>mostwantedmc.com/store"
   website:
     enabled: true
     aliases: [site]
-    message: "<#33ffff>ⓘ</#33ffff> Our website: <click:open_url:'https://mostwantedmc.com'><hover:show_text:'<gray>Click to open'><highlight><underlined>mostwantedmc.com"
+    message: "<#33ffff>ⓘ</#33ffff> ᴏᴜʀ ᴡᴇʙѕɪᴛᴇ: <click:open_url:'https://mostwantedmc.com'><hover:show_text:'<gray>ᴄʟɪᴄᴋ ᴛᴏ ᴏᴘᴇɴ'><highlight><underlined>mostwantedmc.com"
   rules:
     enabled: true
-    message: "<#33ffff>ⓘ</#33ffff> The rules: <click:open_url:'https://mostwantedmc.com/rules'><hover:show_text:'<gray>Click to open'><highlight><underlined>mostwantedmc.com/rules"
+    message: "<#33ffff>ⓘ</#33ffff> ᴛʜᴇ ʀᴜʟᴇѕ: <click:open_url:'https://mostwantedmc.com/rules'><hover:show_text:'<gray>ᴄʟɪᴄᴋ ᴛᴏ ᴏᴘᴇɴ'><highlight><underlined>mostwantedmc.com/rules"
   wiki:
     enabled: true
     aliases: [guide, help-wiki]
-    message: "<#33ffff>ⓘ</#33ffff> How everything works: <click:open_url:'https://mostwantedmc.com/wiki'><hover:show_text:'<gray>Click to open'><highlight><underlined>mostwantedmc.com/wiki"
+    message: "<#33ffff>ⓘ</#33ffff> ʜᴏᴡ ᴇᴠᴇʀʏᴛʜɪɴɢ ᴡᴏʀᴋѕ: <click:open_url:'https://mostwantedmc.com/wiki'><hover:show_text:'<gray>ᴄʟɪᴄᴋ ᴛᴏ ᴏᴘᴇɴ'><highlight><underlined>mostwantedmc.com/wiki"
   apply:
     enabled: true
-    message: "<#33ffff>ⓘ</#33ffff> Become a guard, staff or creator: <click:open_url:'https://mostwantedmc.com/apply'><hover:show_text:'<gray>Click to open'><highlight><underlined>mostwantedmc.com/apply"
+    message: "<#33ffff>ⓘ</#33ffff> ʙᴇᴄᴏᴍᴇ ᴀ ɢᴜᴀʀᴅ, ѕᴛᴀꜰꜰ ᴏʀ ᴄʀᴇᴀᴛᴏʀ: <click:open_url:'https://mostwantedmc.com/apply'><hover:show_text:'<gray>ᴄʟɪᴄᴋ ᴛᴏ ᴏᴘᴇɴ'><highlight><underlined>mostwantedmc.com/apply"
 
 # Tells you when a new version is out.
 update-checker:
@@ -306,4 +306,4 @@ update-checker:
   enabled: true
   # Logged, and shown to admins when they join, when a newer version is out.
   # <plugin>, <current>, <latest> and <url> are filled in.
-  message: "<#33ffff>ⓘ</#33ffff> <plugin> <highlight><latest></highlight> is out (you have <current>): <click:open_url:'<url>'><hover:show_text:'Open on Modrinth'><highlight><underlined><url>"
+  message: "<#33ffff>ⓘ</#33ffff> <plugin> <highlight><latest></highlight> ɪѕ ᴏᴜᴛ (ʏᴏᴜ ʜᴀᴠᴇ <current>): <click:open_url:'<url>'><hover:show_text:'Open on Modrinth'><highlight><underlined><url>"

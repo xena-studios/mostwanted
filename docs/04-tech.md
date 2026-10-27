@@ -139,7 +139,7 @@ One plugin, **MostWanted** (the `core` module), in **Java 25**, built with Gradl
 | 11 | **Shops** | Criminal base shop, guard armory. Chest GUIs for everyone (no Floodgate forms, see [Java + Bedrock](#java--bedrock)). |
 | 12 | **Indirect criminal kills** | Traps, snitching, stealing, sabotage (once we pick which). |
 | 13 | **Guard duty** | On/off duty, guard loadout, guards-online count. The guard rank itself comes from LuckPerms, synced from Discord by our bot ([Discord bot](10-discord-bot.md)). |
-| 14 | **HUD** | Bounty, cash, wanted level, robbery status: boss bar, action bar and sidebar scoreboard. Name tags and the tab list in each role's colour (guards blue, wanted criminals red), updated when the state changes (instead of TAB). |
+| 14 | **HUD** | Bounty, cash, wanted level, robbery status: boss bar, action bar and sidebar scoreboard. Name tags and the tab list in each role's colour (guards blue, wanted criminals red), updated when the state changes (instead of TAB). Layout: [scoreboard and tab list](09-brand.md#scoreboard-and-tab-list). |
 | 14b | **Messages** | One place that sends every message in the [message style](09-brand.md#messages): ✔ ✖ ★ ⚑ ⓘ one-liners, and banners with a title and sound for big moments. |
 | 14c | **Game log** | Arrests, robberies, riots, purchases and staff actions, written to PostgreSQL for staff and the website (instead of CoreProtect). |
 | 14d | **Bedrock support** | Detects Bedrock players (once Minehut tells us how they're marked) and exempts them from GrimAC's checks. |

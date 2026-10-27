@@ -32,15 +32,15 @@ theme:
 messages:
   error:
     # The console or a command block ran a command only players can use.
-    player-only: "<#ff3333>✖</#ff3333> Only players can use this command."
+    player-only: "<#ff3333>✖</#ff3333> ᴏɴʟʏ ᴘʟᴀʏᴇʀѕ ᴄᴀɴ ᴜѕᴇ ᴛʜɪѕ ᴄᴏᴍᴍᴀɴᴅ."
     # The sender lacks the command's permission.
-    no-permission: "<#ff3333>✖</#ff3333> You don't have permission to do that."
+    no-permission: "<#ff3333>✖</#ff3333> ʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪѕѕɪᴏɴ ᴛᴏ ᴅᴏ ᴛʜᴀᴛ."
     # No online player has that name. <player> is the name typed.
-    player-not-found: "<#ff3333>✖</#ff3333> No player named <highlight><player></highlight> is online."
+    player-not-found: "<#ff3333>✖</#ff3333> ɴᴏ ᴘʟᴀʏᴇʀ ɴᴀᴍᴇᴅ <highlight><player></highlight> ɪѕ ᴏɴʟɪɴᴇ."
     # The command was typed wrong. <usage> is how to type it.
-    usage: "<#ff3333>✖</#ff3333> Usage: <usage>"
+    usage: "<#ff3333>✖</#ff3333> ᴜѕᴀɢᴇ: <usage>"
     # The command hit an error. The console has the details.
-    failed: "<#ff3333>✖</#ff3333> Something went wrong. The console has the details."
+    failed: "<#ff3333>✖</#ff3333> ѕᴏᴍᴇᴛʜɪɴɢ ᴡᴇɴᴛ ᴡʀᴏɴɢ. ᴛʜᴇ ᴄᴏɴѕᴏʟᴇ ʜᴀѕ ᴛʜᴇ ᴅᴇᴛᴀɪʟѕ."
 
 # How chat looks. Formats can use <player> (the name), <displayname> (the name with
 # any nickname colours), <message>, and PlaceholderAPI placeholders such as
@@ -54,7 +54,7 @@ formatting:
   # The format for players in no group below.
   # Everyone starts as an inmate. (Once the core plugin exists, this shows the
   # player's live role, inmate or criminal, through a PlaceholderAPI placeholder.)
-  default-format: "<#ff9933>Inmate</#ff9933> <white><player></white><dark_gray>:</dark_gray> <white><message></white>"
+  default-format: "<#ff9933>ɪɴᴍᴀᴛᴇ</#ff9933> <white><player></white><dark_gray>:</dark_gray> <white><message></white>"
 
   # Each group's format goes to players with its permission (zchat.group.<name> if left
   # out). A player in several groups gets the one with the highest weight. The tags
@@ -62,19 +62,19 @@ formatting:
   groups:
     guard:
       weight: 10
-      format: "<#3399ff>Guard</#3399ff> <white><player></white><dark_gray>:</dark_gray> <white><message></white>"
+      format: "<#3399ff>ɢᴜᴀʀᴅ</#3399ff> <#3399ff><player></#3399ff><dark_gray>:</dark_gray> <white><message></white>"
     helper:
       weight: 50
-      format: "<#ff33ff>Helper</#ff33ff> <white><player></white><dark_gray>:</dark_gray> <white><message></white>"
+      format: "<#ff33ff>ʜᴇʟᴘᴇʀ</#ff33ff> <white><player></white><dark_gray>:</dark_gray> <white><message></white>"
     moderator:
       weight: 60
-      format: "<#ff33ff>Mod</#ff33ff> <white><player></white><dark_gray>:</dark_gray> <white><message></white>"
+      format: "<#ff33ff>ᴍᴏᴅ</#ff33ff> <white><player></white><dark_gray>:</dark_gray> <white><message></white>"
     admin:
       weight: 90
-      format: "<#ff33ff>Admin</#ff33ff> <white><player></white><dark_gray>:</dark_gray> <white><message></white>"
+      format: "<#ff33ff>ᴀᴅᴍɪɴ</#ff33ff> <white><player></white><dark_gray>:</dark_gray> <white><message></white>"
     owner:
       weight: 100
-      format: "<#ff33ff>Owner</#ff33ff> <white><player></white><dark_gray>:</dark_gray> <white><message></white>"
+      format: "<#ff33ff>ᴏᴡɴᴇʀ</#ff33ff> <white><player></white><dark_gray>:</dark_gray> <white><message></white>"
 
 # Catches words you don't want in chat and private messages. Players with
 # zchat.bypass.filter skip it.
@@ -92,14 +92,14 @@ filter:
   # Java regular expressions, matched anywhere in the message as typed, ignoring case.
   # For anything words can't express. Not smart.
   patterns: []
-  message-blocked: "<#ff3333>✖</#ff3333> Your message was blocked by the chat filter."
+  message-blocked: "<#ff3333>✖</#ff3333> ʏᴏᴜʀ ᴍᴇѕѕᴀɢᴇ ᴡᴀѕ ʙʟᴏᴄᴋᴇᴅ ʙʏ ᴛʜᴇ ᴄʜᴀᴛ ꜰɪʟᴛᴇʀ."
 
 # The shortest gap between one player's messages. zchat.bypass.cooldown skips it.
 cooldown:
   enabled: true
   seconds: 3
   # <seconds> is the whole seconds left.
-  message: "<#ff3333>✖</#ff3333> Wait <highlight><seconds>s</highlight> before chatting again."
+  message: "<#ff3333>✖</#ff3333> ᴡᴀɪᴛ <highlight><seconds>s</highlight> ʙᴇꜰᴏʀᴇ ᴄʜᴀᴛᴛɪɴɢ ᴀɢᴀɪɴ."
 
 # Stops a player sending the same message again soon after. Messages under three
 # letters, like "gg", are let through. zchat.bypass.anti-repeat skips it.
@@ -110,7 +110,7 @@ anti-repeat:
   # How alike two messages must be, in percent, to count as a repeat. 100 catches
   # only exact repeats; lower also catches small changes.
   similarity: 90
-  message: "<#ff3333>✖</#ff3333> You just said that."
+  message: "<#ff3333>✖</#ff3333> ʏᴏᴜ ᴊᴜѕᴛ ѕᴀɪᴅ ᴛʜᴀᴛ."
 
 # Writing a player's name, or @name, highlights it and pings them. Players who've
 # hidden chat aren't pinged.
@@ -137,7 +137,7 @@ clearchat:
   # How many blank lines push chat out of view.
   lines: 100
   # <player> is who cleared it.
-  message-cleared: "<#33ffff>ⓘ</#33ffff> Chat was cleared by <highlight><player></highlight>."
+  message-cleared: "<#33ffff>ⓘ</#33ffff> ᴄʜᴀᴛ ᴡᴀѕ ᴄʟᴇᴀʀᴇᴅ ʙʏ <highlight><player></highlight>."
 
 # /mutechat: mutes chat for everyone but zchat.bypass.mute until it's run again.
 mutechat:
@@ -145,10 +145,10 @@ mutechat:
   aliases: ["mc"]
   permission: "zchat.command.mutechat"
   # <player> is who muted it.
-  message-muted: "<#33ffff>ⓘ</#33ffff> Chat has been <error>muted</error> by <highlight><player></highlight>."
-  message-unmuted: "<#33ffff>ⓘ</#33ffff> Chat has been <success>unmuted</success> by <highlight><player></highlight>."
+  message-muted: "<#33ffff>ⓘ</#33ffff> ᴄʜᴀᴛ ʜᴀѕ ʙᴇᴇɴ <error>ᴍᴜᴛᴇᴅ</error> ʙʏ <highlight><player></highlight>."
+  message-unmuted: "<#33ffff>ⓘ</#33ffff> ᴄʜᴀᴛ ʜᴀѕ ʙᴇᴇɴ <success>ᴜɴᴍᴜᴛᴇᴅ</success> ʙʏ <highlight><player></highlight>."
   # Shown to a player who talks while chat is muted.
-  message-blocked: "<#ff3333>✖</#ff3333> Chat is muted right now."
+  message-blocked: "<#ff3333>✖</#ff3333> ᴄʜᴀᴛ ɪѕ ᴍᴜᴛᴇᴅ ʀɪɢʜᴛ ɴᴏᴡ."
 
 # /togglechat: hides other players' chat for yourself, or shows it again.
 togglechat:
@@ -157,8 +157,8 @@ togglechat:
   permission: "zchat.command.togglechat"
   # Keep a player's choice when they rejoin.
   remember: true
-  message-on: "<#33ff33>✔</#33ff33> Chat is now <success>shown</success>."
-  message-off: "<#33ff33>✔</#33ff33> Chat is now <error>hidden</error>. Run it again to show it."
+  message-on: "<#33ff33>✔</#33ff33> ᴄʜᴀᴛ ɪѕ ɴᴏᴡ <success>ѕʜᴏᴡɴ</success>."
+  message-off: "<#33ff33>✔</#33ff33> ᴄʜᴀᴛ ɪѕ ɴᴏᴡ <error>ʜɪᴅᴅᴇɴ</error>. ʀᴜɴ ɪᴛ ᴀɢᴀɪɴ ᴛᴏ ѕʜᴏᴡ ɪᴛ."
 
 # Private messages. The filter applies to them; the mute and cooldown don't.
 private-messages:
@@ -169,8 +169,8 @@ private-messages:
     enabled: true
     aliases: ["tell", "w", "whisper", "m", "pm"]
     permission: "zchat.command.msg"
-    format-sent: "<#33ffff>✉</#33ffff> <gray>You → <white><player></white><dark_gray>:</dark_gray> <white><message>"
-    format-received: "<#33ffff>✉</#33ffff> <white><player></white> <gray>→ You<dark_gray>:</dark_gray> <white><message>"
+    format-sent: "<#33ffff>✉</#33ffff> <gray>ʏᴏᴜ → <white><player></white><dark_gray>:</dark_gray> <white><message>"
+    format-received: "<#33ffff>✉</#33ffff> <white><player></white> <gray>→ ʏᴏᴜ<dark_gray>:</dark_gray> <white><message>"
     # Played to whoever receives a message. Blank for none.
     sound: "entity.experience_orb.pickup 0.5 1.2"
 
@@ -180,7 +180,7 @@ private-messages:
     aliases: ["r"]
     permission: "zchat.command.reply"
     # Nobody has messaged you, or you them.
-    message-nobody: "<#ff3333>✖</#ff3333> You have nobody to reply to."
+    message-nobody: "<#ff3333>✖</#ff3333> ʏᴏᴜ ʜᴀᴠᴇ ɴᴏʙᴏᴅʏ ᴛᴏ ʀᴇᴘʟʏ ᴛᴏ."
 
   # /socialspy: shows staff every private message. <sender> and <receiver> are filled in.
   socialspy:
@@ -191,9 +191,9 @@ private-messages:
     remember: true
     # Also log every private message to the console.
     log-to-console: true
-    format: "<dark_gray>[Spy]</dark_gray> <gray><sender> → <receiver>: <message>"
-    message-on: "<#33ff33>✔</#33ff33> Social spy <success>on</success>."
-    message-off: "<#33ff33>✔</#33ff33> Social spy <error>off</error>."
+    format: "<dark_gray>[ѕᴘʏ]</dark_gray> <gray><sender> → <receiver>: <message>"
+    message-on: "<#33ff33>✔</#33ff33> ѕᴏᴄɪᴀʟ ѕᴘʏ <success>ᴏɴ</success>."
+    message-off: "<#33ff33>✔</#33ff33> ѕᴏᴄɪᴀʟ ѕᴘʏ <error>ᴏꜰꜰ</error>."
 
 # Tells you when a new version is out.
 update-checker:
@@ -202,4 +202,4 @@ update-checker:
   enabled: true
   # Logged, and shown to admins when they join, when a newer version is out.
   # <plugin>, <current>, <latest> and <url> are filled in.
-  message: "<#33ffff>ⓘ</#33ffff> <plugin> <highlight><latest></highlight> is out (you have <current>): <click:open_url:'<url>'><hover:show_text:'Open on Modrinth'><highlight><underlined><url>"
+  message: "<#33ffff>ⓘ</#33ffff> <plugin> <highlight><latest></highlight> ɪѕ ᴏᴜᴛ (ʏᴏᴜ ʜᴀᴠᴇ <current>): <click:open_url:'<url>'><hover:show_text:'<gray>ᴏᴘᴇɴ ᴏɴ ᴍᴏᴅʀɪɴᴛʜ'><highlight><underlined><url>"
