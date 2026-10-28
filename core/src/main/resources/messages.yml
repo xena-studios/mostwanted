@@ -388,3 +388,8 @@ store-menu:
     name: "<white>The store is loading</white>"
     lore: "try again in a moment, or visit\n<value>mostwantedmc.com/store</value>"
   link: "<info>ⓘ</info> <value><name></value>: open <value><url></value> to add it to your cart. it only changes how things look."
+
+# From the website: a staff reply, an application decided. The text is the website's.
+notice:
+  message: "<info>✉</info> <white><text></white>"
+  linked: "<info>✉</info> <white><text></white> <value><url></value>"

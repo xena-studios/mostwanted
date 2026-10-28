@@ -2,7 +2,7 @@
 import { Shield, Users, Video } from "@lucide/astro";
 import Base from "../layouts/Base.astro";
 import PageHero from "../components/PageHero.astro";
-import { site } from "../site";
+import { site, signInOpen } from "../site";
 import rocks from "../brand/scene-rocks.png";
 
 const apps = [
@@ -38,7 +38,7 @@ const apps = [
   <PageHero title="Apply" lead="Guards, staff and creators are all picked by application." image={rocks} />
   <section class="section">
     <div class="wrap">
-      {!site.open && <p class="note"><strong>Applications open at launch.</strong> They'll run through the MostWanted Discord: link your Minecraft account, fill in the form, and staff get back to you.</p>}
+      {!signInOpen && <p class="note"><strong>Applications open at launch.</strong> You'll apply here: sign in, link your Minecraft account, fill in the form, and staff get back to you.</p>}
       <ul class="apps">
         {
           apps.map((a) => (
@@ -54,8 +54,8 @@ const apps = [
                   <li>{n}</li>
                 ))}
               </ul>
-              {site.discord ? (
-                <a class="button primary" href={site.discord}>Apply in Discord</a>
+              {signInOpen ? (
+                <a class="button primary" href={`?kind=${a.id}#form`} data-apply={a.id}>Apply</a>
               ) : (
                 <span class="button" aria-disabled="true">Opens at launch</span>
               )}
@@ -63,9 +63,101 @@ const apps = [
           ))
         }
       </ul>
+
+      {
+        signInOpen && (
+          <section class="panel apply" id="form" data-apply-form data-api={site.api} hidden>
+            <h2 data-title></h2>
+            <p class="lead-in" data-signed-out hidden>
+              Applications live on your MostWanted account. <a data-sign-in href="/login">Sign in</a>, then come back here.
+            </p>
+            <p class="lead-in" data-no-minecraft hidden>
+              Link your Minecraft account on your <a href="/account">account page</a> first, so we know who's applying.
+            </p>
+            <form class="form" data-form hidden>
+              <div class="questions" data-questions></div>
+              <p class="alert" role="alert" data-error hidden></p>
+              <button class="button primary" type="submit">Send application</button>
+              <p class="hint">Staff read every one. You'll hear back on your <a href="/account#applications">account page</a>, by Discord DM if you've linked Discord, and in game.</p>
+            </form>
+            <p class="alert good" role="status" data-sent hidden>Sent! Staff will get back to you: watch your <a href="/account#applications">account page</a>.</p>
+          </section>
+        )
+      }
     </div>
   </section>
 </Base>
+
+<script>
+  import { ApiError, call, type Me } from "../scripts/api";
+  import { KINDS, el, type Forms } from "../scripts/support";
+
+  const root = document.querySelector<HTMLElement>("[data-apply-form]");
+  const kind = new URLSearchParams(location.search).get("kind") ?? "";
+
+  if (root && kind in KINDS) {
+    const api = root.dataset.api!;
+    const $ = <T extends HTMLElement>(name: string) => root.querySelector<T>(`[data-${name}]`)!;
+    const form = $<HTMLFormElement>("form");
+    root.hidden = false;
+    $("title").textContent = `Apply: ${KINDS[kind]}`;
+    $<HTMLAnchorElement>("sign-in").href = `/login?next=${encodeURIComponent(`/apply?kind=${kind}#form`)}`;
+    document.getElementById(kind)?.classList.add("chosen");
+
+    Promise.all([call<Me>(api, "GET", "/v1/me"), call<Forms>(api, "GET", "/v1/forms")]).then(
+      ([me, forms]) => {
+        if (!me!.minecraft) {
+          $("no-minecraft").hidden = false;
+          return;
+        }
+        for (const q of forms!.applications[kind]) {
+          const label = el("label", "", q.label + (q.required ? "" : " (if you like)"));
+          if (q.hint) label.append(el("span", "hint", q.hint));
+          let input: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+          if (q.options.length) {
+            input = el("select", "input");
+            for (const option of q.options) input.append(el("option", "", option));
+          } else if (q.max > 200) {
+            input = el("textarea", "input");
+            input.maxLength = q.max;
+          } else {
+            input = el("input", "input");
+            input.maxLength = q.max;
+          }
+          input.name = q.id;
+          input.required = q.required;
+          label.append(input);
+          $("questions").append(label);
+        }
+        form.hidden = false;
+      },
+      (e) => {
+        if (e instanceof ApiError && e.status === 401) $("signed-out").hidden = false;
+        else {
+          $("error").textContent = (e as Error).message;
+          $("error").hidden = false;
+          form.hidden = false;
+        }
+      },
+    );
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = form.querySelector<HTMLButtonElement>("button")!;
+      button.disabled = true;
+      const answers = Object.fromEntries(new FormData(form).entries());
+      try {
+        await call(api, "POST", "/v1/me/applications", { kind, answers });
+        form.hidden = true;
+        $("sent").hidden = false;
+      } catch (e) {
+        $("error").textContent = (e as Error).message;
+        $("error").hidden = false;
+        button.disabled = false;
+      }
+    });
+  }
+</script>
 
 <style>
   .apps {
@@ -85,8 +177,31 @@ const apps = [
     scroll-margin-top: 6rem;
   }
 
-  .app:target {
+  .app:target,
+  .app.chosen {
     border-color: var(--orange);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  .apply {
+    display: grid;
+    gap: var(--s-4);
+    max-width: 44rem;
+    margin-top: var(--s-6);
+    padding: var(--s-6);
+    scroll-margin-top: 6rem;
+  }
+
+  .apply a {
+    color: var(--orange);
+  }
+
+  .questions {
+    display: grid;
+    gap: var(--s-4);
   }
 
   .app-head {

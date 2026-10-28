@@ -109,6 +109,14 @@ Decided 2026-10-26. **Players have website accounts**, and everything tied to a 
 
 **Staff panel:** a staff-only part of the site for tickets, applications and punishments. Access comes from the player's in-game rank.
 
+**Built (2026-10-28):** the website side, with notifications everywhere.
+- **Support** (`/support`): signed in, pick what it's about (report, appeal, bug, purchase, other), a subject and what happened; proof is links (YouTube, Imgur, Medal), no uploads. Up to 3 new tickets an hour. Each ticket has its page (`/ticket?id=…`): the conversation, a reply box, and Close.
+- **Apply** (`/apply`): guard, staff (helper, moderator or builder) and creator forms. The questions are the backend's (`backend/.../support/Forms.java`, served at `/v1/forms`), so they're written once. Needs Minecraft linked. One waiting at a time of each kind, and a week after a "no".
+- **Account page:** notifications, tickets and applications (with staff's note), and a link to the panel for staff.
+- **Staff panel** (`/panel`): helpers and up (LuckPerms `helper`, `moderator`, `admin`, `owner` on the linked Minecraft account, read from LuckPerms' table) see tickets by state and answer them on the ticket page; moderators and up accept or turn down applications, with a note. Accepting a **guard** gives the guard rank in game at once: core runs `lp user <uuid> parent add guard` (`rank_grants`, guard only). Staff and creator ranks are given by hand.
+- **Notifications:** a staff reply, a closed ticket and a decision go on the account page, as a Discord DM if Discord is linked, and in game (`✉` in chat, at once if online, otherwise as they join).
+- **Not yet:** starting from Discord (`/support`, `/apply`) or the game (`/support`), and punishments in the panel.
+
 ### The API
 
 ```

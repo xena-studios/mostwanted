@@ -42,7 +42,7 @@ import { site, signInOpen } from "../site";
 </Base>
 
 <script>
-  import { call, type Me } from "../scripts/api";
+  import { afterSignIn, call, type Me } from "../scripts/api";
 
   const card = document.querySelector<HTMLElement>("[data-login]")!;
   const api = card.dataset.api!;
@@ -58,8 +58,13 @@ import { site, signInOpen } from "../site";
     show("Discord sign-in didn't finish. Try again.");
   }
 
-  // Already signed in: straight to the account page (only once sign-in is open).
-  if (form) call<Me>(api, "GET", "/v1/me").then(() => location.replace("/account"), () => {});
+  // Where to go after: ?next=/support from a page that needs signing in, else the account page.
+  // Kept for Discord too, which comes back to /account (that page goes on to it).
+  const next = afterSignIn(new URLSearchParams(location.search).get("next"));
+  if (next !== "/account") sessionStorage.setItem("mw-next", next);
+
+  // Already signed in: straight on (only once sign-in is open).
+  if (form) call<Me>(api, "GET", "/v1/me").then(() => location.replace(next), () => {});
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -67,7 +72,8 @@ import { site, signInOpen } from "../site";
     button.disabled = true;
     try {
       await call<Me>(api, "POST", "/v1/auth/code", { code: new FormData(form).get("code") });
-      location.assign("/account");
+      sessionStorage.removeItem("mw-next");
+      location.assign(next);
     } catch (e) {
       show((e as Error).message);
       button.disabled = false;

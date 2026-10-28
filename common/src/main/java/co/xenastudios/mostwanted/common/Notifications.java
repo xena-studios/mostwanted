@@ -28,6 +28,11 @@ public final class Notifications {
 
     private static final Logger LOG = LoggerFactory.getLogger(Notifications.class);
 
+    /** Something for a player (the payload is their account id): the notifications table has it. */
+    public static final String INBOX = "mostwanted_notifications";
+    /** A rank for core to give (the payload is the player's UUID): the rank_grants table has it. */
+    public static final String RANK_GRANTS = "mostwanted_rank_grants";
+
     /** Lower case, so names never need quoting. PostgreSQL's limit is 63 bytes. */
     private static final Pattern CHANNEL = Pattern.compile("[a-z][a-z0-9_]{0,62}");
 

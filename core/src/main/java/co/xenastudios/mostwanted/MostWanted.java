@@ -30,6 +30,7 @@ import co.xenastudios.mostwanted.menu.ProfileMenu;
 import co.xenastudios.mostwanted.menu.SettingsMenu;
 import co.xenastudios.mostwanted.menu.StoreMenu;
 import co.xenastudios.mostwanted.message.Messages;
+import co.xenastudios.mostwanted.notice.Notices;
 import co.xenastudios.mostwanted.pack.ResourcePack;
 import co.xenastudios.mostwanted.player.PlayerListener;
 import co.xenastudios.mostwanted.player.PlayerStore;
@@ -71,6 +72,7 @@ public final class MostWanted extends JavaPlugin {
     private Gates gates;
     private Robberies robberies;
     private TebexQueue store;
+    private Notices notices;
 
     @Override
     public void onEnable() {
@@ -205,6 +207,9 @@ public final class MostWanted extends JavaPlugin {
         cosmeticMenu.links(mainMenu::open, storeMenu::open);
         MenuItem menuItem = new MenuItem(this, items, messages, mainMenu);
         getServer().getPluginManager().registerEvents(menuItem, this);
+        notices = new Notices(this, storage, messages, settings.store().website(), getLogger());
+        getServer().getPluginManager().registerEvents(notices, this);
+        notices.start();
         // After a reload, those already online get theirs now.
         getServer().getOnlinePlayers().forEach(menuItem::give);
 
@@ -234,6 +239,9 @@ public final class MostWanted extends JavaPlugin {
     public void onDisable() {
         if (store != null) {
             store.stop();
+        }
+        if (notices != null) {
+            notices.stop();
         }
         // Leave the map as it was built: no holes in walls, no gates open.
         if (walls != null) {

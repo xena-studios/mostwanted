@@ -5,9 +5,14 @@ import co.xenastudios.mostwanted.backend.accounts.DiscordOAuth;
 import co.xenastudios.mostwanted.backend.accounts.LinkedRole;
 import co.xenastudios.mostwanted.backend.discord.RankRoles;
 import co.xenastudios.mostwanted.backend.accounts.Sessions;
+import co.xenastudios.mostwanted.backend.api.AccountRoutes;
 import co.xenastudios.mostwanted.backend.api.Api;
 import co.xenastudios.mostwanted.backend.discord.Bot;
 import co.xenastudios.mostwanted.backend.stats.Stats;
+import co.xenastudios.mostwanted.backend.support.Applications;
+import co.xenastudios.mostwanted.backend.support.Inbox;
+import co.xenastudios.mostwanted.backend.support.Staff;
+import co.xenastudios.mostwanted.backend.support.Tickets;
 import co.xenastudios.mostwanted.common.Database;
 import java.time.Clock;
 import java.time.Duration;
@@ -55,9 +60,14 @@ public final class Backend {
         if (discord == null) {
             LOG.info("No DISCORD_CLIENT_SECRET: signing in with Discord is off");
         }
-        Api api = Api.start(config, stats,
-                Api.accounts(config, accounts, sessions, discord, bot == null ? LinkedRole.NONE : bot),
-                bot == null ? null : bot::connected);
+        AccountRoutes accountRoutes = Api.accounts(config, accounts, sessions, discord, bot == null ? LinkedRole.NONE : bot);
+        Inbox inbox = new Inbox(database.sql(), config.site());
+        if (bot != null) {
+            inbox.dm(bot::dm);
+        }
+        Api.support(accountRoutes, accounts, new Tickets(database.sql()), new Applications(database.sql()), inbox,
+                new Staff(database.sql(), Clock.systemUTC()));
+        Api api = Api.start(config, stats, accountRoutes, bot == null ? null : bot::connected);
         Thread.ofVirtual().name("daily-cleanup").start(() -> daily(sessions));
         if (bot != null) {
             RankRoles roles = new RankRoles(accounts, stats, bot);

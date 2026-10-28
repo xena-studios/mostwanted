@@ -1,0 +1,288 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import { site } from "../site";
+---
+<Base title="Staff panel" description="MostWanted's staff panel." noindex>
+  <PageHero title="Staff panel" lead="Tickets and applications. Staff come from in-game ranks: helpers and up answer tickets, moderators and up decide applications." />
+  <section class="section">
+    <div class="wrap panel-page" data-panel data-api={site.api}>
+      <p class="loading" data-loading>Loading…</p>
+      <p class="alert" role="alert" data-error hidden></p>
+
+      <div class="tabs" role="tablist" data-ready hidden>
+        <button class="tab" role="tab" type="button" data-tab="tickets" aria-selected="true">Tickets</button>
+        <button class="tab" role="tab" type="button" data-tab="applications" aria-selected="false">Applications</button>
+      </div>
+
+      <section data-pane="tickets" data-ready hidden>
+        <div class="filters" data-ticket-filters></div>
+        <ol class="rows" data-ticket-rows></ol>
+        <p class="none" data-ticket-none hidden>Nothing here.</p>
+      </section>
+
+      <section data-pane="applications" hidden>
+        <div class="filters" data-application-filters></div>
+        <ol class="rows" data-application-rows></ol>
+        <p class="none" data-application-none hidden>Nothing here.</p>
+      </section>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { ApiError, call, type Me } from "../scripts/api";
+  import {
+    APPLICATION_STATES,
+    KINDS,
+    TICKET_STATES,
+    chip,
+    el,
+    linked,
+    when,
+    type Application,
+    type Forms,
+    type Ticket,
+  } from "../scripts/support";
+
+  const root = document.querySelector<HTMLElement>("[data-panel]")!;
+  const api = root.dataset.api!;
+  const $ = <T extends HTMLElement>(name: string) => root.querySelector<T>(`[data-${name}]`)!;
+  let forms: Forms;
+  let decides = false;
+
+  function fail(message: string) {
+    $("loading").hidden = true;
+    $("error").textContent = message;
+    $("error").hidden = false;
+  }
+
+  /** Buttons for each state; the chosen one is pressed. */
+  function filters(box: HTMLElement, states: Record<string, string>, chosen: string, pick: (state: string) => void) {
+    box.replaceChildren(
+      ...Object.entries(states).map(([state, label]) => {
+        const button = el("button", "button small", label);
+        button.type = "button";
+        button.setAttribute("aria-pressed", String(state === chosen));
+        button.addEventListener("click", () => pick(state));
+        return button;
+      }),
+    );
+  }
+
+  async function tickets(state = "open") {
+    filters($("ticket-filters"), TICKET_STATES, state, tickets);
+    const rows = (await call<Ticket[]>(api, "GET", `/v1/staff/tickets?status=${state}`))!;
+    $("ticket-rows").replaceChildren(
+      ...rows.map((t) => {
+        const a = el(
+          "a",
+          "row",
+          el("span", "row-main", el("strong", "", t.subject), el("span", "muted", `${t.owner} · ${t.category}`)),
+          el("span", "row-side", chip(t.status, TICKET_STATES[t.status]), el("span", "muted", when(t.updatedAt))),
+        );
+        a.href = `/ticket?id=${t.id}`;
+        return el("li", "", a);
+      }),
+    );
+    $("ticket-none").hidden = rows.length > 0;
+  }
+
+  function application(a: Application): HTMLLIElement {
+    const questions = forms.applications[a.kind] ?? [];
+    const answers = el("dl", "answers");
+    for (const q of questions) {
+      if (!a.answers[q.id]) continue;
+      answers.append(el("dt", "", q.label), el("dd", "", linked(a.answers[q.id])));
+    }
+    const details = el(
+      "details",
+      "panel application",
+      el(
+        "summary",
+        "row",
+        el("span", "row-main", el("strong", "", `${KINDS[a.kind] ?? a.kind}: ${a.applicant}`), el("span", "muted", `Sent ${when(a.createdAt)}`)),
+        el("span", "row-side", chip(a.status, APPLICATION_STATES[a.status])),
+      ),
+      answers,
+    );
+    if (a.minecraft) {
+      const stats = el("a", "", "Their stats");
+      stats.href = `/player?name=${encodeURIComponent(a.applicant)}`;
+      details.append(el("p", "muted", stats));
+    }
+    if (a.status !== "pending") {
+      details.append(el("p", "muted", `${APPLICATION_STATES[a.status]} by ${a.decidedBy ?? "?"}${a.decidedAt ? `, ${when(a.decidedAt)}` : ""}.${a.note ? ` Note: ${a.note}` : ""}`));
+    } else if (decides) {
+      const note = el("textarea", "input");
+      note.maxLength = 1000;
+      note.placeholder = "A note for them (optional): why, or what's next";
+      const error = el("p", "alert", "");
+      error.hidden = true;
+      const decide = (decision: "accept" | "deny") => async () => {
+        try {
+          await call(api, "POST", `/v1/staff/applications/${a.id}`, { decision, note: note.value });
+          await applications("pending");
+        } catch (e) {
+          error.textContent = (e as Error).message;
+          error.hidden = false;
+        }
+      };
+      const accept = el("button", "button primary", a.kind === "guard" ? "Accept (gives the guard rank)" : "Accept");
+      const deny = el("button", "button", "Turn down");
+      accept.type = deny.type = "button";
+      accept.addEventListener("click", decide("accept"));
+      deny.addEventListener("click", decide("deny"));
+      details.append(el("div", "form", note, error, el("div", "actions", accept, deny)));
+    } else {
+      details.append(el("p", "muted", "Moderators and up decide applications."));
+    }
+    return el("li", "", details);
+  }
+
+  async function applications(state = "pending") {
+    filters($("application-filters"), APPLICATION_STATES, state, applications);
+    const rows = (await call<Application[]>(api, "GET", `/v1/staff/applications?status=${state}`))!;
+    $("application-rows").replaceChildren(...rows.map(application));
+    $("application-none").hidden = rows.length > 0;
+  }
+
+  root.querySelectorAll<HTMLButtonElement>("[data-tab]").forEach((tab) =>
+    tab.addEventListener("click", () => {
+      root.querySelectorAll<HTMLButtonElement>("[data-tab]").forEach((t) => t.setAttribute("aria-selected", String(t === tab)));
+      root.querySelectorAll<HTMLElement>("[data-pane]").forEach((pane) => (pane.hidden = pane.dataset.pane !== tab.dataset.tab));
+    }),
+  );
+
+  Promise.all([call<Me>(api, "GET", "/v1/me"), call<Forms>(api, "GET", "/v1/forms")]).then(
+    async ([me, loaded]) => {
+      if (!me!.staff) {
+        fail("The panel is for staff. Staff are helpers and up in game, with Minecraft linked on their account.");
+        return;
+      }
+      forms = loaded!;
+      decides = ["moderator", "admin", "owner"].includes(me!.staff);
+      await Promise.all([tickets(), applications()]);
+      $("loading").hidden = true;
+      root.querySelectorAll<HTMLElement>("[data-ready]").forEach((node) => (node.hidden = false));
+    },
+    (e) => {
+      if (e instanceof ApiError && e.status === 401) location.replace("/login?next=/panel");
+      else fail((e as Error).message);
+    },
+  );
+</script>
+
+<style>
+  [hidden] {
+    display: none !important;
+  }
+
+  .panel-page {
+    display: grid;
+    gap: var(--s-5);
+    max-width: 60rem;
+  }
+
+  .tabs,
+  .filters,
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+
+  .tab {
+    padding: var(--s-2) var(--s-4);
+    border: 2px solid var(--rule);
+    border-radius: 10px;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .tab[aria-selected="true"] {
+    border-color: var(--orange);
+    color: var(--text);
+  }
+
+  .filters :global(.button[aria-pressed="true"]) {
+    border-color: var(--orange);
+  }
+
+  .rows {
+    display: grid;
+    gap: var(--s-2);
+    margin-top: var(--s-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  .rows :global(.row) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--s-3) var(--s-4);
+    border: 2px solid var(--rule);
+    border-radius: 10px;
+    color: var(--text);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .rows :global(a.row:hover) {
+    border-color: var(--orange);
+  }
+
+  .rows :global(.row-main),
+  .rows :global(.row-side) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    align-items: center;
+  }
+
+  .rows :global(.muted),
+  .none {
+    color: var(--muted);
+  }
+
+  .rows :global(.application) {
+    display: grid;
+    gap: var(--s-4);
+    padding: 0 0 var(--s-4);
+  }
+
+  .rows :global(.application[open] > .row) {
+    border-color: var(--orange);
+  }
+
+  .rows :global(.application > :not(summary)) {
+    margin: 0 var(--s-4);
+  }
+
+  .rows :global(.answers) {
+    display: grid;
+    gap: var(--s-2);
+  }
+
+  .rows :global(.answers dt) {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .rows :global(.answers dd) {
+    margin: 0 0 var(--s-2);
+    color: var(--muted);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .rows :global(a) {
+    color: var(--orange);
+  }
+</style>

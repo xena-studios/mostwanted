@@ -6,7 +6,15 @@ export type Me = {
   discord: { id: string; name: string } | null;
   minecraft: { uuid: string; name: string } | null;
   linked: boolean;
+  /** Their staff rank ("helper", "moderator", "admin", "owner"), or null. */
+  staff: string | null;
+  unread: number;
 };
+
+/** A path on this site to go to after signing in: only our own pages, never another site. */
+export function afterSignIn(next: string | null): string {
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/account";
+}
 
 export class ApiError extends Error {
   constructor(readonly status: number, message: string) {
@@ -31,7 +39,7 @@ export async function call<T>(api: string, method: string, path: string, body?: 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     const message = typeof data.error === "string" ? data.error : "Something went wrong.";
-    throw new ApiError(response.status, message.charAt(0).toUpperCase() + message.slice(1) + ".");
+    throw new ApiError(response.status, message.charAt(0).toUpperCase() + message.slice(1).replace(/\.?$/, "."));
   }
   return data as T;
 }

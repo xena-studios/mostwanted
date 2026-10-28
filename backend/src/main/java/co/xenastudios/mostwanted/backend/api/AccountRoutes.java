@@ -46,6 +46,13 @@ public final class AccountRoutes {
         this.linkedRole = linkedRole;
     }
 
+    private SupportRoutes support;
+
+    /** Tickets, applications and notifications: registered with these, and shown on /v1/me. */
+    void support(SupportRoutes support) {
+        this.support = support;
+    }
+
     /** Forgets code attempts from more than a minute ago (with the general limit's sweep). */
     void sweep() {
         codeAttempts.sweep();
@@ -63,7 +70,14 @@ public final class AccountRoutes {
 
         javalin.routes.get("/v1/me", ctx -> {
             long id = signedIn(ctx).orElseThrow(() -> new Api.Failure(HttpStatus.UNAUTHORIZED, "You're not signed in."));
-            ctx.json(view(accounts.get(id).orElseThrow(() -> new Api.Failure(HttpStatus.UNAUTHORIZED, "You're not signed in."))));
+            Map<String, Object> view = view(accounts.get(id)
+                    .orElseThrow(() -> new Api.Failure(HttpStatus.UNAUTHORIZED, "You're not signed in.")));
+            if (support != null) {
+                // Their staff rank (for the panel link) and unread notifications.
+                view.put("staff", support.level(id));
+                view.put("unread", support.unread(id));
+            }
+            ctx.json(view);
         });
 
         javalin.routes.post("/v1/auth/code", ctx -> {
@@ -140,11 +154,14 @@ public final class AccountRoutes {
             ctx.status(HttpStatus.NO_CONTENT);
         });
 
+        if (support != null) {
+            support.register(javalin);
+        }
         javalin.routes.after("/v1/me*", ctx -> ctx.header("Cache-Control", "no-store"));
         javalin.routes.after("/v1/auth/*", ctx -> ctx.header("Cache-Control", "no-store"));
     }
 
-    private Optional<Long> signedIn(Context ctx) {
+    Optional<Long> signedIn(Context ctx) {
         return sessions.account(ctx.cookie(SESSION));
     }
 
