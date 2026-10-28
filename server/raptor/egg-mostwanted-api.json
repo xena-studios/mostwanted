@@ -7,7 +7,7 @@
   "exported_at": "2026-10-28T00:00:00+00:00",
   "name": "MostWanted API",
   "author": "contact@xenastudios.co",
-  "description": "The website's API and the Discord bot, one Java app, from the latest build of github.com/xena-studios/mostwanted. Reinstall to update. It uses the game server's database: give it an empty one of its own on the same instance, so Raptor lets it in.",
+  "description": "The website's API and the Discord bot, one Java app, from the latest build of github.com/xena-studios/mostwanted. Reinstall to update. It uses the game server's database: its details go on the Startup tab.",
   "features": [
     "java_version"
   ],
@@ -38,6 +38,26 @@
       "user_viewable": true,
       "user_editable": true,
       "rules": "required|string|max:64",
+      "field_type": "text"
+    },
+    {
+      "name": "Game database host",
+      "description": "The game server's database's Host (its Databases tab), like mostwanted.db.raptor.",
+      "env_variable": "GAME_DB_HOST",
+      "default_value": "mostwanted.db.raptor",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:128",
+      "field_type": "text"
+    },
+    {
+      "name": "Game database port",
+      "description": "Its port.",
+      "env_variable": "GAME_DB_PORT",
+      "default_value": "5432",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|integer|between:1,65535",
       "field_type": "text"
     },
     {
