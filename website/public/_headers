@@ -1,5 +1,5 @@
 /*
-  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' https://mc-heads.net; font-src 'self'; connect-src 'self' https://api.mostwantedmc.com; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; manifest-src 'self'; require-trusted-types-for 'script'
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' https://mc-heads.net; font-src 'self'; connect-src 'self' https://api.mostwantedmc.com https://headless.tebex.io; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; manifest-src 'self'; require-trusted-types-for 'script'
   Cross-Origin-Opener-Policy: same-origin
   Referrer-Policy: strict-origin-when-cross-origin
   X-Content-Type-Options: nosniff

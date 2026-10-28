@@ -29,6 +29,8 @@ Mostly static pages with no JavaScript. Only the store's cart and the status wid
 
 ## How the store works
 
+**Built (2026-10-28):** the store page, its catalogue and Tebex checkout. What's sold, why, and the Tebex setup steps are in [docs/11-store.md](11-store.md). The flow below is Tebex's Headless API from the browser.
+
 ```
 Player on our site ──▶ Store page (our design, packages from Tebex's API)
                           │ add to cart, enter username

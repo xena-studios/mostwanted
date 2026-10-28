@@ -1,10 +1,11 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
-import { ArrowRight, ArrowUpRight, Search } from "@lucide/astro";
+import { ArrowRight, ArrowUpRight, Search, ShieldCheck, ShoppingCart } from "@lucide/astro";
 import Base from "../layouts/Base.astro";
 import CopyAddress from "../components/CopyAddress.astro";
 import { site } from "../site";
+import { cosmetics, money, ranks } from "../store/catalog";
 import wordmark from "../brand/wordmark.png";
 import background from "../brand/background.png";
 import mesa from "../brand/scene-mesa.png";
@@ -22,6 +23,10 @@ const explore = [
   { href: "/store", title: "Store", body: "Cosmetics only. Never pay to win.", image: road },
   { href: "/support", title: "Support", body: "Report a bug or a player, or get help.", image: cactus },
 ];
+
+// The home page's store band: every rank, and a few cosmetics to show the range.
+const showcase = ["trail-cash", "escape-fireworks", "skin-gilded-pistol", "arrest-siren", "trail-ember", "skin-midnight-rifle"]
+  .map((id) => cosmetics.find((c) => c.id === id)!);
 
 const roles = [
   { step: "01", name: "Inmate", body: "You start inside. Find a way out: through a weak wall, down the sewers, with a stolen keycard, or under cover of a riot." },
@@ -57,6 +62,7 @@ const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month:
       <p class="tagline">Cops vs. prisoners on Java &amp; Bedrock</p>
       <div class="hero-actions">
         <CopyAddress />
+        <a class="button primary" href="/store"><ShoppingCart aria-hidden="true" /> Visit the store</a>
         {
           site.discord ? (
             <a class="button" href={site.discord}>Join Discord</a>
@@ -71,6 +77,47 @@ const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month:
         <li class="badge">One world, no resets</li>
         <li class="badge">Never pay to win</li>
       </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="store-title">
+    <div class="wrap">
+      <div class="panel store-band">
+        <div class="store-copy">
+          <span class="label">The store</span>
+          <h2 id="store-title">Stand out. <span class="accent">Never pay to win.</span></h2>
+          <p>Ranks, trails, escape effects and gun skins. Everything changes how you look, nothing changes how you play, and every purchase keeps the server running.</p>
+          <div class="store-actions">
+            <a class="button primary" href="/store"><ShoppingCart aria-hidden="true" /> Visit the store</a>
+            <a class="button" href="/store#ranks"><ShieldCheck aria-hidden="true" /> Compare ranks</a>
+          </div>
+        </div>
+        <ul class="store-ranks" aria-label="Ranks">
+          {
+            ranks.map((r) => (
+              <li>
+                <a href="/store#ranks" style={`--rank: ${r.colour}`}>
+                  <img src={r.icon} alt="" width="64" height="64" />
+                  <span class="rank-name">{r.name}</span>
+                  <span class="rank-price">{money(r.price)}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <ul class="store-cosmetics" aria-label="Some of the cosmetics">
+          {
+            showcase.map((c) => (
+              <li>
+                <a href="/store#cosmetics" title={c.name}>
+                  <img src={c.icon} alt={c.name} width="48" height="48" />
+                </a>
+              </li>
+            ))
+          }
+          <li class="more-cosmetics"><a href="/store#cosmetics">and more <ArrowRight aria-hidden="true" /></a></li>
+        </ul>
+      </div>
     </div>
   </section>
 
@@ -160,6 +207,150 @@ const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month:
 </Base>
 
 <style>
+  /* ---------------------------------------------------------------- store band */
+
+  .store-band {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: var(--s-6);
+    padding: var(--s-7) var(--s-6);
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 85% 0%, color-mix(in srgb, var(--orange) 22%, transparent), transparent 60%),
+      linear-gradient(to bottom, var(--raised-2), var(--raised));
+  }
+
+  .store-copy {
+    display: grid;
+    align-content: start;
+    gap: var(--s-4);
+  }
+
+  .store-copy h2 {
+    font-size: clamp(2rem, 1.4rem + 2vw, 3rem);
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+
+  .store-copy .accent {
+    color: var(--orange);
+  }
+
+  .store-copy p {
+    color: var(--muted);
+  }
+
+  .store-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+  }
+
+  .store-ranks {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: center;
+    gap: var(--s-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  .store-ranks a {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: var(--s-3);
+    padding: var(--s-3) var(--s-4);
+    border: 2px solid var(--rule);
+    border-left: 4px solid var(--rank);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--dusk) 55%, transparent);
+    color: var(--text);
+    text-decoration: none;
+    transition: transform 150ms var(--ease), border-color 150ms var(--ease);
+  }
+
+  .store-ranks a:hover {
+    transform: translateY(-2px);
+    border-color: var(--rank);
+  }
+
+  .store-ranks img {
+    grid-row: span 2;
+    image-rendering: pixelated;
+  }
+
+  .rank-name {
+    align-self: end;
+    font-family: var(--display);
+    font-size: 1.5rem;
+    color: var(--rank);
+  }
+
+  .rank-price {
+    align-self: start;
+    font-family: var(--display);
+    color: var(--sand);
+  }
+
+  .store-cosmetics {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  .store-cosmetics a {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border: 2px solid var(--rule);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--dusk) 55%, transparent);
+    transition: border-color 150ms var(--ease);
+  }
+
+  .store-cosmetics a:hover {
+    border-color: var(--orange);
+  }
+
+  .store-cosmetics img {
+    image-rendering: pixelated;
+  }
+
+  .store-cosmetics .more-cosmetics a {
+    display: inline-flex;
+    gap: var(--s-2);
+    width: auto;
+    padding: 0 var(--s-4);
+    color: var(--text);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .more-cosmetics :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  @media (max-width: 56rem) {
+    .store-band {
+      grid-template-columns: minmax(0, 1fr);
+      padding: var(--s-6) var(--s-5);
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .store-ranks {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
   /* ---------------------------------------------------------------- hero */
 
   .hero {

@@ -1,86 +1,1203 @@
 ---
-import { BadgeCheck, Brush, Crosshair, Shirt, Sparkles, Store } from "@lucide/astro";
+import { ArrowRight, Check, Gamepad2, Heart, Lock, ShieldCheck, ShoppingCart, Sparkles, X, Zap } from "@lucide/astro";
 import Base from "../layouts/Base.astro";
 import PageHero from "../components/PageHero.astro";
 import { site } from "../site";
+import { catalog, cosmetics, firstRankWith, includedValue, money, never, ranks, rankTable, support } from "../store/catalog";
 import road from "../brand/scene-road.png";
 
-const categories = [
-  { icon: BadgeCheck, title: "Ranks", body: "Supporter ranks with a chat tag, a name colour and cosmetic perks." },
-  { icon: Shirt, title: "Jumpsuits & uniforms", body: "Your inmate jumpsuit or guard uniform, in your colours." },
-  { icon: Crosshair, title: "Gun skins", body: "New looks for every gun. Same stats as everyone else's." },
-  { icon: Sparkles, title: "Trails & effects", body: "Escape trails, arrest effects and particles." },
-  { icon: Brush, title: "Cell decor", body: "Make your cell yours." },
+const kinds = [...new Set(cosmetics.map((c) => c.kind!))];
+
+// What the browser needs: names, prices, icons, and which ranks include what.
+const items = catalog.map((p) => ({ id: p.id, name: p.name, category: p.category, price: p.price, icon: p.icon, includes: p.includes }));
+
+const faq = [
+  ["How long does it take to arrive?", "Usually under a minute. If you're online it shows up straight away; if not, it's waiting next time you join."],
+  ["I play on Bedrock. Can I buy?", "Yes. Enter the name you play under, exactly as it shows in game (on the tab list), and everything works the same."],
+  ["Can I buy for a friend?", "Yes: put their Minecraft username in the cart instead of yours. It goes to them."],
+  ["Does anything here help me win?", "No. Ranks and cosmetics change how you look, never how you play. Guns, armor, cash, shorter sentences and the guard rank can't be bought, by anyone."],
+  ["I already have a rank. What happens if I buy a higher one?", "You get the higher rank and keep every cosmetic you already had."],
+  ["How do I pay?", "On Tebex's secure checkout, the store most Minecraft servers use: cards, PayPal and more, depending on where you are. We never see your card details."],
+  ["Can I get a refund?", "See the Terms. If something didn't arrive, contact Support with your transaction ID and we'll sort it."],
+];
+
+const sections = [
+  { id: "ranks", label: "Ranks" },
+  { id: "cosmetics", label: "Cosmetics" },
+  { id: "support", label: "Support" },
+  { id: "questions", label: "Questions" },
 ];
 ---
-<Base title="Store" description="The MostWanted store: cosmetic ranks, jumpsuits, gun skins, trails and cell decor. Cosmetics only, never pay to win.">
-  <PageHero title="Store" lead="Cosmetics only. Nothing in the store wins a fight, an escape or a robbery." image={road} />
-  <section class="section">
-    <div class="wrap">
-      {
-        site.store ? (
-          <a class="button primary" href={site.store}><Store aria-hidden="true" /> Open the store</a>
-        ) : (
-          <p class="note"><strong>The store opens at launch.</strong> Purchases go through Tebex, and show up in game within a minute.</p>
-        )
-      }
-      <ul class="cats">
+<Base title="Store" description="The MostWanted store: ranks, trails, escape and arrest effects, gun skins and more. Cosmetics only, never pay to win.">
+  <PageHero title="Store" lead="Support the server and stand out. Cosmetics only: nothing here wins a fight, an escape or a robbery." image={road}>
+    <div class="hero-actions">
+      <a class="button primary" href="#ranks"><ShieldCheck aria-hidden="true" /> See the ranks</a>
+      <a class="button" href="#cosmetics"><Sparkles aria-hidden="true" /> Browse cosmetics</a>
+    </div>
+  </PageHero>
+
+  <div class="store" data-store data-token={site.tebexToken ?? ""} data-items={JSON.stringify(items)}>
+    <nav class="store-nav" aria-label="Store sections">
+      <div class="wrap nav-row">
+        <ul>
+          {sections.map((s) => <li><a href={`#${s.id}`} data-section-link={s.id}>{s.label}</a></li>)}
+        </ul>
+      </div>
+    </nav>
+
+    <section class="wrap trust" aria-label="About buying">
+      <ul>
+        <li><Lock aria-hidden="true" /> Secure checkout by Tebex</li>
+        <li><Zap aria-hidden="true" /> In game within a minute</li>
+        <li><Gamepad2 aria-hidden="true" /> Java and Bedrock</li>
+        <li><ShieldCheck aria-hidden="true" /> Never pay to win</li>
+      </ul>
+      <p class="banner" data-thanks hidden><Heart aria-hidden="true" /> Thank you! Your purchase is on its way: it shows up in game within a minute.</p>
+      {!site.tebexToken && <p class="note"><strong>The store opens with the server.</strong> Have a look around and fill your cart: checkout turns on at launch, and your cart will still be here.</p>}
+    </section>
+
+    <section class="section" id="ranks" data-section aria-labelledby="ranks-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="ranks-title">Ranks</h2>
+          <p class="sub">One-time, yours for good. Each includes everything in the ones before it.</p>
+        </div>
+        <ul class="ranks">
+          {
+            ranks.map((r) => {
+              const worth = includedValue(r);
+              return (
+                <li class:list={["panel rank", { featured: r.ribbon === "Most popular" }]} style={`--rank: ${r.colour}`}>
+                  {r.ribbon && <span class="ribbon pixel">{r.ribbon}</span>}
+                  <img class="icon" src={r.icon} alt="" width="80" height="80" />
+                  <h3>{r.name}</h3>
+                  <p class="price" data-price={r.id}>{money(r.price)}</p>
+                  {worth > r.price ? (
+                    <p class="worth">Includes {money(worth)} of cosmetics</p>
+                  ) : (
+                    <p class="worth muted">{r.includes!.length} cosmetic{r.includes!.length === 1 ? "" : "s"} included</p>
+                  )}
+                  <p class="blurb">{r.blurb}</p>
+                  <ul class="perks">
+                    {r.perks!.map((perk) => (
+                      <li>
+                        <Check aria-hidden="true" /> {perk}
+                      </li>
+                    ))}
+                  </ul>
+                  <button class="button primary add" type="button" data-add={r.id} aria-pressed="false">
+                    <ShoppingCart aria-hidden="true" /> <span>Add to cart</span>
+                  </button>
+                </li>
+              );
+            })
+          }
+        </ul>
+
+        <details class="panel compare">
+          <summary>Compare every rank side by side</summary>
+          <div class="table-wrap">
+            <table>
+              <caption class="visually-hidden">What each rank includes</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Rank</th>
+                  {ranks.map((r) => <th scope="col" style={`--rank: ${r.colour}`}>{r.name}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="price-row">
+                  <th scope="row">Price</th>
+                  {ranks.map((r) => <td data-price={r.id}>{money(r.price)}</td>)}
+                </tr>
+                {
+                  rankTable.map((row) => (
+                    <tr>
+                      <th scope="row">{row.perk}</th>
+                      {row.values.map((v) => (
+                        <td>
+                          {v === true ? (
+                            <Check class="yes" aria-label="Yes" />
+                          ) : v === false ? (
+                            <X class="no" aria-label="No" />
+                          ) : (
+                            <span>{v}</span>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="section" id="cosmetics" data-section aria-labelledby="cosmetics-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="cosmetics-title">Cosmetics</h2>
+          <p class="sub">Pick exactly what you want. Some come with a rank, which can work out cheaper: the cart tells you.</p>
+        </div>
+        <div class="filters" role="group" aria-label="Show">
+          <button class="chip" type="button" data-filter="all" aria-pressed="true">All <span class="n">{cosmetics.length}</span></button>
+          {kinds.map((k) => (
+            <button class="chip" type="button" data-filter={k} aria-pressed="false">
+              {k} <span class="n">{cosmetics.filter((c) => c.kind === k).length}</span>
+            </button>
+          ))}
+        </div>
+        <ul class="items">
+          {
+            cosmetics.map((c) => {
+              const rank = firstRankWith(c.id);
+              return (
+                <li class="panel item" data-kind={c.kind}>
+                  <img class="icon" src={c.icon} alt="" width="64" height="64" />
+                  <div class="item-copy">
+                    <span class="label">{c.kind}</span>
+                    <h3>{c.name}</h3>
+                    <p>{c.blurb}</p>
+                    {rank && (
+                      <p class="included" style={`--rank: ${rank.colour}`}>
+                        Included in {rank.name}{rank.id === "legend" ? "" : " and up"}
+                      </p>
+                    )}
+                  </div>
+                  <div class="item-buy">
+                    <p class="price" data-price={c.id}>{money(c.price)}</p>
+                    <button class="button add small" type="button" data-add={c.id} aria-pressed="false">
+                      <ShoppingCart aria-hidden="true" /> <span>Add</span>
+                    </button>
+                  </div>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="support" data-section aria-labelledby="support-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="support-title">Support the <span class="accent">server</span></h2>
+          <p class="sub">Every purchase pays for the server, the map and new updates.</p>
+        </div>
+        <ul class="items support">
+          {
+            support.map((s) => (
+              <li class="panel item">
+                <img class="icon" src={s.icon} alt="" width="64" height="64" />
+                <div class="item-copy">
+                  <h3>{s.name}</h3>
+                  <p>{s.blurb}</p>
+                </div>
+                <div class="item-buy">
+                  <p class="price" data-price={s.id}>{money(s.price)}</p>
+                  <button class="button add small" type="button" data-add={s.id} aria-pressed="false">
+                    <ShoppingCart aria-hidden="true" /> <span>Add</span>
+                  </button>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+        <div class="panel never">
+          <h3>Never for sale</h3>
+          <p>Under Mojang's rules, and because it's no fun when money decides who wins:</p>
+          <ul>
+            {never.map((n) => <li><X aria-hidden="true" /> {n}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="questions" data-section aria-labelledby="faq-title">
+      <div class="wrap faq">
+        <div class="section-head">
+          <h2 id="faq-title">Questions</h2>
+        </div>
         {
-          categories.map((c) => (
-            <li class="panel cat">
-              <c.icon aria-hidden="true" />
-              <h2>{c.title}</h2>
-              <p>{c.body}</p>
-            </li>
+          faq.map(([q, a]) => (
+            <details class="panel">
+              <summary>{q}</summary>
+              <p>{a}</p>
+            </details>
           ))
         }
-      </ul>
-      <div class="panel never">
-        <h2>Never for sale</h2>
-        <p>Guns, ammo, armor, cash, shorter jail time, the guard rank, or anything random like crates. Under Mojang's rules, and because it's not fun when money decides who wins.</p>
+        <p class="small">Purchases are covered by the <a href="/terms">Terms</a> and <a href="/privacy">Privacy</a> policy. Still stuck? <a href="/support">Support</a>.</p>
       </div>
+    </section>
+
+    <div class="toast" role="status" data-toast hidden>
+      <img alt="" width="40" height="40" data-toast-icon />
+      <span><strong data-toast-name></strong> is in your cart</span>
+      <button class="button primary small" type="button" data-open-cart>Checkout <ArrowRight aria-hidden="true" /></button>
     </div>
-  </section>
+
+    <button class="button primary cart-button" type="button" data-open-cart data-float hidden>
+      <ShoppingCart aria-hidden="true" /> Cart <span class="count pixel" data-count>0</span> <span data-total></span>
+    </button>
+
+    <dialog class="panel cart" data-cart aria-labelledby="cart-title">
+      <div class="cart-head">
+        <h2 id="cart-title">Your cart</h2>
+        <button class="close" type="button" data-close-cart aria-label="Close"><X aria-hidden="true" /></button>
+      </div>
+      <p class="empty" data-empty>Nothing here yet. <a href="#ranks" data-close-cart>See the ranks</a></p>
+      <ul class="lines" data-lines></ul>
+      <template data-line>
+        <li>
+          <img alt="" width="40" height="40" />
+          <span class="line-name"><span></span><small></small></span>
+          <span class="line-price"></span>
+          <button class="remove" type="button" aria-label="Remove"><X aria-hidden="true" /></button>
+        </li>
+      </template>
+      <div class="advice" data-advice hidden>
+        <img alt="" width="40" height="40" data-advice-icon />
+        <p data-advice-text></p>
+        <button class="button primary small" type="button" data-advice-swap>Swap</button>
+      </div>
+      <form class="checkout" data-checkout>
+        <p class="total">Total <strong data-cart-total></strong></p>
+        <label for="mc-name">Minecraft username</label>
+        <div class="who">
+          <img alt="" width="44" height="44" data-head hidden />
+          <input id="mc-name" class="input" name="username" required maxlength="32" spellcheck="false" autocomplete="off" placeholder="The name you play under" />
+        </div>
+        <p class="hint">Bedrock? Use your name exactly as it shows on the tab list. Buying for a friend? Use theirs.</p>
+        <details class="creator">
+          <summary>Have a creator code?</summary>
+          <input id="creator" class="input" name="creator" maxlength="32" spellcheck="false" autocomplete="off" placeholder="Creator code" aria-label="Creator code" />
+        </details>
+        <p class="error" role="alert" data-cart-error hidden></p>
+        <button class="button primary pay" type="submit" data-pay>
+          <Lock aria-hidden="true" /> <span data-pay-label>{site.tebexToken ? "Checkout" : "Checkout opens at launch"}</span>
+        </button>
+        <p class="hint center">Secure payment on Tebex: cards, PayPal and more.</p>
+      </form>
+    </dialog>
+  </div>
 </Base>
 
+<script>
+  import { advise } from "../store/advice";
+  import { read, toggle, write } from "../store/cart";
+  import { checkout, loadLive, toPayment, type Live } from "../store/tebex";
+
+  type Item = { id: string; name: string; category: string; price: number; icon: string; includes?: string[] };
+
+  const root = document.querySelector<HTMLElement>("[data-store]")!;
+  const token = root.dataset.token || "";
+  const items: Item[] = JSON.parse(root.dataset.items!);
+  const byId = new Map(items.map((i) => [i.id, i]));
+  const $ = <T extends HTMLElement>(name: string) => root.querySelector<T>(`[data-${name}]`)!;
+  const $$ = <T extends HTMLElement>(name: string) => root.querySelectorAll<T>(`[data-${name}]`);
+  const dialog = $<HTMLDialogElement>("cart");
+  const errorBox = $("cart-error");
+  const NAME = /^[A-Za-z0-9_.* -]{1,32}$/;
+  let live: Live | null = null;
+  let currency = "USD";
+
+  const format = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency }).format(n);
+  const price = (id: string) => live?.prices.get(byId.get(id)!.name) ?? byId.get(id)!.price;
+  const cart = () => read().filter((id) => byId.has(id));
+
+  function showError(message: string) {
+    errorBox.textContent = message;
+    errorBox.hidden = false;
+  }
+
+  /** Everything that depends on what's in the cart. */
+  function render() {
+    const ids = cart();
+    const total = ids.reduce((sum, id) => sum + price(id), 0);
+    $$<HTMLButtonElement>("add").forEach((button) => {
+      const added = ids.includes(button.dataset.add!);
+      button.setAttribute("aria-pressed", String(added));
+      button.querySelector("span")!.textContent = added ? "In cart" : button.classList.contains("small") ? "Add" : "Add to cart";
+    });
+    $$("count").forEach((el) => (el.textContent = String(ids.length)));
+    $$("total").forEach((el) => (el.textContent = format(total)));
+    $("float").hidden = ids.length === 0;
+    $("cart-total").textContent = format(total);
+    $("empty").hidden = ids.length > 0;
+    $("checkout").hidden = ids.length === 0;
+    if (token) $("pay-label").textContent = `Checkout · ${format(total)}`;
+
+    const advice = advise(ids, items, price);
+    const covered = new Map(advice.redundant);
+    const lines = $("lines");
+    lines.replaceChildren();
+    const template = root.querySelector<HTMLTemplateElement>("template[data-line]")!;
+    for (const id of ids) {
+      const line = template.content.firstElementChild!.cloneNode(true) as HTMLElement;
+      line.querySelector("img")!.src = byId.get(id)!.icon;
+      line.querySelector(".line-name span")!.textContent = byId.get(id)!.name;
+      const note = line.querySelector(".line-name small")!;
+      if (covered.has(id)) {
+        note.textContent = `Already included in ${byId.get(covered.get(id)!)!.name}: remove it`;
+        line.classList.add("covered");
+      }
+      line.querySelector(".line-price")!.textContent = format(price(id));
+      line.querySelector("button")!.addEventListener("click", () => toggle(id));
+      lines.append(line);
+    }
+
+    // One suggestion at a time: a rank that covers what's in the cart, for less or a little more.
+    const box = $("advice");
+    const swap = advice.swap;
+    box.hidden = !swap;
+    if (swap) {
+      const rank = byId.get(swap.rank)!;
+      $<HTMLImageElement>("advice-icon").src = rank.icon;
+      const extra = (rank.includes ?? []).filter((id) => !ids.includes(id)).length;
+      $("advice-text").textContent =
+        swap.saves > 0
+          ? `${rank.name} includes ${swap.replaces.length === 1 ? "this" : "all of these"} and costs ${format(swap.saves)} less${extra ? `, with ${extra} more cosmetics on top` : ""}.`
+          : `For ${format(-swap.saves)} more, ${rank.name} gets you all of these${extra ? ` and ${extra} more cosmetics` : ""}, plus the ${rank.name} tag.`;
+      $("advice-swap").textContent = `Swap for ${rank.name}`;
+      $("advice-swap").onclick = () => write([...ids.filter((id) => !swap.replaces.includes(id)), swap.rank]);
+    }
+  }
+
+  // Adding: a small note with a way straight to checkout.
+  let toastTimer = 0;
+  $$<HTMLButtonElement>("add").forEach((button) =>
+    button.addEventListener("click", () => {
+      const id = button.dataset.add!;
+      if (!toggle(id)) return;
+      $<HTMLImageElement>("toast-icon").src = byId.get(id)!.icon;
+      $("toast-name").textContent = byId.get(id)!.name;
+      const toast = $("toast");
+      toast.hidden = false;
+      toast.classList.remove("show");
+      void toast.offsetWidth;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => (toast.hidden = true), 4000);
+    }),
+  );
+  window.addEventListener("cart-changed", render);
+  window.addEventListener("storage", render);
+
+  $$("open-cart").forEach((b) =>
+    b.addEventListener("click", () => {
+      $("toast").hidden = true;
+      dialog.showModal();
+    }),
+  );
+  $$("close-cart").forEach((b) => b.addEventListener("click", () => dialog.close()));
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  // The section you're in is highlighted in the store's nav.
+  const links = new Map([...$$("section-link")].map((a) => [a.dataset.sectionLink!, a]));
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        links.forEach((a, id) => a.toggleAttribute("aria-current", id === entry.target.id));
+      }
+    },
+    { rootMargin: "-40% 0px -55% 0px" },
+  );
+  $$("section").forEach((s) => observer.observe(s));
+
+  // Cosmetics filter.
+  const chips = $$<HTMLButtonElement>("filter");
+  chips.forEach((chip) =>
+    chip.addEventListener("click", () => {
+      chips.forEach((c) => c.setAttribute("aria-pressed", String(c === chip)));
+      root.querySelectorAll<HTMLElement>(".item[data-kind]").forEach((item) => {
+        item.hidden = chip.dataset.filter !== "all" && item.dataset.kind !== chip.dataset.filter;
+      });
+    }),
+  );
+
+  // The username: remembered, with their head so they can see it's the right account.
+  const nameInput = root.querySelector<HTMLInputElement>("#mc-name")!;
+  const head = $<HTMLImageElement>("head");
+  let headTimer = 0;
+  const showHead = () => {
+    const name = nameInput.value.trim();
+    clearTimeout(headTimer);
+    headTimer = window.setTimeout(() => {
+      head.hidden = !NAME.test(name);
+      if (!head.hidden) head.src = `https://mc-heads.net/avatar/${encodeURIComponent(name)}/44`;
+    }, 350);
+  };
+  nameInput.value = localStorage.getItem("mw-username") ?? "";
+  showHead();
+  nameInput.addEventListener("input", showHead);
+  head.addEventListener("error", () => (head.hidden = true));
+
+  // Checkout: through Tebex once the store is connected.
+  const form = $<HTMLFormElement>("checkout");
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    errorBox.hidden = true;
+    const data = new FormData(form);
+    const username = String(data.get("username") ?? "").trim();
+    if (!NAME.test(username)) {
+      showError("That doesn't look like a Minecraft username.");
+      return;
+    }
+    localStorage.setItem("mw-username", username);
+    if (!token || !live) {
+      showError("The store opens with the server. Your cart will still be here.");
+      return;
+    }
+    const ids = cart();
+    const missing = ids.filter((id) => !live!.idents.has(byId.get(id)!.name));
+    if (missing.length) {
+      showError(`${missing.map((id) => byId.get(id)!.name).join(", ")} can't be bought right now. Remove it to check out.`);
+      return;
+    }
+    const pay = $<HTMLButtonElement>("pay");
+    pay.disabled = true;
+    try {
+      await checkout(token, username, ids.map((id) => live!.idents.get(byId.get(id)!.name)!), String(data.get("creator") ?? "").trim());
+    } catch (e) {
+      showError((e as Error).message);
+      pay.disabled = false;
+    }
+  });
+
+  const params = new URLSearchParams(location.search);
+  if (params.get("thanks")) {
+    write([]);
+    $("thanks").hidden = false;
+  }
+
+  render();
+  if (token) {
+    loadLive(token).then(
+      (loaded) => {
+        live = loaded;
+        currency = loaded.currency;
+        $$("price").forEach((el) => {
+          const name = byId.get(el.dataset.price!)!.name;
+          el.textContent = loaded.prices.has(name) ? format(loaded.prices.get(name)!) : "Unavailable";
+        });
+        render();
+        // Back from Tebex's sign-in: on to payment.
+        const basket = params.get("checkout");
+        if (basket) toPayment(token, basket).catch((e) => showError((e as Error).message));
+      },
+      () => showError("Couldn't reach the store just now. Try again in a minute."),
+    );
+  }
+</script>
+
 <style>
-  .cats {
+  [hidden] {
+    display: none !important;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-top: var(--s-5);
+  }
+
+  .sub {
+    max-width: 34rem;
+    color: var(--muted);
+  }
+
+  /* ---------------------------------------------------------------- store nav */
+
+  /* Sticks just under the site's fixed header (65px). */
+  .store-nav {
+    position: sticky;
+    top: calc(4rem + 1px);
+    z-index: 15;
+    border-bottom: 2px solid var(--rule);
+    background: color-mix(in srgb, var(--dusk) 92%, transparent);
+    backdrop-filter: blur(8px);
+  }
+
+  .nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    min-height: 3.5rem;
+  }
+
+  .store-nav ul {
+    display: flex;
+    gap: var(--s-1);
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    list-style: none;
+    scrollbar-width: none;
+  }
+
+  .store-nav a {
+    display: block;
+    padding: var(--s-2) var(--s-4);
+    border-radius: 999px;
+    color: var(--muted);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .store-nav a:hover {
+    color: var(--text);
+  }
+
+  .store-nav a[aria-current] {
+    background: color-mix(in srgb, var(--orange) 18%, var(--raised));
+    color: var(--text);
+  }
+
+  /* ---------------------------------------------------------------- trust strip */
+
+  .trust {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
     gap: var(--s-4);
     margin-top: var(--s-6);
+  }
+
+  .trust ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-3) var(--s-6);
+    padding: var(--s-4) var(--s-5);
+    border: 2px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--raised);
+    list-style: none;
+  }
+
+  .trust li {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-weight: 600;
+  }
+
+  .trust li :global(svg) {
+    width: 1.2rem;
+    height: 1.2rem;
+    color: var(--orange);
+  }
+
+  .banner {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-4) var(--s-5);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--green) 18%, var(--raised));
+    font-weight: 600;
+  }
+
+  .banner :global(svg) {
+    color: var(--green);
+  }
+
+  /* ---------------------------------------------------------------- ranks */
+
+  /* Section links land below both bars. */
+  section[id] {
+    scroll-margin-top: 8.5rem;
+  }
+
+  .ranks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--s-4);
     padding: 0;
     list-style: none;
   }
 
-  .cat {
+  .rank {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-6) var(--s-5);
+    border-top: 4px solid var(--rank);
+    text-align: center;
+  }
+
+  .rank.featured {
+    border-color: var(--rank);
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--rank) 50%, transparent),
+      0 14px 40px color-mix(in srgb, var(--rank) 25%, transparent);
+  }
+
+  .ribbon {
+    position: absolute;
+    top: -0.9rem;
+    padding: 0.1rem var(--s-3);
+    border-radius: 6px;
+    background: var(--rank);
+    color: var(--ink);
+    font-size: 1.15rem;
+  }
+
+  .icon {
+    image-rendering: pixelated;
+  }
+
+  .rank h3 {
+    font-size: 2rem;
+    color: var(--rank);
+    text-shadow: 0 3px 0 color-mix(in srgb, black 45%, transparent);
+  }
+
+  .price {
+    font-family: var(--display);
+    font-size: 1.75rem;
+    color: var(--sand);
+  }
+
+  .worth {
+    margin-top: calc(-1 * var(--s-2));
+    padding: 0.15rem var(--s-3);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--rank) 16%, transparent);
+    color: var(--text);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .worth.muted {
+    background: transparent;
+    color: var(--muted);
+  }
+
+  .blurb {
+    min-height: 3em;
+    color: var(--muted);
+  }
+
+  .perks {
+    display: grid;
+    gap: var(--s-2);
+    width: 100%;
+    margin: var(--s-2) 0 var(--s-4);
+    padding: 0;
+    list-style: none;
+    text-align: left;
+  }
+
+  .perks li {
+    display: flex;
+    gap: var(--s-2);
+    font-size: 0.95rem;
+  }
+
+  .perks :global(svg) {
+    flex: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.15rem;
+    color: var(--rank);
+  }
+
+  .rank .add {
+    width: 100%;
+    margin-top: auto;
+  }
+
+  .add[aria-pressed="true"] {
+    filter: saturate(0.4) brightness(0.9);
+  }
+
+  /* ---------------------------------------------------------------- compare */
+
+  .compare {
+    margin-top: var(--s-5);
+  }
+
+  .compare summary {
+    padding: var(--s-4) var(--s-5);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    min-width: 40rem;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: var(--s-3) var(--s-4);
+    border-top: 1px solid var(--rule);
+    text-align: center;
+  }
+
+  thead th {
+    font-family: var(--display);
+    font-size: 1.25rem;
+    color: var(--rank, var(--text));
+  }
+
+  thead th:first-child,
+  tbody th {
+    text-align: left;
+  }
+
+  tbody th {
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .price-row td {
+    font-family: var(--display);
+    color: var(--sand);
+  }
+
+  td :global(.yes) {
+    color: var(--green);
+  }
+
+  td :global(.no) {
+    color: color-mix(in srgb, var(--muted) 50%, transparent);
+  }
+
+  /* ---------------------------------------------------------------- cosmetics */
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin-bottom: var(--s-5);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    padding: var(--s-2) var(--s-4);
+    border: 2px solid var(--rule);
+    border-radius: 999px;
+    background: var(--raised);
+    color: var(--muted);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .chip .n {
+    color: color-mix(in srgb, var(--muted) 70%, transparent);
+    font-size: 0.85em;
+  }
+
+  .chip[aria-pressed="true"] {
+    border-color: var(--orange);
+    color: var(--text);
+    background: color-mix(in srgb, var(--orange) 18%, var(--raised));
+  }
+
+  .items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+    gap: var(--s-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .item {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    align-items: start;
+    column-gap: var(--s-4);
+    row-gap: var(--s-3);
     padding: var(--s-5);
   }
 
-  .cat :global(svg) {
-    width: 2rem;
-    height: 2rem;
+  .item h3 {
+    font-size: 1.25rem;
+  }
+
+  .item-copy p {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .included {
+    display: inline-block;
+    margin-top: var(--s-2);
+    padding: 0.1rem var(--s-2);
+    border-left: 3px solid var(--rank);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--rank) 12%, transparent);
+    color: var(--text) !important;
+    font-size: 0.8rem !important;
+    font-weight: 600;
+  }
+
+  /* Price and button on one row under the text, so the text has the card's width. */
+  .item-buy {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+    margin-top: auto;
+  }
+
+  .item .price {
+    font-size: 1.25rem;
+  }
+
+  .button.small {
+    min-height: 2.5rem;
+    padding: 0 var(--s-4);
+    font-size: 1rem;
+  }
+
+  /* ---------------------------------------------------------------- never, faq */
+
+  .never {
+    margin-top: var(--s-5);
+    padding: var(--s-5) var(--s-6);
+  }
+
+  .never h3 {
+    font-size: 1.5rem;
     color: var(--orange);
   }
 
-  h2 {
-    margin-top: var(--s-3);
-    font-size: 1.5rem;
-  }
-
-  .cat p,
   .never p {
     margin-top: var(--s-2);
     color: var(--muted);
   }
 
-  .never {
-    margin-top: var(--s-4);
-    padding: var(--s-6);
-    border-left: 5px solid var(--red);
+  .never ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-5);
+    margin-top: var(--s-3);
+    padding: 0;
+    list-style: none;
   }
 
-  .never h2 {
-    margin-top: 0;
+  .never li {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-weight: 600;
+  }
+
+  .never li :global(svg) {
+    color: #ff3333;
+  }
+
+  .faq {
+    display: grid;
+    gap: var(--s-3);
+    max-width: 52rem;
+  }
+
+  .faq details {
+    padding: var(--s-4) var(--s-5);
+  }
+
+  .faq summary {
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .faq details p {
+    margin-top: var(--s-3);
+    color: var(--muted);
+  }
+
+  .small {
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  /* ---------------------------------------------------------------- toast and floating cart */
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: var(--s-5);
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-3) var(--s-3) var(--s-3) var(--s-4);
+    border: 2px solid var(--rule);
+    border-radius: 14px;
+    background: var(--raised-2);
+    box-shadow: 0 12px 34px color-mix(in srgb, black 55%, transparent);
+    transform: translateX(-50%);
+  }
+
+  .toast.show {
+    animation: rise 220ms var(--ease);
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translate(-50%, 12px);
+    }
+  }
+
+  .toast img {
+    image-rendering: pixelated;
+  }
+
+  .cart-button {
+    position: fixed;
+    right: var(--s-5);
+    bottom: var(--s-5);
+    z-index: 20;
+    box-shadow: 0 10px 30px color-mix(in srgb, black 50%, transparent);
+  }
+
+  .count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.6rem;
+    padding: 0 0.3rem;
+    border-radius: 6px;
+    background: var(--ink);
+    color: var(--orange);
+    font-size: 1.15rem;
+  }
+
+  /* ---------------------------------------------------------------- cart */
+
+  /* .panel sets position: relative, which would drop the dialog into the page's flow. */
+  .cart {
+    position: fixed;
+    inset: 0;
+    width: min(30rem, 100% - 2rem);
+    max-height: min(46rem, 100% - 2rem);
+    margin: auto;
+    padding: var(--s-6);
+    color: var(--text);
+  }
+
+  .cart::backdrop {
+    background: color-mix(in srgb, var(--dusk) 75%, transparent);
+  }
+
+  .cart-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cart h2 {
+    font-size: 1.75rem;
+  }
+
+  .close,
+  .remove {
+    display: grid;
+    place-items: center;
+    padding: var(--s-2);
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .close:hover,
+  .remove:hover {
+    color: var(--text);
+    background: var(--raised-2);
+  }
+
+  .empty {
+    margin-top: var(--s-4);
+    color: var(--muted);
+  }
+
+  .lines {
+    display: grid;
+    gap: var(--s-2);
+    margin: var(--s-4) 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lines li {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-2) var(--s-3);
+    border-radius: 10px;
+    background: var(--raised);
+  }
+
+  .lines li.covered {
+    outline: 2px solid color-mix(in srgb, var(--orange) 60%, transparent);
+  }
+
+  .lines img,
+  .advice img {
+    image-rendering: pixelated;
+  }
+
+  .line-name {
+    display: grid;
+    font-weight: 600;
+  }
+
+  .line-name small {
+    color: var(--orange);
+    font-weight: 500;
+  }
+
+  .line-price {
+    color: var(--sand);
+    font-family: var(--display);
+  }
+
+  .advice {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    align-items: center;
+    gap: var(--s-2) var(--s-3);
+    margin-bottom: var(--s-4);
+    padding: var(--s-3) var(--s-4);
+    border: 2px dashed color-mix(in srgb, var(--orange) 55%, var(--rule));
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--orange) 8%, transparent);
+  }
+
+  .advice p {
+    font-size: 0.95rem;
+  }
+
+  .advice button {
+    grid-column: 1 / -1;
+    color: var(--ink);
+  }
+
+  .checkout {
+    display: grid;
+    gap: var(--s-2);
+  }
+
+  .total {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--s-3);
+    font-size: 1.15rem;
+  }
+
+  .total strong {
+    font-family: var(--display);
+    color: var(--sand);
+  }
+
+  .checkout label {
+    margin-top: var(--s-2);
+    font-weight: 600;
+  }
+
+  .who {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+  }
+
+  .who img {
+    flex: none;
+    border-radius: 8px;
+    image-rendering: pixelated;
+  }
+
+  .creator summary {
+    color: var(--muted);
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .creator .input {
+    margin-top: var(--s-2);
+    width: 100%;
+  }
+
+  .hint {
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+
+  .hint.center {
+    text-align: center;
+  }
+
+  .error {
+    padding: var(--s-3);
+    border-radius: 10px;
+    background: color-mix(in srgb, #ff3333 15%, transparent);
+  }
+
+  .pay {
+    margin-top: var(--s-3);
+  }
+
+  @media (max-width: 40rem) {
+    .store-nav a {
+      padding: var(--s-2) var(--s-3);
+    }
+
+    .cart-button {
+      right: var(--s-3);
+      bottom: var(--s-3);
+    }
+
+    /* Above the cart button, full width. */
+    .toast {
+      left: var(--s-3);
+      right: var(--s-3);
+      bottom: 5rem;
+      transform: none;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .item {
+      grid-template-columns: 48px minmax(0, 1fr);
+    }
+
+    .item .icon {
+      width: 48px;
+      height: 48px;
+    }
+
+    .item-buy {
+      grid-column: 1 / -1;
+    }
   }
 </style>
