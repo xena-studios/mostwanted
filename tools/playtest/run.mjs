@@ -515,6 +515,13 @@ const scenarios = {
     await tp("Inmate1", -19.5, -60, 9.5);
     await tp("Inmate2", -18.5, -60, 9.5);
     await sleep(600);
+    // Before the riot, the same hit as below does nothing: it goes through the combat rules.
+    await tp("Guard1", -10.5, -60, -3.5);
+    await heal("Guard1");
+    server.cmd("damage Guard1 2 minecraft:player_attack by Inmate1");
+    await sleep(800);
+    expect(bots.Guard1.health >= 20, "an inmate hurt a guard with no riot on");
+
     // Right-click with something in hand, as a player pressing the alarm would.
     for (const name of ["Inmate1", "Inmate2"]) {
       server.cmd(`give ${name} minecraft:stick`);
@@ -531,10 +538,13 @@ const scenarios = {
     await tp("Inmate1", -9.5, -60, -3.5);
     await heal("Guard1");
     await sleep(800);
-    const guard = bots.Inmate1.players.Guard1?.entity;
-    await bots.Inmate1.lookAt(guard.position.offset(0, 1.6, 0), true);
-    bots.Inmate1.attack(guard);
-    await until("Guard1 to take damage in the riot", () => bots.Guard1.health < 20, 3000);
+    // The hit comes from the server's /damage, as Inmate1: it goes through the same
+    // combat rules as a punch, without depending on the bot's swing landing.
+    await until("Guard1 to take damage in the riot", async () => {
+      server.cmd("damage Guard1 2 minecraft:player_attack by Inmate1");
+      await sleep(400);
+      return bots.Guard1.health < 20;
+    }, 3000);
   },
 
   async duty({ server, bots, tp }) {
