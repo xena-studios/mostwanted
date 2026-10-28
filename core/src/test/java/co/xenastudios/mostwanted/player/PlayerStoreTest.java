@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import co.xenastudios.mostwanted.common.Database;
 import co.xenastudios.mostwanted.common.DatabaseConfig;
+import co.xenastudios.mostwanted.common.Stat;
 import co.xenastudios.mostwanted.storage.Storage;
 import java.time.Clock;
 import java.time.ZoneId;

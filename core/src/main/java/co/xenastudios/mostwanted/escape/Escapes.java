@@ -1,9 +1,9 @@
 package co.xenastudios.mostwanted.escape;
 
+import co.xenastudios.mostwanted.common.Stat;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerState;
 import co.xenastudios.mostwanted.player.Role;
-import co.xenastudios.mostwanted.player.Stat;
 import co.xenastudios.mostwanted.storage.GameLog;
 import co.xenastudios.mostwanted.zone.Zone;
 import co.xenastudios.mostwanted.zone.ZoneKind;

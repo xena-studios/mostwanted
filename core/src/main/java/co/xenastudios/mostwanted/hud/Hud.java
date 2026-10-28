@@ -1,11 +1,11 @@
 package co.xenastudios.mostwanted.hud;
 
+import co.xenastudios.mostwanted.common.Stat;
+import co.xenastudios.mostwanted.common.style.Money;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerState;
 import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.player.Role;
-import co.xenastudios.mostwanted.player.Stat;
-import co.xenastudios.mostwanted.common.style.Money;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
