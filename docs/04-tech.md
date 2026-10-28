@@ -8,7 +8,7 @@ Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserM
 | --- | --- |
 | Minecraft version | **26.3** |
 | Game server | **Leaf 26.3** (Paper fork, Java 25), standalone, no proxy. Paper is the fallback |
-| Hosting | **OVH US VPS-3** (US East): 6 vCores, 12 GB RAM, 100 GB NVMe. Managed with [Raptor](https://github.com/xena-studios/raptor) |
+| Hosting | **netcup RS 2000** (Manassas, US East): 8 dedicated cores, 16 GB RAM, 256 GB NVMe. Managed with [Raptor](https://github.com/xena-studios/raptor) |
 | Front door | **[Minehut External Server](https://support.minehut.com/hc/en-us/articles/33252734474899-How-to-Setup-a-Minehut-External-Hosted-Server)**: players join through Minehut's network |
 | Bedrock | **Minehut** handles it (their built-in Geyser) |
 | Database | **PostgreSQL** (small, on the same VPS) |
@@ -19,7 +19,7 @@ Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserM
 
 ```
 Java players ─────┐
-                  ├──▶ Minehut network ──────────────▶ OVH VPS-3 (US East, Raptor)
+                  ├──▶ Minehut network ──────────────▶ netcup RS 2000 (US East, Raptor)
 Bedrock players ──┘    (Geyser, DDoS protection,        └─ Leaf 26.3 game server
                         server list, hides our IP)       └─ PostgreSQL
 ```
@@ -52,28 +52,27 @@ Bedrock players ──┘    (Geyser, DDoS protection,        └─ Leaf 26.3 g
 - Don't tell players to leave Minehut and join our IP directly.
 - One Minehut listing per game server.
 
-## Hosting: OVH US VPS-3
+## Hosting: netcup RS 2000
 
-6 vCores (shared), 12 GB RAM, 100 GB NVMe, 2 Gbps unmetered, daily backups. Ordered 2026-10-25.
+8 **dedicated** AMD EPYC cores, 16 GB RAM, 256 GB NVMe, in Manassas, Virginia (US East). Ordered 2026-10-28, on a 12-month term. OVH's VPS-3 was the first pick (2026-10-25), but OVH had nothing above VPS-1 in stock in any region.
 
-**Fitting it in 12 GB:**
-- Leaf game server: **8 GB heap** (`-Xms` = `-Xmx`, Paper's recommended flags), plus ~1–1.5 GB Java uses outside the heap
-- PostgreSQL: ~0.5–1 GB (keep `shared_buffers` small)
+**Fitting it in 16 GB:**
+- Leaf game server: **10 GB heap** (`-Xms` = `-Xmx`, Paper's recommended flags), plus ~1–1.5 GB Java uses outside the heap: 11.5 GB in Raptor
+- PostgreSQL: ~1 GB (`shared_buffers` 512 MB)
 - OS + Raptor: ~1–1.5 GB
-- backend (website API + Discord bot): ~0.4 GB
-- **Staging runs on your own PC**, not the VPS.
+- backend (website API + Discord bot): ~0.5 GB in Raptor (256 MB heap)
+- What's left (~1.5 GB) is the system's file cache. **Staging runs on your own PC**, not the VPS.
 
-**What to expect:** shared cores, so single-core speed is the limit. Rough guess: **~15–30 players**. Fine for building, testing and launch. Run spark during the first playtest.
+**What to expect:** dedicated cores, so no neighbour slows us down, but EPYC cores clock lower than a desktop Ryzen, and Minecraft's main thread is one core. Rough guess: **~20–40 players**. Run spark during the first playtest.
 
 **Upgrade path** (when we're regularly at ~20–25 players, or MSPT stays above ~40 at peak). Restore the backups on the new box and update the IP in Minehut's External settings. Players don't notice.
 
 | Next | Server | Specs | Price |
 | --- | --- | --- | --- |
-| 1 | OVH VPS-4 | 8 vCores, 24 GB | ~$27.50/mo |
-| 2 | OVH KS-GAME (dedicated) | i7-7700K, 32 GB | $32.10/mo + setup |
-| 3 | OVH RISE-S (dedicated) | Ryzen 7 9700X, 64 GB DDR5 | $77/mo + setup |
+| 1 | netcup RS 4000 | 12 dedicated cores, 32 GB | check netcup |
+| 2 | OVH RISE-S (dedicated) | Ryzen 7 9700X, 64 GB DDR5: much faster per core | ~$77/mo + setup |
 
-Prices checked 2026-10-25. A DDR5/NVMe shortage has pushed many hosts' 2026 prices up a lot, so re-check before upgrading.
+Prices checked 2026-10-25 and 2026-10-28. A DDR5/NVMe shortage has pushed many hosts' 2026 prices up a lot, so re-check before upgrading.
 
 ## Server software: Leaf
 
@@ -210,12 +209,12 @@ Decided 2026-10-26. **Java, like `core`**, so the game, the API and the bot shar
 - **Minehut External confirmed** before anything else (see the ⚠️ above).
 - **Mojang EULA + Minehut rules.** Real-money store = cosmetics only, no gameplay advantages. No gambling mechanics in-game.
 - **Staff tools.** Punishments (LibertyBans), anti-cheat alerts (Grim), block logs (CoreProtect), and reports. Guards are players with power over others, so staff need to be able to review guard abuse too. Minehut staff can't moderate external servers for us.
-- **Backups and a recovery drill.** Raptor's backup system for the world files and nightly PostgreSQL dumps, with a copy kept off the VPS, plus OVH's daily backup. Actually test restoring one.
+- **Backups and a recovery drill.** Raptor's backup system for the world files and nightly PostgreSQL dumps, with a copy kept off the VPS, plus netcup snapshots. Actually test restoring one.
 - **Monitoring.** spark for lag spikes; the bot alerts 🔒│admin when the game, API or database goes down or the server lags.
 - **Before launch** (the step-by-step is [launch](12-launch.md)):
   - Terms and Privacy pages, and a "delete my account" button (collect as little as possible: many players are kids).
   - VPS hardening: SSH keys only, no root login, automatic security updates, PostgreSQL only on localhost, `.env` files readable only by their service, firewall (the API from Cloudflare only, 25565 from Minehut only). Scripted in [`server/setup/`](../server/setup/): `provision.sh`, `firewall.sh`, `backup-db.sh`.
-  - 2FA on Cloudflare, GitHub, OVH, Discord, Tebex and Minehut.
+  - 2FA on Cloudflare, GitHub, netcup, Discord, Tebex and Minehut.
   - `support@mostwantedmc.com` through Cloudflare Email Routing.
   - A 100-bot stress test (the VPS estimate is 15–30 players; the server has 100 slots).
 

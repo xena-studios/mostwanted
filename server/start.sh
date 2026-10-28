@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # Starts the MostWanted game server. install.sh copies this next to server.jar.
 #
-#   MEMORY=8G ./start.sh
+#   MEMORY=10G ./start.sh
 #
-# MEMORY is the Java heap (default 8G: Java needs another ~1.5 GB outside it, and
-# PostgreSQL, Raptor and the bot share the 12 GB VPS; see docs/04-tech.md).
+# MEMORY is the Java heap (default 10G: Java needs another ~1.5 GB outside it, and
+# PostgreSQL, Raptor and the bot share the 16 GB server; see docs/04-tech.md).
 # The flags are Paper's recommended G1 set, plus Minehut's: players join through
 # Minehut's network, so the server checks logins with Minehut's session server
 # (https://support.minehut.com/hc/en-us/articles/33252734474899).
 set -euo pipefail
 cd "$(dirname "$0")"
 
-memory=${MEMORY:-8G}
+memory=${MEMORY:-10G}
 
 exec java \
   -Xms"$memory" -Xmx"$memory" \
