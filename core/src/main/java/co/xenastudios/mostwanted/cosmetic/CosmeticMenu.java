@@ -144,8 +144,8 @@ public final class CosmeticMenu {
         }
         menus.back(menu, home);
         menus.close(menu);
-        menu.set(menu.bottom() + 8, menus.item(Material.EMERALD, messages.get("menu.store.name"),
-                Menus.sections(menus.lore("menu.store"), List.of(menus.click("open")))),
+        menu.set(menu.bottom() + 8, Menus.icon(menus.item(Material.EMERALD, messages.get("menu.store.name"),
+                Menus.sections(menus.lore("menu.store"), List.of(menus.click("open")))), "store"),
                 click -> store.accept(click.player()));
     }
 

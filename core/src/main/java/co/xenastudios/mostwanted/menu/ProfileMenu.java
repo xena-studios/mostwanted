@@ -141,8 +141,8 @@ public final class ProfileMenu {
         menus.back(menu, back);
         menus.close(menu);
         if (self) {
-            menu.set(menu.bottom() + 8, menus.item(Material.COMPARATOR, messages.get("menu.settings.name"),
-                    Menus.sections(menus.lore("menu.settings"), List.of(menus.click("open")))),
+            menu.set(menu.bottom() + 8, Menus.icon(menus.item(Material.COMPARATOR, messages.get("menu.settings.name"),
+                    Menus.sections(menus.lore("menu.settings"), List.of(menus.click("open")))), "settings"),
                     click -> settings.accept(click.player()));
         }
         menus.open(viewer, menu);

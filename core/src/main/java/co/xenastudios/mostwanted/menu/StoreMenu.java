@@ -74,8 +74,8 @@ public final class StoreMenu {
         place(menu, player, items, "support", SUPPORT_SLOTS);
         menus.back(menu, home);
         menus.close(menu);
-        menu.set(menu.bottom() + 8, menus.item(Material.EMERALD, messages.get("store-menu.website.name"),
-                Menus.sections(menus.lore("store-menu.website"), List.of(menus.click("link")))),
+        menu.set(menu.bottom() + 8, Menus.icon(menus.item(Material.EMERALD, messages.get("store-menu.website.name"),
+                Menus.sections(menus.lore("store-menu.website"), List.of(menus.click("link")))), "store"),
                 click -> link(click.player(), messages.get("store-menu.website.name"), catalog.storeLink()));
         menus.open(player, menu);
     }

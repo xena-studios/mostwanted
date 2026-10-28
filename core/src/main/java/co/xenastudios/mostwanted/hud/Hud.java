@@ -205,7 +205,8 @@ public final class Hud {
         Component footer = messages.get("tab.footer",
                 Messages.value("guards", counts.get(Role.GUARD)),
                 Messages.value("criminals", counts.get(Role.CRIMINAL)),
-                Messages.value("inmates", counts.get(Role.INMATE)));
+                Messages.value("inmates", counts.get(Role.INMATE)),
+                Messages.value("online", online));
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!tabSent.add(player.getUniqueId())) {
                 continue;
@@ -213,7 +214,8 @@ public final class Hud {
             Component header = messages.get("tab.header",
                     Messages.component("head", Component.object(ObjectContents.playerHead(player.getUniqueId()))),
                     Messages.value("player", player.getName()),
-                    Messages.value("online", online));
+                    Messages.component("role", store.get(player.getUniqueId())
+                            .map(state -> role(state.role())).orElse(Component.empty())));
             player.sendPlayerListHeaderAndFooter(header, footer);
         }
     }

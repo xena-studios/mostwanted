@@ -28,4 +28,8 @@
 - Store delivery without the Tebex plugin: core runs the commands Tebex queues (`store` in `config.yml`, key from `TEBEX_SECRET`), only those matching `allowed-commands`.
 - Menus for everything (docs/09-brand.md#menus): a menu item in the last hotbar slot and `/menu`, `/profile [name]`, `/settings` (public stats, scoreboard, server news and join announcements, saved with the player), `/leaderboards` (`/lb`) and `/store` (`/buy`), which shows the website's catalogue and links to its cart. The shop and `/cosmetics` look and work the same way, with Back and Close.
 - Notices from the website in chat (`✉`, a staff reply or an application decided), at once or as the player joins, and the guard rank given when a guard application is accepted on the website (LISTEN/NOTIFY, `rank_grants`).
+- Players only see and can run their own commands (`commands.allowed` in `config.yml`); `/plugins`, `/version` and `plugin:command` forms are refused like unknown commands. Staff have `mostwanted.commands.all`.
+- Staff commands: `/mw debug` (TPS, MSPT, memory, players, chunks, entities, a database round trip), `/mw tp <zone>`, `/mw release <player>`, `/mw save`.
+- The sidebar's icons are coloured and its clock has no "ET"; the tab list is redesigned; menu titles are capitals; the menu buttons have the resource pack's icons; the settings menu said "settings.on".
+- The player count is written for the Discord bot's status (`server_status`, V9).
 - Leaderboards in the world: `/mw board add <board> [all|month|week]` puts up floating text (a vanilla text display) where you stand, listing the top 10 from the website's boards, refreshed every minute. `/mw board remove` and `/mw board list`. Kept in `boards.yml`.

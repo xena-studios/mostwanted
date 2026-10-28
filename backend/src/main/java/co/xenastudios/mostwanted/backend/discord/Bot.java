@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
 import co.xenastudios.mostwanted.backend.accounts.LinkedRole;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
@@ -136,6 +138,11 @@ public final class Bot extends ListenerAdapter implements LinkedRole {
                 .flatMap(user -> user.openPrivateChannel())
                 .flatMap(channel -> channel.sendMessage(text))
                 .queue(sent -> { }, failed -> LOG.info("Couldn't DM {}: {}", discordId, failed.getMessage()));
+    }
+
+    /** The bot's custom status, and online (green) while the game server's up, idle (yellow) while it's down. */
+    public void status(String text, boolean serverUp) {
+        jda.getPresence().setPresence(serverUp ? OnlineStatus.ONLINE : OnlineStatus.IDLE, Activity.customStatus(text));
     }
 
     public boolean connected() {

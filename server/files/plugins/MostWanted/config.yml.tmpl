@@ -116,3 +116,40 @@ store:
   # The website: the store menu in game shows its catalogue (/store.json) and links
   # to its cart (/buy/<id>). Empty: the store menu shows nothing (for tests).
   website: https://mostwantedmc.com
+
+# What players can see and run (Paper's command list and tab completion): only these.
+# Everything else, plugin:command forms included, is hidden and refused like a command
+# that doesn't exist. Staff with mostwanted.commands.all (helpers and up, and ops) see
+# everything. Add a player command from a new plugin here.
+commands:
+  allowed:
+    - menu
+    - profile
+    - settings
+    - leaderboards
+    - lb
+    - store
+    - buy
+    - shop
+    - cosmetics
+    - joinmessage
+    - website
+    - stats
+    - duty
+    # zChat
+    - msg
+    - tell
+    - w
+    - whisper
+    - m
+    - pm
+    - reply
+    - r
+    - togglechat
+    - tc
+    # xUtilities' links
+    - rules
+    - wiki
+    - guide
+    - apply
+    - discord

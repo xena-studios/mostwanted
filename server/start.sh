@@ -38,6 +38,31 @@ while IFS= read -r -d '' template; do
   printf '%s\n' "$text" >"${template%.tmpl}"
 done < <(find . -name '*.tmpl' -not -path './.cache/*' -print0)
 
+# Players join through Minehut (MINEHUT=true, the default): the server takes only
+# connections that come with Minehut's PROXY header, and checks logins with
+# Minehut. MINEHUT=false (the egg's "Join through Minehut" on Raptor's Startup tab)
+# takes ordinary connections to the server's own address instead, for testing
+# before Minehut is set up. Never leave it off once Minehut is: anyone could
+# then join around Minehut, and Minehut's players couldn't join at all.
+minehut=${MINEHUT:-true}
+if [[ -f config/paper-global.yml ]]; then
+  # -i.bak, then removing it: the same on Linux's sed and a Mac's.
+  sed -i.bak "s/^  proxy-protocol: .*/  proxy-protocol: $minehut/" config/paper-global.yml
+  rm -f config/paper-global.yml.bak
+fi
+login=()
+if [[ $minehut == true ]]; then
+  login=(
+    -Dminecraft.api.services.host=https://api.minecraftservices.com/
+    -Dminecraft.api.auth.host=https://authserver.mojang.com/
+    -Dminecraft.api.account.host=https://api.mojang.com/
+    -Dminecraft.api.profiles.host=https://api.mojang.com/
+    -Dminecraft.api.session.host=https://api.minehut.com/mitm/proxy
+  )
+else
+  echo "MINEHUT=false: taking direct connections, not Minehut's. For testing only." >&2
+fi
+
 if [[ -n ${MEMORY:-} ]]; then
   memory=$MEMORY
 elif [[ -n ${SERVER_MEMORY:-} ]]; then
@@ -54,9 +79,7 @@ exec java \
   -XX:G1NewSizePercent=30 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:G1ReservePercent=20 \
   -XX:InitiatingHeapOccupancyPercent=15 -XX:MaxGCPauseMillis=200 -XX:MaxTenuringThreshold=1 \
   -XX:SurvivorRatio=32 \
-  -Dminecraft.api.services.host=https://api.minecraftservices.com/ \
-  -Dminecraft.api.auth.host=https://authserver.mojang.com/ \
-  -Dminecraft.api.account.host=https://api.mojang.com/ \
-  -Dminecraft.api.profiles.host=https://api.mojang.com/ \
-  -Dminecraft.api.session.host=https://api.minehut.com/mitm/proxy \
+  --sun-misc-unsafe-memory-access=allow \
+  -Dlog4j.configurationFile=log4j2.xml,log4j2-mostwanted.xml \
+  "${login[@]}" \
   -jar server.jar --nogui

@@ -46,6 +46,10 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
 | `/mw player <name>` | `mostwanted.admin` | An online player's role, cash, bank and bounty |
 | `/mw set <name> role <inmate\|criminal\|guard>` | `mostwanted.admin` | Changes their role |
 | `/mw set <name> cash\|bank\|bounty <amount>` | `mostwanted.admin` | Sets an amount |
+| `/mw debug` | `mostwanted.admin` | How the server's doing: TPS, MSPT, memory, uptime, players online and loaded, jailed, zones, chunks, entities, and a timed database round trip |
+| `/mw tp <zone>` | `mostwanted.admin` | Teleports you to a zone's spawn, or its middle |
+| `/mw release <name>` | `mostwanted.admin` | Ends their sentence now |
+| `/mw save` | `mostwanted.admin` | Saves every changed player now |
 | `/stats private` · `public` | everyone | Hides your stats from the website and Discord, or shows them again. In-game boards still show you. |
 | `/shop` | everyone | Opens the shop where you stand (hideout for criminals, armory for guards) |
 | `/website` | everyone | A one-time code (10 minutes) to sign in on mostwantedmc.com or link this Minecraft account. Typed, not clicked, so it works on Bedrock. |

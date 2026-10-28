@@ -98,7 +98,7 @@ public final class Shops {
             return;
         }
         int rows = Math.min(5, (shop.items().size() + 8) / 9) + 1;
-        Menu menu = menus.create(rows, "shop.title", Messages.value("name", shop.title()));
+        Menu menu = menus.create(rows, "shop.title", Messages.value("name", shop.title().toUpperCase(java.util.Locale.ROOT)));
         for (int i = 0; i < shop.items().size(); i++) {
             ShopSettings.Entry entry = shop.items().get(i);
             menu.set(i, display(entry), click -> buy(click.player(), click.menu(), shop, entry));

@@ -595,7 +595,7 @@ const scenarios = {
     const store = new Promise((r) => bots.Crim1.once("windowOpen", r));
     await bots.Crim1.clickWindow(2, 0, 0);
     const shown = await store;
-    expect(JSON.stringify(shown.title).includes("Store"), `a cosmetic they don't have opens the store: ${JSON.stringify(shown.title)}`);
+    expect(JSON.stringify(shown.title).includes("STORE"), `a cosmetic they don't have opens the store: ${JSON.stringify(shown.title)}`);
     bots.Crim1.closeWindow(bots.Crim1.currentWindow);
 
     // Guard1 is an op, so owns every cosmetic: pick the Cash Trail and a chat colour.
@@ -624,10 +624,10 @@ const scenarios = {
     // /menu, then Settings: turn the scoreboard off, and it's saved.
     let window = opened();
     bot.chat("/menu");
-    expect(title(await window).includes("MostWanted"), "the main menu opens");
+    expect(title(await window).includes("MENU"), "the main menu opens");
     window = opened();
     await bot.clickWindow(21, 0, 0);
-    expect(title(await window).includes("Settings"), "settings opens from the main menu");
+    expect(title(await window).includes("SETTINGS"), "settings opens from the main menu");
     await bot.clickWindow(12, 0, 0);
     const setting = () => sql("select show_scoreboard from mostwanted.players where name = 'Inmate1'").trim();
     await until("the scoreboard setting to be saved off", () => setting() === "f");
@@ -647,7 +647,7 @@ const scenarios = {
     // The store opens, and the leaderboards list every board.
     window = opened();
     bot.chat("/store");
-    expect(title(await window).includes("Store"), "the store menu opens");
+    expect(title(await window).includes("STORE"), "the store menu opens");
     bot.closeWindow(bot.currentWindow);
     window = opened();
     bot.chat("/leaderboards");

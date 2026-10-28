@@ -4,6 +4,7 @@ import co.xenastudios.mostwanted.backend.accounts.Accounts;
 import co.xenastudios.mostwanted.backend.accounts.DiscordOAuth;
 import co.xenastudios.mostwanted.backend.accounts.LinkedRole;
 import co.xenastudios.mostwanted.backend.discord.RankRoles;
+import co.xenastudios.mostwanted.backend.discord.ServerStatus;
 import co.xenastudios.mostwanted.backend.accounts.Sessions;
 import co.xenastudios.mostwanted.backend.api.AccountRoutes;
 import co.xenastudios.mostwanted.backend.api.Api;
@@ -72,6 +73,8 @@ public final class Backend {
         if (bot != null) {
             RankRoles roles = new RankRoles(accounts, stats, bot);
             Thread.ofVirtual().name("rank-roles").start(() -> every(Duration.ofMinutes(10), roles::sync));
+            ServerStatus status = new ServerStatus(database.sql(), bot, Clock.systemUTC());
+            Thread.ofVirtual().name("bot-status").start(() -> every(Duration.ofMinutes(1), status::update));
         }
         LOG.info("API listening on {}:{}", config.host(), api.port());
 
@@ -116,7 +119,7 @@ public final class Backend {
                 try {
                     task.run();
                 } catch (RuntimeException e) {
-                    LOG.warn("Discord role sync failed", e);
+                    LOG.warn("A Discord task failed", e);
                 }
                 Thread.sleep(gap);
             }

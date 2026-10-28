@@ -43,6 +43,16 @@
       "field_type": "text"
     },
     {
+      "name": "Join through Minehut",
+      "description": "true: players join through Minehut only (launch). false: direct connections to this server's address, for testing before Minehut is set up. Restart after changing it.",
+      "env_variable": "MINEHUT",
+      "default_value": "true",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|in:true,false",
+      "field_type": "text"
+    },
+    {
       "name": "Tebex secret key",
       "description": "The webstore's secret key, so the server delivers purchases (Tebex: Integrations → Game servers). \"none\" until the store is set up.",
       "env_variable": "TEBEX_SECRET",

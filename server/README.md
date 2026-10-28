@@ -14,7 +14,8 @@ files/                configs copied into the server; changes from the defaults 
   purpur.yml          no phantoms/patrols/traders, quieter logs
   spigot.yml          entity activation and tracking ranges, item merging, despawn rates
   bukkit.yml          low natural mob spawning, no End
-  plugins/            LuckPerms and LibertyBans (templates), Grim, ViaVersion, Fancy*, FAWE,
+  plugins/            LuckPerms and LibertyBans (templates), Grim, ViaVersion, Fancy* (and their
+                      FancyAnalytics upload, off), FAWE,
                       xUtilities and zChat in the message style
 setup/luckperms.txt   the ranks, run once in the console
 raptor/               the Raptor eggs for the game server and the API (import them on Raptor's Eggs page)
@@ -51,4 +52,4 @@ cp server/.env.example /tmp/mw/.env && sed -i '' 's/^LUCKPERMS_STORAGE=.*/LUCKPE
 server/install.sh /tmp/mw && server/test.sh /tmp/mw
 ```
 
-`test.sh` accepts the EULA in the folder you give it, so only point it at a test copy. It passes when every plugin enabled and none turned itself off. Expected noise in the log: ViaVersion saying there's nothing newer to translate yet, and `[FancyAnalytics] Failed to create event` from the Fancy plugins' statistics upload.
+`test.sh` accepts the EULA in the folder you give it, so only point it at a test copy. It passes when every plugin enabled and none turned itself off. Expected noise in the log: ViaVersion saying there's nothing newer to translate yet (until a newer Minecraft than the server's is out) and Paper's HAProxy reminder (Minehut's PROXY protocol). `files/log4j2-mostwanted.xml` quiets a few known-harmless warnings (Leaf's experimental tracker note, MineSkin without an API key, jOOQ's database version note, Flyway's schema notice) once Java starts with `-Dlog4j.configurationFile=log4j2.xml,log4j2-mostwanted.xml`. The Fancy plugins' statistics upload is off (`files/plugins/FancyAnalytics/config.json`).

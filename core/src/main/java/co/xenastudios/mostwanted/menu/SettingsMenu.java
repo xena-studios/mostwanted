@@ -64,12 +64,12 @@ public final class SettingsMenu {
             boolean on = state.on(setting);
             List<Component> lore = Menus.sections(
                     menus.lore("settings." + setting.key()),
-                    List.of(menus.messages().get(on ? "settings.on" : "settings.off")),
+                    List.of(menus.messages().get(on ? "settings.enabled" : "settings.disabled")),
                     List.of(menus.click(on ? "turn-off" : "turn-on")));
             ItemStack icon = menus.item(ICONS[i], menus.messages().get("settings." + setting.key() + ".name"), lore);
             icon.editMeta(meta -> meta.setEnchantmentGlintOverride(on));
             ItemStack pane = menus.item(on ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE,
-                    menus.messages().get(on ? "settings.on" : "settings.off"), List.of(menus.click(on ? "turn-off" : "turn-on")));
+                    menus.messages().get(on ? "settings.enabled" : "settings.disabled"), List.of(menus.click(on ? "turn-off" : "turn-on")));
             menu.set(SLOTS[i], icon, click -> flip(click, setting));
             menu.set(SLOTS[i] + 9, pane, click -> flip(click, setting));
         }

@@ -1,0 +1,6 @@
+{
+  "senderID": "mostwanted-analytics-off",
+  "sendMetrics": false,
+  "sendErrors": false,
+  "disableLogging": true
+}
