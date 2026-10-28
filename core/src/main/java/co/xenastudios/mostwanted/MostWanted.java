@@ -1,9 +1,9 @@
 package co.xenastudios.mostwanted;
 
 import co.xenastudios.mostwanted.arrest.Arrests;
+import co.xenastudios.mostwanted.arrest.Cuffing;
 import co.xenastudios.mostwanted.board.BoardCommand;
 import co.xenastudios.mostwanted.board.Leaderboards;
-import co.xenastudios.mostwanted.arrest.Cuffing;
 import co.xenastudios.mostwanted.combat.Combat;
 import co.xenastudios.mostwanted.common.Database;
 import co.xenastudios.mostwanted.config.Settings;
@@ -19,13 +19,21 @@ import co.xenastudios.mostwanted.escape.Walls;
 import co.xenastudios.mostwanted.gun.GiveCommand;
 import co.xenastudios.mostwanted.gun.GunSettings;
 import co.xenastudios.mostwanted.gun.Guns;
+import co.xenastudios.mostwanted.hud.Hud;
 import co.xenastudios.mostwanted.item.CustomItems;
 import co.xenastudios.mostwanted.item.Handcuffs;
-import co.xenastudios.mostwanted.hud.Hud;
+import co.xenastudios.mostwanted.menu.LeaderboardMenu;
+import co.xenastudios.mostwanted.menu.MainMenu;
+import co.xenastudios.mostwanted.menu.MenuItem;
+import co.xenastudios.mostwanted.menu.Menus;
+import co.xenastudios.mostwanted.menu.ProfileMenu;
+import co.xenastudios.mostwanted.menu.SettingsMenu;
+import co.xenastudios.mostwanted.menu.StoreMenu;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.pack.ResourcePack;
 import co.xenastudios.mostwanted.player.PlayerListener;
 import co.xenastudios.mostwanted.player.PlayerStore;
+import co.xenastudios.mostwanted.player.Profiles;
 import co.xenastudios.mostwanted.player.StatsCommand;
 import co.xenastudios.mostwanted.player.WebsiteCommand;
 import co.xenastudios.mostwanted.privacy.Cleanup;
@@ -34,10 +42,11 @@ import co.xenastudios.mostwanted.robbery.Robberies;
 import co.xenastudios.mostwanted.shop.ShopSettings;
 import co.xenastudios.mostwanted.shop.Shops;
 import co.xenastudios.mostwanted.storage.GameLog;
-import co.xenastudios.mostwanted.store.TebexQueue;
 import co.xenastudios.mostwanted.storage.Storage;
-import co.xenastudios.mostwanted.zone.ZoneCommand;
+import co.xenastudios.mostwanted.store.StoreCatalog;
+import co.xenastudios.mostwanted.store.TebexQueue;
 import co.xenastudios.mostwanted.zone.Spawns;
+import co.xenastudios.mostwanted.zone.ZoneCommand;
 import co.xenastudios.mostwanted.zone.ZoneNotices;
 import co.xenastudios.mostwanted.zone.ZoneStore;
 import co.xenastudios.mostwanted.zone.ZoneTracker;
@@ -49,6 +58,7 @@ import java.time.Clock;
 import java.util.List;
 import java.util.logging.Level;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -103,7 +113,7 @@ public final class MostWanted extends JavaPlugin {
         ZoneTracker tracker = new ZoneTracker(zones, players);
         zones.onChange(tracker::refreshAll);
         tracker.listen(new ZoneNotices(messages));
-        Escapes escapes = new Escapes(tracker, messages, gameLog);
+        Escapes escapes = new Escapes(tracker, players, messages, gameLog);
         tracker.listen(escapes);
         getServer().getPluginManager().registerEvents(tracker, this);
         getLogger().info("Loaded " + zones.all().size() + " zones");
@@ -126,18 +136,19 @@ public final class MostWanted extends JavaPlugin {
         gates = new Gates(zones, players, keycards, messages, gameLog, settings.escapes(), clock,
                 new File(getDataFolder(), "open-gates.yml"), getLogger());
         gates.restoreSaved();
+        Menus menus = new Menus(messages);
         CosmeticStore cosmeticStore = new CosmeticStore(storage);
         Cosmetics cosmetics = new Cosmetics(this, cosmeticStore, players, messages, gameLog, items);
         cosmetics.guns(guns);
-        CosmeticMenu cosmeticMenu = new CosmeticMenu(cosmetics, items, messages);
+        CosmeticMenu cosmeticMenu = new CosmeticMenu(cosmetics, items, menus);
         cosmeticMenu.guns(guns);
         escapes.onEscape(cosmetics::escaped);
         arrests.onArrestBy(cosmetics::arrested);
         hud.tags(cosmetics::tag);
         getServer().getScheduler().runTaskTimer(this, cosmetics::refreshRanks, 20 * 30, 20 * 30);
         getServer().getScheduler().runTaskTimer(this, cosmetics::applySkins, 40, 40);
-        Shops shops = new Shops(shopSettings, guns, players, tracker, messages, gameLog, clock);
-        for (var each : List.of(arrests, combat, duty, guns, shops, keycards, walls, gates, cosmetics, cosmeticMenu,
+        Shops shops = new Shops(shopSettings, guns, players, tracker, menus, gameLog, clock);
+        for (Listener each : List.of(arrests, combat, duty, guns, menus, keycards, walls, gates, cosmetics,
                 new Cuffing(players, combat, arrests, handcuffs, messages, settings.rules()))) {
             getServer().getPluginManager().registerEvents(each, this);
         }
@@ -177,6 +188,26 @@ public final class MostWanted extends JavaPlugin {
         StatsCommand stats = new StatsCommand(players, messages);
         WebsiteCommand website = new WebsiteCommand(storage, messages, this::onMainThread, clock);
 
+        // The menus (docs/09-brand.md#menus): the main menu, and everything it opens.
+        StoreCatalog catalog = new StoreCatalog(settings.store(), new File(getDataFolder(), "store-catalog.json"),
+                getLogger());
+        catalog.loadCached();
+        getServer().getScheduler().runTaskTimerAsynchronously(this, catalog::refresh, 20, 20 * 60 * 30);
+        Profiles profiles = new Profiles(this, storage, players, settings.zone(), clock);
+        MainMenu mainMenu = new MainMenu(menus, players);
+        SettingsMenu settingsMenu = new SettingsMenu(menus, players, hud, mainMenu::open);
+        ProfileMenu profileMenu = new ProfileMenu(menus, profiles, players, settings.zone(), mainMenu::open,
+                settingsMenu::open);
+        LeaderboardMenu leaderboardMenu = new LeaderboardMenu(menus, boards, profileMenu, mainMenu::open);
+        StoreMenu storeMenu = new StoreMenu(menus, catalog, cosmetics, mainMenu::open);
+        mainMenu.links(profileMenu, settingsMenu, shops, cosmeticMenu, storeMenu, leaderboardMenu, website);
+        shops.home(mainMenu::open);
+        cosmeticMenu.links(mainMenu::open, storeMenu::open);
+        MenuItem menuItem = new MenuItem(this, items, messages, mainMenu);
+        getServer().getPluginManager().registerEvents(menuItem, this);
+        // After a reload, those already online get theirs now.
+        getServer().getOnlinePlayers().forEach(menuItem::give);
+
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             event.registrar().register(
                     MostWantedCommand.create(this, players, messages, gameLog,
@@ -191,6 +222,11 @@ public final class MostWanted extends JavaPlugin {
             event.registrar().register(shops.command(), "Open the shop where you stand.");
             event.registrar().register(cosmeticMenu.command(), "Choose your trail, effects, gun skins and chat colour.");
             event.registrar().register(cosmeticMenu.joinMessageCommand(), "Set the message shown when you join.");
+            event.registrar().register(mainMenu.command(), "Open the menu: everything in one place.");
+            event.registrar().register(profileMenu.command(), "See your stats, or another player's.");
+            event.registrar().register(settingsMenu.command(), "Your privacy, scoreboard and chat settings.");
+            event.registrar().register(leaderboardMenu.command(), "The leaderboards.", List.of("lb"));
+            event.registrar().register(storeMenu.command(), "Ranks and cosmetics, on the website.", List.of("buy"));
         });
     }
 

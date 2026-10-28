@@ -6,8 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -17,7 +20,9 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 /**
@@ -103,6 +108,37 @@ public final class Messages {
 
     public void send(Audience to, String key, TagResolver... placeholders) {
         to.sendMessage(get(key, placeholders));
+    }
+
+    public boolean has(String key) {
+        return texts.containsKey(key);
+    }
+
+    /**
+     * The message as separate lines, split where it has a line break: item lore, which
+     * can't break lines itself. Each line is parsed on its own, so tags don't span lines.
+     */
+    public List<Component> lines(String key, TagResolver... placeholders) {
+        String text = texts.get(key);
+        if (text == null) {
+            return List.of(Component.text(key, NamedTextColor.RED));
+        }
+        List<Component> lines = new ArrayList<>();
+        for (String line : text.split("\n", -1)) {
+            lines.add(parse(line, placeholders));
+        }
+        return lines;
+    }
+
+    /** To the console and every online player {@code to} accepts: a broadcast players can turn off. */
+    public void broadcast(Predicate<Player> to, String key, TagResolver... placeholders) {
+        Component message = get(key, placeholders);
+        Bukkit.getConsoleSender().sendMessage(message);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (to.test(player)) {
+                player.sendMessage(message);
+            }
+        }
     }
 
     /** A placeholder whose value is shown exactly as given, never parsed as tags. */

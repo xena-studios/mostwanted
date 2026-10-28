@@ -2,6 +2,8 @@ package co.xenastudios.mostwanted.shop;
 
 import co.xenastudios.mostwanted.common.style.Money;
 import co.xenastudios.mostwanted.gun.Guns;
+import co.xenastudios.mostwanted.menu.Menu;
+import co.xenastudios.mostwanted.menu.Menus;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerState;
 import co.xenastudios.mostwanted.player.PlayerStore;
@@ -12,23 +14,15 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -36,7 +30,7 @@ import org.bukkit.inventory.ItemStack;
  * same on Java and Bedrock (no Floodgate forms: Minehut's Bedrock players don't have
  * Floodgate on our side). {@code /shop} opens the one for where you stand.
  */
-public final class Shops implements Listener {
+public final class Shops {
 
     private static final Sound BOUGHT = Sound.sound(Key.key("minecraft:entity.experience_orb.pickup"), Sound.Source.PLAYER, 1f, 1.2f);
     private static final Sound REFUSED = Sound.sound(Key.key("minecraft:block.note_block.bass"), Sound.Source.PLAYER, 1f, 0.7f);
@@ -48,32 +42,24 @@ public final class Shops implements Listener {
     private final Messages messages;
     private final GameLog gameLog;
     private final Clock clock;
+    private final Menus menus;
+    private Consumer<Player> home = Player::closeInventory;
 
-    public Shops(ShopSettings settings, Guns guns, PlayerStore players, ZoneTracker tracker, Messages messages,
+    public Shops(ShopSettings settings, Guns guns, PlayerStore players, ZoneTracker tracker, Menus menus,
             GameLog gameLog, Clock clock) {
         this.settings = settings;
         this.guns = guns;
         this.players = players;
         this.tracker = tracker;
-        this.messages = messages;
+        this.messages = menus.messages();
+        this.menus = menus;
         this.gameLog = gameLog;
         this.clock = clock;
     }
 
-    /** An open shop menu: which shop, so clicks know what they're buying. */
-    private static final class Menu implements InventoryHolder {
-
-        final ShopSettings.Shop shop;
-        Inventory inventory;
-
-        Menu(ShopSettings.Shop shop) {
-            this.shop = shop;
-        }
-
-        @Override
-        public Inventory getInventory() {
-            return inventory;
-        }
+    /** Where Back goes: the main menu. */
+    public void home(Consumer<Player> home) {
+        this.home = home;
     }
 
     public LiteralCommandNode<CommandSourceStack> command() {
@@ -87,6 +73,11 @@ public final class Shops implements Listener {
     }
 
     /** The shop for where they stand and who they are, if any. */
+    public ShopSettings.Shop shopFor(Player player) {
+        PlayerState state = players.get(player.getUniqueId()).orElse(null);
+        return state == null ? null : shopFor(player, state);
+    }
+
     ShopSettings.Shop shopFor(Player player, PlayerState state) {
         if (state.jailed(clock.instant())) {
             return null;
@@ -99,33 +90,31 @@ public final class Shops implements Listener {
         return null;
     }
 
-    private void open(Player player) {
+    public void open(Player player) {
         PlayerState state = players.get(player.getUniqueId()).orElse(null);
         ShopSettings.Shop shop = state == null ? null : shopFor(player, state);
         if (shop == null) {
             messages.send(player, "shop.none");
             return;
         }
-        Menu menu = new Menu(shop);
         int rows = Math.min(5, (shop.items().size() + 8) / 9) + 1;
-        menu.inventory = Bukkit.createInventory(menu, rows * 9, messages.get("shop.title", Messages.value("name", shop.title())));
+        Menu menu = menus.create(rows, "shop.title", Messages.value("name", shop.title()));
         for (int i = 0; i < shop.items().size(); i++) {
-            menu.inventory.setItem(i, display(shop.items().get(i)));
+            ShopSettings.Entry entry = shop.items().get(i);
+            menu.set(i, display(entry), click -> buy(click.player(), click.menu(), shop, entry));
         }
-        drawBalance(menu.inventory, state);
-        player.openInventory(menu.inventory);
+        menus.back(menu, home);
+        menus.close(menu);
+        drawBalance(menu, state);
+        menus.open(player, menu);
     }
 
     /** What's for sale, with its price underneath. */
     private ItemStack display(ShopSettings.Entry entry) {
         ItemStack item = goods(entry);
-        item.editMeta(meta -> {
-            List<Component> lore = new ArrayList<>(meta.hasLore() ? meta.lore() : List.of());
-            lore.add(Component.empty());
-            lore.add(messages.get("shop.price", Messages.value("price", Money.format(entry.price()))));
-            lore.add(messages.get("shop.click"));
-            meta.lore(lore);
-        });
+        item.editMeta(meta -> meta.lore(Menus.sections(meta.hasLore() ? meta.lore() : List.of(),
+                List.of(messages.get("shop.price", Messages.value("price", Money.format(entry.price())))),
+                List.of(menus.click("buy")))));
         return item;
     }
 
@@ -140,44 +129,16 @@ public final class Shops implements Listener {
         return ItemStack.of(Material.matchMaterial(entry.item()), entry.amount());
     }
 
-    private void drawBalance(Inventory inventory, PlayerState state) {
-        ItemStack balance = ItemStack.of(Material.GOLD_INGOT);
-        balance.editMeta(meta -> {
-            meta.itemName(messages.get("shop.balance"));
-            meta.lore(List.of(
-                    messages.get("hud.cash", Messages.value("amount", Money.format(state.cash()))),
-                    messages.get("hud.bank", Messages.value("amount", Money.format(state.bank())))));
-        });
-        inventory.setItem(inventory.getSize() - 1, balance);
+    private void drawBalance(Menu menu, PlayerState state) {
+        menu.set(menu.size() - 1, menus.item(Material.GOLD_INGOT, messages.get("shop.balance"), List.of(
+                messages.get("hud.cash", Messages.value("amount", Money.format(state.cash()))),
+                messages.get("hud.bank", Messages.value("amount", Money.format(state.bank()))))));
     }
 
-    @EventHandler
-    public void click(InventoryClickEvent event) {
-        if (!(event.getView().getTopInventory().getHolder(false) instanceof Menu menu)) {
-            return;
-        }
-        // Nothing moves in or out of a shop menu, whatever the click.
-        event.setCancelled(true);
-        if (!(event.getWhoClicked() instanceof Player player) || event.getClickedInventory() != menu.inventory) {
-            return;
-        }
-        int slot = event.getSlot();
-        if (slot >= 0 && slot < menu.shop.items().size()) {
-            buy(player, menu, menu.shop.items().get(slot));
-        }
-    }
-
-    @EventHandler
-    public void drag(InventoryDragEvent event) {
-        if (event.getView().getTopInventory().getHolder(false) instanceof Menu) {
-            event.setCancelled(true);
-        }
-    }
-
-    private void buy(Player player, Menu menu, ShopSettings.Entry entry) {
+    private void buy(Player player, Menu menu, ShopSettings.Shop shop, ShopSettings.Entry entry) {
         PlayerState state = players.get(player.getUniqueId()).orElse(null);
         // Checked again: they may have walked out, or been arrested, with the menu open.
-        if (state == null || shopFor(player, state) != menu.shop) {
+        if (state == null || shopFor(player, state) != shop) {
             player.closeInventory();
             messages.send(player, "shop.none");
             return;
@@ -201,12 +162,12 @@ public final class Shops implements Listener {
         }
         state.cash(state.cash() - payment.fromCash());
         state.bank(state.bank() - payment.fromBank());
-        gameLog.record("shop.buy", player.getUniqueId(), null, Map.of("shop", menu.shop.id(), "item", entry.item(),
+        gameLog.record("shop.buy", player.getUniqueId(), null, Map.of("shop", shop.id(), "item", entry.item(),
                 "amount", entry.amount(), "price", entry.price()));
         player.playSound(BOUGHT, Sound.Emitter.self());
         messages.send(player, "shop.bought", Messages.value("item", plain(goods)),
                 Messages.value("amount", entry.amount()), Messages.value("price", Money.format(entry.price())));
-        drawBalance(menu.inventory, state);
+        drawBalance(menu, state);
     }
 
     private void refuse(Player player, String key, TagResolver... values) {

@@ -98,7 +98,8 @@ The page is laid out to make buying easy and to show real value, without the tri
 
 Core reads the permissions above, so a purchase works the moment LuckPerms has it (ranks are checked again every 30 seconds, so nobody has to rejoin).
 
-- **`/cosmetics`** opens a menu: one row each for trails, escape effects, arrest effects, gun skins and chat colour. Click one you own to use it, again to take it off; ones you don't own say where to get them. Choices are saved in the database (`cosmetic_choices`).
+- **`/store`** (or `/buy`, or Store in the main menu) is the store as a menu: ranks, cosmetics and support, with the website's descriptions and prices and what you already have. It reads the website's own catalogue (`/store.json`, built from `catalog.ts`), so the two never disagree; core fetches it every 30 minutes and keeps a copy in `store-catalog.json`. Nothing is paid in game: clicking gives a link, **`mostwantedmc.com/buy/<id>`**, that opens the website's store with it in the cart and the cart open (short enough to type on Bedrock, where chat links can't be clicked). The prices shown are the catalogue's, so keep them the same as Tebex's.
+- **`/cosmetics`** opens a menu: one row each for trails, escape effects, arrest effects, gun skins and chat colour. Click one you own to use it, again to take it off; one you don't own opens the store menu. Choices are saved in the database (`cosmetic_choices`).
 - **Trails** puff behind you as you walk. **Escape effects** go off where you break out. **Arrest effects** are the guard's, shown on the criminal they arrest. Fireworks from cosmetics never hurt anyone.
 - **Gun skins** swap the look of that gun in your inventory, with the resource pack (`pack/README.md`). Same gun, same stats; someone who picks it up sees their own.
 - **Chat colours:** click to go through the palette's colours (right-click goes back), then off.

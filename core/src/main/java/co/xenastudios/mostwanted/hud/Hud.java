@@ -6,6 +6,7 @@ import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerState;
 import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.player.Role;
+import co.xenastudios.mostwanted.player.Setting;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -38,6 +39,7 @@ public final class Hud {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("MM/dd/yy");
     /** Bounty for each wanted star. Starting values: tune in playtests. */
     private static final long[] STARS = {1, 1_000, 5_000, 15_000, 50_000};
+    public static final int MAX_STARS = STARS.length;
 
     private final PlayerStore store;
     private final Messages messages;
@@ -76,9 +78,23 @@ public final class Hud {
     public void show(Player player) {
         Sidebar sidebar = new Sidebar(Bukkit.getScoreboardManager(), messages.get("hud.title"));
         sidebars.put(player.getUniqueId(), sidebar);
-        player.setScoreboard(sidebar.board());
-        store.get(player.getUniqueId()).ifPresent(PlayerState::markHudDirty);
+        scoreboard(player);
         tabChanged = true;
+    }
+
+    /** Shows or hides their sidebar, as their settings say: after a change, and as they join. */
+    public void scoreboard(Player player) {
+        Sidebar sidebar = sidebars.get(player.getUniqueId());
+        PlayerState state = store.get(player.getUniqueId()).orElse(null);
+        if (sidebar == null || state == null) {
+            return;
+        }
+        if (state.on(Setting.SCOREBOARD)) {
+            player.setScoreboard(sidebar.board());
+            state.markHudDirty();
+        } else {
+            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+        }
     }
 
     public void hide(Player player) {
@@ -113,6 +129,9 @@ public final class Hud {
                 player.playerListName(listName(state));
                 player.setPlayerListOrder(listOrder(state));
                 tabChanged = true;
+            }
+            if (!state.on(Setting.SCOREBOARD)) {
+                continue;
             }
             if (changed || clockChanged || liveChanged || newSecond && serving(state, now)) {
                 sidebar.lines(lines(state, now, lastLive));
@@ -229,7 +248,8 @@ public final class Hud {
         return state.jailedUntil() != null && state.jailedUntil().isAfter(now);
     }
 
-    static int stars(long bounty) {
+    /** How many wanted stars a bounty earns, out of {@link #MAX_STARS}. */
+    public static int stars(long bounty) {
         int stars = 0;
         for (long threshold : STARS) {
             if (bounty >= threshold) {

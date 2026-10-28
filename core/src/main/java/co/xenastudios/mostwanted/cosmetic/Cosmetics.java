@@ -6,6 +6,7 @@ import co.xenastudios.mostwanted.gun.Guns;
 import co.xenastudios.mostwanted.item.CustomItems;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerStore;
+import co.xenastudios.mostwanted.player.Setting;
 import co.xenastudios.mostwanted.storage.GameLog;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import java.util.HashMap;
@@ -167,10 +168,10 @@ public final class Cosmetics implements Listener {
         String custom = player.hasPermission("mostwanted.join-message")
                 ? store.get(player.getUniqueId(), "join-message") : null;
         if (custom != null) {
-            messages.send(Bukkit.getServer(), "rank.joined-message", Messages.component("rank", tag),
+            messages.broadcast(players.showing(Setting.JOINS), "rank.joined-message", Messages.component("rank", tag),
                     Messages.value("player", player.getName()), Messages.value("message", custom));
         } else {
-            messages.send(Bukkit.getServer(), "rank.joined", Messages.component("rank", tag),
+            messages.broadcast(players.showing(Setting.JOINS), "rank.joined", Messages.component("rank", tag),
                     Messages.value("player", player.getName()));
         }
     }

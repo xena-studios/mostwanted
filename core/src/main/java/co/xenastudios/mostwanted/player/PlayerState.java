@@ -26,6 +26,10 @@ public final class PlayerState {
     private long stashedBank;
     /** Hidden from the website, Discord and every leaderboard (/stats private). */
     private boolean statsPrivate;
+    /** The rest of the settings menu: see {@link Setting}. */
+    private boolean showScoreboard;
+    private boolean showBroadcasts;
+    private boolean showJoins;
     /** All-time totals, for the scoreboard. */
     private final Map<Stat, Long> totals;
     /** Added since the last save, for every period. */
@@ -34,7 +38,8 @@ public final class PlayerState {
     private boolean hudDirty = true;
 
     PlayerState(UUID uuid, String name, Role role, long cash, long bank, long bounty, Instant jailedUntil,
-            long stashedCash, long stashedBank, boolean statsPrivate, Map<Stat, Long> totals) {
+            long stashedCash, long stashedBank, boolean statsPrivate, boolean showScoreboard, boolean showBroadcasts,
+            boolean showJoins, Map<Stat, Long> totals) {
         this.uuid = uuid;
         this.name = name;
         this.role = role;
@@ -45,13 +50,16 @@ public final class PlayerState {
         this.stashedCash = stashedCash;
         this.stashedBank = stashedBank;
         this.statsPrivate = statsPrivate;
+        this.showScoreboard = showScoreboard;
+        this.showBroadcasts = showBroadcasts;
+        this.showJoins = showJoins;
         this.totals = new EnumMap<>(Stat.class);
         this.totals.putAll(totals);
     }
 
     /** A new player: an inmate with nothing. */
     static PlayerState fresh(UUID uuid, String name) {
-        return new PlayerState(uuid, name, Role.INMATE, 0, 0, 0, null, 0, 0, false, Map.of());
+        return new PlayerState(uuid, name, Role.INMATE, 0, 0, 0, null, 0, 0, false, true, true, true, Map.of());
     }
 
     public UUID uuid() { return uuid; }
@@ -67,6 +75,26 @@ public final class PlayerState {
 
     public void statsPrivate(boolean statsPrivate) {
         this.statsPrivate = statsPrivate;
+        changed();
+    }
+
+    /** Whether a setting is on (for {@link Setting#STATS}: whether their stats are public). */
+    public boolean on(Setting setting) {
+        return switch (setting) {
+            case STATS -> !statsPrivate;
+            case SCOREBOARD -> showScoreboard;
+            case BROADCASTS -> showBroadcasts;
+            case JOINS -> showJoins;
+        };
+    }
+
+    public void set(Setting setting, boolean on) {
+        switch (setting) {
+            case STATS -> statsPrivate = !on;
+            case SCOREBOARD -> showScoreboard = on;
+            case BROADCASTS -> showBroadcasts = on;
+            case JOINS -> showJoins = on;
+        }
         changed();
     }
 
@@ -138,6 +166,11 @@ public final class PlayerState {
 
     boolean dirty() { return dirty; }
 
+    /** Added to a stat since the last save: what the database doesn't have yet. */
+    long unsaved(Stat stat) {
+        return unsaved.getOrDefault(stat, 0L);
+    }
+
     /** Whether the scoreboard needs redrawing; clears the flag. */
     public boolean takeHudDirty() {
         boolean was = hudDirty;
@@ -152,7 +185,7 @@ public final class PlayerState {
     /** What to save, taken on the main thread; clears the dirty flag and the unsaved stats. */
     Snapshot snapshot() {
         Snapshot snapshot = new Snapshot(uuid, name, role, cash, bank, bounty, jailedUntil, stashedCash, stashedBank,
-                statsPrivate, Map.copyOf(unsaved));
+                statsPrivate, showScoreboard, showBroadcasts, showJoins, Map.copyOf(unsaved));
         unsaved.clear();
         dirty = false;
         return snapshot;
@@ -173,5 +206,6 @@ public final class PlayerState {
 
     /** An immutable copy of the state to write, safe to hand to another thread. */
     record Snapshot(UUID uuid, String name, Role role, long cash, long bank, long bounty, Instant jailedUntil,
-            long stashedCash, long stashedBank, boolean statsPrivate, Map<Stat, Long> stats) {}
+            long stashedCash, long stashedBank, boolean statsPrivate, boolean showScoreboard, boolean showBroadcasts,
+            boolean showJoins, Map<Stat, Long> stats) {}
 }

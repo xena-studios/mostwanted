@@ -8,6 +8,7 @@ import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerState;
 import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.player.Role;
+import co.xenastudios.mostwanted.player.Setting;
 import co.xenastudios.mostwanted.storage.GameLog;
 import co.xenastudios.mostwanted.zone.Zone;
 import co.xenastudios.mostwanted.zone.ZoneKind;
@@ -77,12 +78,12 @@ public final class Robberies {
             List<Player> robbers = robbing.getOrDefault(zone.name(), List.of());
             String place = settings.displayName(zone.name());
             switch (spot.step(now, !robbers.isEmpty(), config.time(), config.closed())) {
-                case OPENED -> messages.send(Bukkit.getServer(), "robbery.open", Messages.value("place", place));
+                case OPENED -> messages.broadcast(players.showing(Setting.BROADCASTS), "robbery.open", Messages.value("place", place));
                 case STARTED -> started(zone, place, robbers, config);
                 case FAILED -> {
                     hideBar(zone.name());
                     gameLog.record("robbery.failed", null, null, Map.of("place", zone.name()));
-                    messages.send(Bukkit.getServer(), "robbery.failed", Messages.value("place", place));
+                    messages.broadcast(players.showing(Setting.BROADCASTS), "robbery.failed", Messages.value("place", place));
                 }
                 case FINISHED -> {
                     hideBar(zone.name());
@@ -150,7 +151,7 @@ public final class Robberies {
         }
         gameLog.record("robbery.finished", robbers.getFirst().getUniqueId(), null, Map.of("place", zone.name(),
                 "robbers", robbers.size(), "total", total, "share", share, "bounty_each", config.bounty()));
-        messages.send(Bukkit.getServer(), "robbery.robbed", Messages.value("place", place));
+        messages.broadcast(players.showing(Setting.BROADCASTS), "robbery.robbed", Messages.value("place", place));
     }
 
     /** Criminals not serving a sentence, by the robbery zone they're in: one pass over the players. */

@@ -49,7 +49,8 @@ public final class WebsiteCommand {
                 .build();
     }
 
-    private void code(Player player) {
+    /** Makes them a sign-in code (from /website or the menu). */
+    public void code(Player player) {
         long now = clock.millis();
         Long last = lastCode.get(player.getUniqueId());
         if (last != null && now - last < COOLDOWN_MILLIS) {

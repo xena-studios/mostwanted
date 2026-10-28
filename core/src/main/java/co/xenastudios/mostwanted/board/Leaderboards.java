@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.kyori.adventure.text.Component;
@@ -37,7 +40,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
-import org.jooq.Record2;
+import org.jooq.Record3;
 
 /**
  * Leaderboards standing in the world: floating text (a vanilla text display, no
@@ -75,7 +78,7 @@ public final class Leaderboards implements Listener {
         }
     }
 
-    public record Line(String name, long value) {}
+    public record Line(UUID uuid, String name, long value) {}
 
     private final Plugin plugin;
     private final Storage storage;
@@ -88,6 +91,8 @@ public final class Leaderboards implements Listener {
     private final Map<String, Placed> placed = new HashMap<>();
     /** The latest top 10 for each board shown, by board and period. */
     private final Map<String, List<Line>> latest = new HashMap<>();
+    /** What the menu last read, by board and period; read and written off the main thread. */
+    private final Map<String, Read> reads = new ConcurrentHashMap<>();
 
     public Leaderboards(Plugin plugin, Storage storage, Messages messages, ZoneId zone, Clock clock, File file,
             Logger log) {
@@ -199,22 +204,50 @@ public final class Leaderboards implements Listener {
         });
     }
 
+    /**
+     * For the leaderboard menu: the top 10, read off the main thread at most once a
+     * minute per board. {@code then} runs on the main thread, with null if it couldn't be read.
+     */
+    public void read(Board board, Period period, Consumer<List<Line>> then) {
+        Period shown = board.stat() == null ? Period.ALL : period;
+        String key = cacheKey(board, shown);
+        Read cached = reads.get(key);
+        if (cached != null && cached.at().plusSeconds(60).isAfter(clock.instant())) {
+            then.accept(cached.lines());
+            return;
+        }
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            List<Line> lines;
+            try {
+                lines = top(board, shown);
+                reads.put(key, new Read(lines, clock.instant()));
+            } catch (RuntimeException e) {
+                log.log(Level.WARNING, "Couldn't read a leaderboard", e);
+                lines = null;
+            }
+            List<Line> result = lines;
+            Bukkit.getScheduler().runTask(plugin, () -> then.accept(result));
+        });
+    }
+
+    private record Read(List<Line> lines, Instant at) {}
+
     private static String cacheKey(Board board, Period period) {
         return board.id() + "/" + period.key();
     }
 
     /** The top 10. Blocks: off the main thread only. */
     List<Line> top(Board board, Period period) {
-        List<Record2<String, Long>> rows;
+        List<Record3<UUID, String, Long>> rows;
         if (board.stat() == null) {
-            rows = storage.sql().select(PLAYERS.NAME, PLAYERS.BOUNTY)
+            rows = storage.sql().select(PLAYERS.UUID, PLAYERS.NAME, PLAYERS.BOUNTY)
                     .from(PLAYERS)
                     .where(PLAYERS.BOUNTY.gt(0L)).and(PLAYERS.STATS_PRIVATE.isFalse())
                     .orderBy(PLAYERS.BOUNTY.desc(), PLAYERS.NAME)
                     .limit(SIZE)
                     .fetch();
         } else {
-            rows = storage.sql().select(PLAYERS.NAME, STATS.VALUE)
+            rows = storage.sql().select(PLAYERS.UUID, PLAYERS.NAME, STATS.VALUE)
                     .from(STATS).join(PLAYERS).on(PLAYERS.UUID.eq(STATS.UUID))
                     .where(STATS.STAT.eq(board.stat().key()))
                     .and(STATS.PERIOD.eq(periodKey(period)))
@@ -223,7 +256,7 @@ public final class Leaderboards implements Listener {
                     .limit(SIZE)
                     .fetch();
         }
-        return rows.stream().map(row -> new Line(row.value1(), row.value2())).toList();
+        return rows.stream().map(row -> new Line(row.value1(), row.value2(), row.value3())).toList();
     }
 
     private String periodKey(Period period) {

@@ -11,8 +11,15 @@ import org.bukkit.configuration.ConfigurationSection;
  * @param tebexSecret the webstore's secret key; empty or "none" switches delivery off
  * @param allowed patterns a delivered command must match in full. Anything else stays
  *     in the queue and is logged, so a leaked key can't run any console command it likes.
+ * @param website the website, whose store.json the store menu shows and whose /buy links it gives
  */
-public record StoreSettings(String tebexSecret, List<Pattern> allowed) {
+public record StoreSettings(String tebexSecret, List<Pattern> allowed, String website) {
+
+    public static final String WEBSITE = "https://mostwantedmc.com";
+
+    public StoreSettings(String tebexSecret, List<Pattern> allowed) {
+        this(tebexSecret, allowed, WEBSITE);
+    }
 
     private static final String NAME = "[A-Za-z0-9_.*]{1,32}";
     /** What the store's packages run (docs/11-store.md), and nothing more. */
@@ -28,7 +35,8 @@ public record StoreSettings(String tebexSecret, List<Pattern> allowed) {
         List<Pattern> allowed = section.isList("allowed-commands")
                 ? section.getStringList("allowed-commands").stream().map(Pattern::compile).toList()
                 : DEFAULT_ALLOWED;
-        return new StoreSettings(section.getString("tebex-secret", "").strip(), allowed);
+        return new StoreSettings(section.getString("tebex-secret", "").strip(), allowed,
+                section.getString("website", WEBSITE).strip().replaceFirst("/+$", ""));
     }
 
     public boolean enabled() {

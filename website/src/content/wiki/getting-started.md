@@ -22,6 +22,10 @@ On Java, the server sends you our **resource pack** as you join. It gives guns, 
 2. Look for a way out: a weak wall, a gate, the vents. Read [Escaping](/wiki/escaping).
 3. Once you're over the wall, you're a **criminal**. Rob places, then bank your cash at a hideout before the guards catch you. Read [Robberies and bounties](/wiki/robberies).
 
+## The menu
+
+The nether star in your last hotbar slot is the **menu**: right-click it (on Bedrock, tap it in your inventory), or type `/menu`. Your profile and stats, settings, the shop, cosmetics, the store and the leaderboards are all in there, so you never need to remember a command.
+
 ## The three roles
 
 | Role | How you get it | Goal |

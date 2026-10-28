@@ -1,1 +1,2 @@
 /guards /apply#guard 301
+/buy/:id /store?add=:id 302
