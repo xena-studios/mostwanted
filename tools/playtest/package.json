@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Scripted bot players that play MostWanted on a throwaway local server and check it works.",
   "scripts": {
-    "playtest": "node run.mjs"
+    "playtest": "node run.mjs",
+    "world": "node run.mjs --world"
   },
   "engines": {
     "node": ">=24"

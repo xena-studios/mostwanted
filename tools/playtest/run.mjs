@@ -17,6 +17,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import mineflayer from "mineflayer";
 import { Vec3 } from "vec3";
+import * as WORLD from "./world.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const DIR = join(ROOT, ".cache/playtest");
@@ -598,8 +599,27 @@ const scenarios = {
 
 // ---------------------------------------------------------------- run
 
+/** The test map's settings: the shipped defaults, but robberies short enough to try by hand. */
+const WORLD_CONFIG = `database:
+  host: localhost
+  port: ${PG.port}
+  name: mostwanted
+  user: mostwanted
+  password: ${PG.password}
+robberies:
+  bank:
+    name: Bank
+    seconds: 30
+    payout: 10000
+    bounty: 5000
+    closed-minutes: 1
+resource-pack:
+  url: ""
+`;
+
 async function main() {
-  const only = process.argv.slice(2);
+  const world = process.argv.includes("--world");
+  const only = process.argv.slice(2).filter((a) => !a.startsWith("--"));
   const server = new Server();
   const bots = {};
   let failed = 0;
@@ -624,14 +644,15 @@ async function main() {
       "generate-structures=false", "white-list=false", "enforce-whitelist=false", "view-distance=4", "simulation-distance=4", "motd=MostWanted playtest",
     ].join("\n") + "\n");
     writeFileSync(join(DIR, "bukkit.yml"), "settings:\n  connection-throttle: -1\n");
-    writeFileSync(join(DIR, "plugins/MostWanted/config.yml"), CONFIG);
+    writeFileSync(join(DIR, "plugins/MostWanted/config.yml"), world ? WORLD_CONFIG : CONFIG);
+    if (world) writeFileSync(join(DIR, "plugins/MostWanted/boards.yml"), WORLD.BOARDS);
 
     // First start: the world and the tables. Build the arena, then stop to add the zones.
     await server.start(paper);
-    for (const c of BUILD) server.cmd(c);
-    await sleep(1500);
+    for (const c of world ? WORLD.BUILD : BUILD) server.cmd(c);
+    await sleep(world ? 4000 : 1500);
     await server.stop();
-    for (const [name, kind, min, max, spawn] of ZONES) {
+    for (const [name, kind, min, max, spawn] of world ? WORLD.ZONES : ZONES) {
       const sp = spawn ? `${spawn[0]}, ${spawn[1]}, ${spawn[2]}, 0, 0` : "null, null, null, null, null";
       sql(`insert into mostwanted.zones (name, kind, world, min_x, min_y, min_z, max_x, max_y, max_z,
            spawn_x, spawn_y, spawn_z, spawn_yaw, spawn_pitch) values ('${name}', '${kind}', 'world',
@@ -641,6 +662,15 @@ async function main() {
     console.log("Starting the server…");
     server.lines = [];
     await server.start(paper);
+    if (world) {
+      server.lines = [];
+      console.log(`\nThe test map is up: join 127.0.0.1:${PORT} (offline mode, any name).`);
+      console.log("Type server commands here (op <name> first). Ctrl+C stops it and throws it away.\n");
+      process.stdin.on("data", (d) => server.cmd(d.toString().trim()));
+      server.proc.stdout.on("data", (d) => process.stdout.write(d));
+      await new Promise((r) => process.once("SIGINT", r));
+      return;
+    }
     for (const name of BOTS) {
       bots[name] = await joinBot(name);
       await sleep(400);
@@ -699,7 +729,7 @@ async function main() {
     await server.stop();
     try { sh("docker", ["stop", PG.container]); } catch {}
   }
-  console.log(failed ? `${failed} failed` : "All passed");
+  console.log(world ? "Stopped." : failed ? `${failed} failed` : "All passed");
   process.exit(failed ? 1 : 0);
 }
 
