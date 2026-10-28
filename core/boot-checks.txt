@@ -7,3 +7,5 @@ run: mw info
 expect: database connected
 run: mw player Nobody
 expect: ɪѕɴ'ᴛ ᴏɴʟɪɴᴇ
+run: mw zone list
+expect: ɴᴏ ᴢᴏɴᴇѕ ʏᴇᴛ

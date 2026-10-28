@@ -22,6 +22,39 @@ command:
   cash-set: "<success>✔</success> <value><player></value>'s cash is now <money><amount></money>."
   bank-set: "<success>✔</success> <value><player></value>'s bank is now <money><amount></money>."
   bounty-set: "<success>✔</success> <value><player></value>'s bounty is now <money><amount></money>."
+  zone:
+    players-only: "<error>✖</error> only players can do that."
+    needs-fawe: "<error>✖</error> zones are marked with a fawe selection, and fawe isn't installed."
+    no-selection: "<error>✖</error> select the area first: <value>//wand</value>, then click two corners."
+    bad-name: "<error>✖</error> zone names are lowercase letters, numbers, - and _, up to 32."
+    bad-kind: "<error>✖</error> zone kinds: <value><kinds></value>."
+    exists: "<error>✖</error> there's already a zone called <value><zone></value>. <value>/mw zone redefine <zone></value> moves it."
+    not-found: "<error>✖</error> there's no zone called <value><zone></value>."
+    other-world: "<error>✖</error> <value><zone></value> is in <value><world></value>. stand there to set its spawn."
+    no-world: "<error>✖</error> the world <value><world></value> isn't loaded."
+    created: "<success>✔</success> created the <value><kind></value> zone <value><zone></value>, <value><size></value> blocks."
+    redefined: "<success>✔</success> moved <value><zone></value> to your selection, <value><size></value> blocks."
+    spawn-set: "<success>✔</success> <value><zone></value>'s spawn is where you're standing."
+    deleted: "<success>✔</success> deleted <value><zone></value>."
+    list: "<info>ⓘ</info> zones: <value><count></value>"
+    list-entry: "<dim>·</dim> <value><zone></value> <kind>, <value><size></value> in <value><world></value>"
+    list-empty: "<info>ⓘ</info> no zones yet. select an area with fawe, then <value>/mw zone create [name] [kind]</value>."
+    here: "<info>ⓘ</info> you're in: <value><zones></value>"
+    here-none: "<info>ⓘ</info> you're not in any zone."
+
+# Shown above the hotbar on walking into a zone.
+zone:
+  entered:
+    prison: "<inmate>⛓</inmate> the prison"
+    cell: "<inmate>⛓</inmate> a cell"
+    police: "<guard>⚑</guard> police station · <guard>safe for guards</guard>"
+    hideout: "<criminal>⌂</criminal> hideout · <criminal>safe for criminals</criminal>"
+    robbery: "<money>⛃</money> <value><zone></value>"
+    safe: "<success>✔</success> safe zone"
+
+escape:
+  you: "<success>✔</success> you escaped! you're a <criminal>criminal</criminal> now: rob, stay free, and bank your cash at a hideout."
+  everyone: "<criminal>⚠</criminal> <criminal><player></criminal> escaped from the prison!"
 
 # The scoreboard (docs/09-brand.md#scoreboard-and-tab-list). Icons are grey.
 hud:

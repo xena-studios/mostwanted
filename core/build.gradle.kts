@@ -1,4 +1,5 @@
 import org.gradle.kotlin.dsl.support.serviceOf
+import xyz.jpenilla.resourcefactory.paper.PaperPluginYaml
 
 plugins {
     id("xena.plugin")
@@ -22,6 +23,9 @@ val paperLibraries: List<String> = listOf<Provider<MinimalExternalModuleDependen
 dependencies {
     implementation(project(":common"))
     bundled(project(":common"))
+    // The server has FAWE; only its API is needed here.
+    compileOnly(libs.fawe.core) { isTransitive = false }
+    compileOnly(libs.fawe.bukkit) { isTransitive = false }
 
     testImplementation(platform(libs.testcontainers.bom))
     testImplementation(libs.testcontainers.junit)
@@ -32,6 +36,10 @@ paperPluginYaml {
     name = "MostWanted"
     main = "co.xenastudios.mostwanted.MostWanted"
     loader = "co.xenastudios.mostwanted.MostWantedLoader"
+    // Optional: without it the game runs, but zones can't be marked out.
+    dependencies {
+        server("FastAsyncWorldEdit", PaperPluginYaml.Load.BEFORE, required = false, joinClasspath = true)
+    }
 }
 
 // The library list MostWantedLoader reads: one group:artifact:version per line.
