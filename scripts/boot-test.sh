@@ -8,8 +8,9 @@
 #
 # Steps run in order. Each --expect waits for text logged after the --run before
 # it. A checks file holds the same steps, one per line: "run: <command>",
-# "expect: <text>", or "logged: <text>" for text logged at any point, such as
-# during startup; blank lines and lines starting with # are skipped. A step
+# "expect: <text>", "logged: <text>" for text logged at any point, such as
+# during startup, or "file: <path> <server path>" to copy a file from the repo
+# into the server before it starts; blank lines and lines starting with # are skipped. A step
 # that starts with "paper " or "folia " runs only on that server.
 #
 # Server jars, Mojang's jar and libraries are cached in .cache/servers/. Paper and
@@ -103,6 +104,14 @@ simulation-distance=2
 spawn-protection=0
 EOF
 
+# Files the checks put in place, such as a plugin config.
+for step in "${steps[@]+"${steps[@]}"}"; do
+  if [[ $step == "file: "* ]]; then
+    read -r src dest <<<"${step#file: }"
+    mkdir -p "$(dirname "$dir/$dest")"
+    cp "$root/$src" "$dir/$dest"
+  fi
+done
 
 # ---- run it ----
 mkfifo "$dir/stdin"
@@ -143,7 +152,8 @@ for step in "${steps[@]+"${steps[@]}"}"; do
       echo "${step#run: }" >&3 ;;
     "expect: "*) wait_for "${step#expect: }" 60 "$since" ;;
     "logged: "*) wait_for "${step#logged: }" 60 0 ;;
-    *) fail "a step must start with \"run: \", \"expect: \" or \"logged: \": $step" ;;
+    "file: "*) ;;
+    *) fail "a step must start with \"run: \", \"expect: \", \"logged: \" or \"file: \": $step" ;;
   esac
 done
 

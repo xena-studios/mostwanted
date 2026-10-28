@@ -1,0 +1,52 @@
+# Every message MostWanted sends, in the message style (docs/09-brand.md#messages).
+# Edit and restart to apply. Text is MiniMessage: https://docs.advntr.dev/minimessage/format
+#
+# Write plain text: it becomes small caps when it loads. Text inside <value>, <money>,
+# <white> or bold stays as written, for names, amounts and headers.
+# Colour tags: <success> <error> <money> <info> <brand> <inmate> <criminal> <guard>
+# <staff> <value> <dim>. Everything else is grey.
+# Placeholders such as <player> are filled in when the message is sent, as written.
+
+login:
+  failed: "<error>✖</error> your data didn't load. try again in a moment."
+  already-online: "<error>✖</error> you're still connected. try again in a moment."
+
+join:
+  welcome: "<success>✔</success> welcome back, <value><player></value>."
+  first: "<success>✔</success> welcome to <brand>mostwanted</brand>, <value><player></value>. you're an inmate: find a way out."
+
+command:
+  player-not-found: "<error>✖</error> <value><player></value> isn't online."
+  player: "<info>ⓘ</info> <value><player></value>: <role>, cash <money><cash></money>, bank <money><bank></money>, bounty <money><bounty></money>."
+  role-set: "<success>✔</success> <value><player></value> is now <role>."
+  cash-set: "<success>✔</success> <value><player></value>'s cash is now <money><amount></money>."
+  bank-set: "<success>✔</success> <value><player></value>'s bank is now <money><amount></money>."
+  bounty-set: "<success>✔</success> <value><player></value>'s bounty is now <money><amount></money>."
+
+# The scoreboard (docs/09-brand.md#scoreboard-and-tab-list). Icons are grey.
+hud:
+  title: "<b><white>Most</white><brand>Wanted</brand></b>"
+  clock: "◷ <time> <zone> · <date>"
+  profile: "<b><brand>PROFILE</brand></b>"
+  role: "★ role: <role>"
+  cash: "⛃ cash: <money><amount></money>"
+  bank: "⌂ bank: <money><amount></money>"
+  bounty: "✪ bounty: <money><amount></money>"
+  wanted: "⚠ wanted: <criminal><stars></criminal><dim><empty></dim>"
+  sentence: "⧗ sentence: <value><time></value>"
+  escapes: "⚔ escapes: <value><count></value>"
+  arrested: "☠ arrested: <value><count></value>"
+  duty: "✔ duty: <success>on</success>"
+  patrol: "<b><brand>PATROL</brand></b>"
+  arrests: "⛓ arrests: <value><count></value>"
+  bounty-earned: "✪ bounty earned: <money><amount></money>"
+  footer: "<brand>mostwantedmc.com</brand>"
+
+# The tab list. <head> is the player's own head (Java only).
+tab:
+  header: "<b><white>Most</white><brand>Wanted</brand></b>\n<head> <white><player></white>\n<color:white>you are playing on </color><brand>mostwanted</brand>\n<color:white>we have </color><brand><online></brand><color:white> players online</color>\n"
+  footer: "\n<guard>guards</guard> <value><guards></value><dim> · </dim><criminal>criminals</criminal> <value><criminals></value><dim> · </dim><inmate>inmates</inmate> <value><inmates></value>\n<brand>mostwantedmc.com</brand>"
+  entry:
+    inmate: "<inmate>inmate</inmate> <value><player></value>"
+    criminal: "<criminal>criminal</criminal> <criminal><player></criminal>"
+    guard: "<guard>guard</guard> <guard><player></guard>"

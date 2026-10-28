@@ -1,0 +1,23 @@
+# MostWanted's settings. On the server this file is rendered from
+# server/files/plugins/MostWanted/config.yml.tmpl, with the password from .env.
+# Changes need a restart.
+
+# PostgreSQL, shared with LuckPerms, LibertyBans and the backend. MostWanted
+# won't start without it: playing on a blank state would overwrite real ones.
+database:
+  host: localhost
+  port: 5432
+  name: mostwanted
+  user: mostwanted
+  # password: required, and never committed. MostWanted won't start without one.
+  # Connections kept open. Few are needed: every write goes through one thread.
+  pool-size: 4
+
+# How often changed players are written to the database. A crash loses at most
+# this much; quitting and stopping the server always save.
+save-every-seconds: 5
+
+# The clock on the scoreboard. One zone for everyone, so screenshots match the logs.
+clock:
+  timezone: America/New_York
+  label: ET
