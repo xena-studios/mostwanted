@@ -7,6 +7,7 @@ import java.util.Map;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
 
 class MessagesTest {
@@ -29,6 +30,18 @@ class MessagesTest {
     @Test
     void messagesWithoutPlaceholdersAreParsedOnce() {
         assertSame(messages.get("plain"), messages.get("plain"));
+    }
+
+    @Test
+    void newKeysFallBackToTheJarsEvenInsideAnExistingSection() throws Exception {
+        YamlConfiguration server = new YamlConfiguration();
+        server.loadFromString("command:\n  old: \"edited\"\n");
+        YamlConfiguration jar = new YamlConfiguration();
+        jar.loadFromString("command:\n  old: \"original\"\n  added: \"new\"\n");
+        Messages loaded = Messages.from(server, jar);
+        PlainTextComponentSerializer plain = PlainTextComponentSerializer.plainText();
+        assertEquals("ᴇᴅɪᴛᴇᴅ", plain.serialize(loaded.get("command.old")));
+        assertEquals("ɴᴇᴡ", plain.serialize(loaded.get("command.added")));
     }
 
     @Test
