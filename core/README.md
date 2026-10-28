@@ -39,6 +39,7 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
 | `/mw set <name> role <inmate\|criminal\|guard>` | `mostwanted.admin` | Changes their role |
 | `/mw set <name> cash\|bank\|bounty <amount>` | `mostwanted.admin` | Sets an amount |
 | `/stats private` · `public` | everyone | Hides your stats from the website and Discord, or shows them again. In-game boards still show you. |
+| `/website` | everyone | A one-time code (10 minutes) to sign in on mostwantedmc.com or link this Minecraft account. Typed, not clicked, so it works on Bedrock. |
 | `/duty` | `mostwanted.guard` | Goes on duty as a guard (from the prison, as an inmate) or off duty |
 | `/mw zone create <name> <kind>` | `mostwanted.admin` | Makes a zone from your FAWE selection (`//wand`, then click two corners). Any shape becomes the box around it. |
 | `/mw zone redefine <name>` | `mostwanted.admin` | Moves a zone to your current selection, keeping its kind and spawn |
