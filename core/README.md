@@ -14,13 +14,17 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
   | Kind | What it does |
   | --- | --- |
   | `prison` | The prison's boundary. An inmate who gets outside every prison zone has escaped and becomes a criminal. |
-  | `cell` | Where arrested players serve their sentence (from the arrests update). |
+  | `cell` | Where arrested players serve their sentence. Leaving one mid-sentence puts you back. |
   | `police` | The police station: safe for guards. |
   | `hideout` | A criminal base: safe for criminals, and where they bank cash. |
   | `robbery` | A place to rob, such as the bank. |
   | `safe` | No fighting at all. |
 
-  Zones can overlap, such as cells inside the prison. Walking into one shows its name above the hotbar. Only escaping does anything yet; the safe zones, cells and robberies come with combat, arrests and robberies.
+  Zones can overlap, such as cells inside the prison. Walking into one shows its name above the hotbar. Set a spawn (`/mw zone spawn`) on the prison, the police station and each cell: that's where players are sent.
+- **Combat:** guards and criminals fight; nobody else can hurt anyone (riots will change that). Nobody fights in a `safe` zone, guards are safe at the `police` station and criminals in a `hideout`, and neither can attack out of one.
+- **Arrests:** guards on duty carry handcuffs. One right-click on a criminal within 3 blocks arrests them for their whole bounty; killing them pays half; a criminal who dies any other way is arrested with nobody paid. They lose their unbanked cash and serve 1 minute plus 1 per $2,500 of bounty, up to 5, in the emptiest `cell`, then go to the `prison` spawn.
+- **Bounty:** +$500 for killing a guard on duty. Robberies will add more.
+- **Duty:** `/duty` swaps between guard and inmate, each with their own cash and bank. Guards respawn at the `police` spawn, inmates at the `prison` spawn.
 - **Admin commands** for testing, each written to the game log.
 
 ## Commands
@@ -31,6 +35,7 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
 | `/mw player <name>` | `mostwanted.admin` | An online player's role, cash, bank and bounty |
 | `/mw set <name> role <inmate\|criminal\|guard>` | `mostwanted.admin` | Changes their role |
 | `/mw set <name> cash\|bank\|bounty <amount>` | `mostwanted.admin` | Sets an amount |
+| `/duty` | `mostwanted.guard` | Goes on duty as a guard (from the prison, as an inmate) or off duty |
 | `/mw zone create <name> <kind>` | `mostwanted.admin` | Makes a zone from your FAWE selection (`//wand`, then click two corners). Any shape becomes the box around it. |
 | `/mw zone redefine <name>` | `mostwanted.admin` | Moves a zone to your current selection, keeping its kind and spawn |
 | `/mw zone spawn <name>` | `mostwanted.admin` | Sets where players are sent in the zone (such as a cell) to where you're standing |
@@ -39,7 +44,7 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
 
 ## Config
 
-`plugins/MostWanted/config.yml`: the database, how often to save, and the scoreboard clock's timezone. On the server it's rendered from [`server/files/plugins/MostWanted/config.yml.tmpl`](../server/files/plugins/MostWanted/config.yml.tmpl) with the password from `.env`. `messages.yml` holds every message.
+`plugins/MostWanted/config.yml`: the database, how often to save, the scoreboard clock's timezone, and the gameplay numbers under `rules` (sentence length, kill share, guard-kill bounty, cuff range, combat tag). On the server it's rendered from [`server/files/plugins/MostWanted/config.yml.tmpl`](../server/files/plugins/MostWanted/config.yml.tmpl) with the password from `.env`. `messages.yml` holds every message.
 
 FAWE is optional: without it the game runs, but zones can't be marked out.
 
