@@ -256,8 +256,12 @@ run ufw default allow outgoing
 run ufw allow "$GAME_PORT/tcp" comment "minecraft (sources: nft table inet mostwanted)"
 run ufw allow "$API_PORT/tcp" comment "api (Cloudflare only: nft table inet mostwanted)"
 [[ -n $SFTP_PORT ]] && run ufw allow "$SFTP_PORT/tcp" comment "raptor sftp"
-# Raptor's servers reach PostgreSQL on the host through their bridge's gateway.
-if ip link show raptor0 >/dev/null 2>&1; then
+# Raptor's servers reach PostgreSQL on the host through their bridge's gateway: only
+# when it's installed there (provision.sh without --no-postgres). Raptor's own
+# database instances are on its networks, behind its own firewall, so need nothing here.
+if [[ ! -d /etc/postgresql ]]; then
+  say "no PostgreSQL on the host (Raptor runs the database): nothing to open for it"
+elif ip link show raptor0 >/dev/null 2>&1; then
   run ufw allow in on raptor0 to any port "$DB_PORT" proto tcp comment "postgresql from raptor servers"
 else
   warn "no raptor0 bridge (Raptor not installed yet?): run this again after installing Raptor so its servers can reach PostgreSQL"

@@ -209,7 +209,7 @@ Decided 2026-10-26. **Java, like `core`**, so the game, the API and the bot shar
 - **Minehut External confirmed** before anything else (see the ⚠️ above).
 - **Mojang EULA + Minehut rules.** Real-money store = cosmetics only, no gameplay advantages. No gambling mechanics in-game.
 - **Staff tools.** Punishments (LibertyBans), anti-cheat alerts (Grim), block logs (CoreProtect), and reports. Guards are players with power over others, so staff need to be able to review guard abuse too. Minehut staff can't moderate external servers for us.
-- **Backups and a recovery drill.** Raptor's backup system for the world files and nightly PostgreSQL dumps, with a copy kept off the VPS, plus netcup snapshots. Actually test restoring one.
+- **Backups and a recovery drill.** Raptor's backups: the world files and the database (Raptor's PostgreSQL, dumped with each backup), kept offsite too, plus netcup snapshots. Actually test restoring one.
 - **Monitoring.** spark for lag spikes; the bot alerts 🔒│admin when the game, API or database goes down or the server lags.
 - **Before launch** (the step-by-step is [launch](12-launch.md)):
   - Terms and Privacy pages, and a "delete my account" button (collect as little as possible: many players are kids).

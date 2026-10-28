@@ -16,9 +16,10 @@ files/                configs copied into the server; changes from the defaults 
   plugins/            LuckPerms and LibertyBans (templates), Grim, ViaVersion, Fancy*, FAWE,
                       xUtilities and zChat in the message style
 setup/luckperms.txt   the ranks, run once in the console
-setup/provision.sh    the VPS: Java 25, PostgreSQL 18 and the database, updates, fail2ban, SSH keys only
+setup/provision.sh    the VPS: Java 25, updates, fail2ban, SSH keys only (and PostgreSQL 18, unless --no-postgres: Raptor runs ours)
 setup/firewall.sh     ufw + nftables: the API from Cloudflare only, the game from Minehut once known
-setup/backup-db.sh    nightly pg_dump with retention, and --restore
+setup/backup-db.sh    nightly pg_dump with retention, and --restore (only for PostgreSQL on the host: Raptor backs up its own)
+raptor/               the Raptor eggs for the game server and the API (import them on Raptor's Eggs page)
 .env.example          the secrets the templates need; copy to <server-dir>/.env
 ```
 
