@@ -21,3 +21,21 @@ save-every-seconds: 5
 clock:
   timezone: America/New_York
   label: ET
+
+# The gameplay numbers. Leave a line out to use the default shown.
+rules:
+  # Arrested players serve base + seconds-per-step for every bounty-per-step of
+  # bounty, up to max: 1 minute, plus 1 per $2,500, up to 5.
+  sentence:
+    base-seconds: 60
+    seconds-per-step: 60
+    bounty-per-step: 2500
+    max-seconds: 300
+  # A guard who kills a criminal gets this share of the bounty; cuffing pays it all.
+  kill-share-percent: 50
+  # Added to a criminal's bounty for killing an on-duty guard.
+  guard-kill-bounty: 500
+  # How close a guard must be to cuff someone, in blocks.
+  cuff-range: 3
+  # A guard can't go off duty this soon after a fight.
+  combat-tag-seconds: 15

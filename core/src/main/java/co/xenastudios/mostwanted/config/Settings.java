@@ -13,8 +13,9 @@ import org.bukkit.configuration.file.FileConfiguration;
  * @param saveEvery how often changed players are written to the database
  * @param zone the clock on the scoreboard; one zone for everyone, so screenshots match the logs
  * @param zoneLabel shown after the time, such as "ET"
+ * @param rules the gameplay numbers
  */
-public record Settings(DatabaseConfig database, Duration saveEvery, ZoneId zone, String zoneLabel) {
+public record Settings(DatabaseConfig database, Duration saveEvery, ZoneId zone, String zoneLabel, Rules rules) {
 
     public static Settings read(FileConfiguration config) {
         ConfigurationSection db = config.getConfigurationSection("database");
@@ -38,6 +39,7 @@ public record Settings(DatabaseConfig database, Duration saveEvery, ZoneId zone,
         }
         return new Settings(database, Duration.ofSeconds(saveSeconds),
                 ZoneId.of(config.getString("clock.timezone", "America/New_York")),
-                config.getString("clock.label", "ET"));
+                config.getString("clock.label", "ET"),
+                Rules.read(config.getConfigurationSection("rules")));
     }
 }
