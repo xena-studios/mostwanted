@@ -19,7 +19,7 @@ class ProfileCommandTest {
     void theCardShowsTheirStatsInTheirRolesColour() {
         Map<String, Long> all = Map.of("escapes", 1_234L, "arrests", 0L, "bounty_earned", 50_000L);
         MessageEmbed card = command.card(new Stats.Profile(UUID.randomUUID(), "Ada Lovelace", false, "criminal", 7_500,
-                Instant.EPOCH, Instant.EPOCH, Map.of("all", all)));
+                Instant.EPOCH, Instant.EPOCH, Map.of("all", all), null));
         assertEquals("Ada Lovelace", card.getTitle());
         assertEquals("https://mostwantedmc.com/player?name=Ada+Lovelace", card.getUrl());
         assertEquals(Palette.CRIMINAL, card.getColorRaw());
@@ -31,7 +31,7 @@ class ProfileCommandTest {
     @Test
     void noBountyNoBountyField() {
         MessageEmbed card = command.card(new Stats.Profile(UUID.randomUUID(), "Bo", false, "guard", 0,
-                Instant.EPOCH, Instant.EPOCH, Map.of("all", Map.of())));
+                Instant.EPOCH, Instant.EPOCH, Map.of("all", Map.of()), "mvp"));
         assertTrue(card.getFields().stream().noneMatch(f -> f.getName().equals("Bounty")));
         assertEquals(Palette.GUARD, card.getColorRaw());
     }

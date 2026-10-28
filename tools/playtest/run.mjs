@@ -550,6 +550,34 @@ const scenarios = {
     const on = await row("Guard1");
     expect(on.role === "guard" && on.cash === 777, `back on duty: ${JSON.stringify(on)}`);
   },
+
+  async cosmetics({ server, bots }) {
+    // Crim1 owns nothing: the menu says where to get it, and nothing is saved.
+    const open = async (bot) => {
+      const window = new Promise((r) => bot.once("windowOpen", r));
+      bot.chat("/cosmetics");
+      await window;
+    };
+    await open(bots.Crim1);
+    await bots.Crim1.clickWindow(2, 0, 0);
+    await heard(bots.Crim1, "you don't have");
+    bots.Crim1.closeWindow(bots.Crim1.currentWindow);
+
+    // Guard1 is an op, so owns every cosmetic: pick the Cash Trail and a chat colour.
+    await open(bots.Guard1);
+    await bots.Guard1.clickWindow(2, 0, 0); // trails row: Cash Trail
+    await bots.Guard1.clickWindow(38, 0, 0); // chat colour: the first hue
+    bots.Guard1.closeWindow(bots.Guard1.currentWindow);
+    const choices = () => sql(
+      "select slot || '=' || choice from mostwanted.cosmetic_choices c join mostwanted.players p using (uuid)"
+        + " where p.name = 'Guard1' order by slot",
+    ).split("\n").filter(Boolean);
+    await until("Guard1's choices to be saved", () => choices().join() === "chat=hue:0,trail=trail-cash", 4000);
+
+    // The Server Boost reaches everyone.
+    server.cmd("mw boost Crim1");
+    await heard(bots.Inmate1, "boosted the server");
+  },
 };
 
 // ---------------------------------------------------------------- run

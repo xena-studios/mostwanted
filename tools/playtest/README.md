@@ -26,6 +26,7 @@ Needs Java 25, Node 24 and Docker. It builds `core`, starts PostgreSQL in Docker
 | shop | `/shop` in a hideout opens the menu; buying takes the money and gives the item |
 | riot | Inmates pressing the alarm start a riot; inmates can then hurt guards |
 | duty | `/duty` swaps guard and inmate money |
+| cosmetics | `/cosmetics` refuses what you don't own, saves a trail and chat colour you do; `/mw boost` reaches everyone |
 
 ## How the bots connect
 

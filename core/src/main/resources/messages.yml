@@ -191,3 +191,45 @@ riot:
 pack:
   prompt: "<white>MostWanted's resource pack: guns, handcuffs and keycards. Small, and needed to play.</white>"
   failed: "<error>✖</error> the resource pack didn't load. you can still play: items look like plain vanilla ones."
+
+# Store ranks and cosmetics (docs/11-store.md). Rank colours are the store's.
+rank:
+  vip: "<b><color:#99ff33>VIP</color></b>"
+  vip-plus: "<b><color:#33ffcc>VIP+</color></b>"
+  mvp: "<b><color:#6633ff>MVP</color></b>"
+  legend: "<b><color:#ff3366>LEGEND</color></b>"
+  joined: "<rank> <value><player></value> joined the game."
+  joined-message: "<rank> <value><player></value> joined: <white><message></white>"
+
+boost:
+  title: "<b><brand>SERVER BOOST</brand></b>"
+  subtitle: "thanks to <value><player></value>"
+  chat: "<money>★</money> <value><player></value> boosted the server. thank you for keeping it running!"
+
+cosmetics:
+  title: "<b>Cosmetics</b>"
+  kind:
+    trail: "<white>Trails</white>"
+    escape: "<white>Escape effects</white>"
+    arrest: "<white>Arrest effects</white>"
+    skin: "<white>Gun skins</white>"
+    chat: "<white>Chat colour</white>"
+  name: "<white><name></white>"
+  name-locked: "<dim><name></dim>"
+  using: "<success>✔ using</success>"
+  click-use: "click to use"
+  click-off: "click to take off"
+  locked: "<dim>not yours yet</dim>"
+  store-lore: "<dim>get it at</dim> <value>mostwantedmc.com/store</value>"
+  store-name: "<white>Store</white>"
+  store-link: "<info>ⓘ</info> ranks and cosmetics are at <click:open_url:'https://mostwantedmc.com/store'><value>mostwantedmc.com/store</value></click>. they only change how things look."
+  not-owned: "<error>✖</error> you don't have <value><name></value> yet. it's at <value>mostwantedmc.com/store</value>."
+  chat-off: "off"
+  chat-on: "your messages look like this"
+  chat-click: "click for the next colour, right-click to go back"
+  join-message:
+    none: "<info>ⓘ</info> you have no join message. <value>/joinmessage set</value> and a message sets one."
+    is: "<info>ⓘ</info> your join message: <white><message></white>. <value>/joinmessage clear</value> removes it."
+    set: "<success>✔</success> your join message is now: <white><message></white>"
+    cleared: "<success>✔</success> your join message is gone."
+    invalid: "<error>✖</error> a join message is one line of up to <value><max></value> characters."

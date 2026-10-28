@@ -33,6 +33,26 @@ public final class CustomItems {
         meta.setCustomModelDataComponent(model);
     }
 
+    /**
+     * Shows the item as a skin ("pistol_gilded"), or as itself again when {@code skin}
+     * is null. Returns whether that changed anything. Only the look changes: the id
+     * the game checks stays the same.
+     */
+    public boolean skin(ItemMeta meta, String skin) {
+        String id = meta.getPersistentDataContainer().get(key, PersistentDataType.STRING);
+        if (id == null) {
+            return false;
+        }
+        String wanted = skin == null ? model(id) : "mostwanted:" + skin;
+        CustomModelDataComponent model = meta.getCustomModelDataComponent();
+        if (model.getStrings().equals(List.of(wanted))) {
+            return false;
+        }
+        model.setStrings(List.of(wanted));
+        meta.setCustomModelDataComponent(model);
+        return true;
+    }
+
     /** The pack's model name for an item id: "gun:pistol" is "mostwanted:pistol". */
     static String model(String id) {
         String name = id.startsWith("gun:") ? id.substring(4) : id.replace(':', '_');

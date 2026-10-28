@@ -94,11 +94,23 @@ The page is laid out to make buying easy and to show real value, without the tri
 4. **Connect the website:** copy the **Public Token** from Tebex (Developers → API keys) into the repo's **Settings → Secrets and variables → Actions → Variables** as `TEBEX_PUBLIC_TOKEN`, then run the website workflow (or push anything). It's a variable, not a secret, because it's public by design.
 5. **Delivery:** Tebex runs the commands through its **Tebex plugin** on the game server, which needs the store's **secret key** in its config, kept in the server's `.env`, never in this repo. The plugin isn't on the approved list yet; it needs your OK (alternative: the backend receives Tebex's webhooks and core runs the commands, more work).
 
-## Not built in game yet
+## In game
 
-The store can take orders now, but these need building in `core` before launch so every purchase does what the page says:
+Core reads the permissions above, so a purchase works the moment LuckPerms has it (ranks are checked again every 30 seconds, so nobody has to rejoin).
 
-- **Cosmetics:** trails, escape and arrest effects, gun skins (pack textures for the four skins are drawn: the site's icons), chat colours, the coloured name, joins announced and the join message, all reading the permissions above.
-- **`mostwanted boost <player>`** for the Server Boost.
-- **Rank tags in the tab list:** core draws the tab list itself, and doesn't show LuckPerms suffixes yet. Chat shows them if zChat's formats include the suffix.
-- **The supporter badge** on website player pages, and **Discord roles** per rank (the bot can sync them like the Linked role).
+- **`/cosmetics`** opens a menu: one row each for trails, escape effects, arrest effects, gun skins and chat colour. Click one you own to use it, again to take it off; ones you don't own say where to get them. Choices are saved in the database (`cosmetic_choices`).
+- **Trails** puff behind you as you walk. **Escape effects** go off where you break out. **Arrest effects** are the guard's, shown on the criminal they arrest. Fireworks from cosmetics never hurt anyone.
+- **Gun skins** swap the look of that gun in your inventory, with the resource pack (`pack/README.md`). Same gun, same stats; someone who picks it up sees their own.
+- **Chat colours:** click to go through the palette's colours (right-click goes back), then off.
+- **Rank tags** come after the name in the tab list. Chat shows LuckPerms' suffix if zChat's format includes it.
+- **Coloured name** (MVP and Legend): the player's display name, in their rank's colour, which chat shows if zChat's format uses the display name. The tab list keeps role colours, which mean something in the game.
+- **Joins announced** (MVP and Legend), and **`/joinmessage set <message>`** (Legend): one line, up to 48 characters, always shown as plain text.
+- **`mostwanted boost <player>`**: a title and fireworks for everyone online, and a thank-you in chat.
+
+Ops aren't given a rank tag: only a LuckPerms group really set counts. They do own every cosmetic (ops have every permission), which helps testing.
+
+- **Supporter badge:** a player's page on the website shows their rank ("★ MVP supporter", in its colour, linking to the store). The backend reads it from LuckPerms' own table, which shares our database (`Stats.supporter`). Players with private stats have no page, so no badge either.
+
+## Still to do
+
+- **Discord roles** per rank (the bot can sync them like the Linked role, once the roles exist on the server).

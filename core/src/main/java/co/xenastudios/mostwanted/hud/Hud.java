@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -47,6 +48,8 @@ public final class Hud {
     /** Live events (a robbery, later a riot): a section everyone sees while they're on. */
     private Supplier<List<Component>> live = List::of;
     private List<Component> lastLive = List.of();
+    /** What follows a name in the tab list: a store rank's tag, or nothing. */
+    private Function<UUID, Component> tag = uuid -> Component.empty();
 
     public Hud(PlayerStore store, Messages messages, Clock clock, ZoneId zone, String zoneLabel) {
         this.store = store;
@@ -58,6 +61,10 @@ public final class Hud {
 
     public void live(Supplier<List<Component>> live) {
         this.live = live;
+    }
+
+    public void tags(Function<UUID, Component> tag) {
+        this.tag = tag;
     }
 
     public void show(Player player) {
@@ -170,7 +177,8 @@ public final class Hud {
     }
 
     private Component listName(PlayerState state) {
-        return messages.get("tab.entry." + state.role().key(), Messages.value("player", state.name()));
+        return messages.get("tab.entry." + state.role().key(), Messages.value("player", state.name()))
+                .append(tag.apply(state.uuid()));
     }
 
     /** Higher shows first: guards, then criminals by bounty, then inmates. */
