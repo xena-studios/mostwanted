@@ -8,7 +8,8 @@ Why the setup looks like this: [tech](04-tech.md), [server stack](07-server-stac
 
 | | Where it comes from |
 | --- | --- |
-| `VPS_IP` | OVH's email / control panel |
+| `VPS_IP` | netcup's Server Control Panel (the server's page, Network) |
+| `YOU` | The user you made when installing Ubuntu (step 1) |
 | `GW` | The address Raptor's servers reach the VPS on, printed by `provision.sh` (like `172.18.0.1`) |
 | `GAME_ID`, `API_ID` | The two Raptor servers' IDs (the app shows them; `sudo ls /var/lib/raptor/volumes` lists them) |
 
@@ -16,10 +17,13 @@ Secrets (the database password, the bot token, the OAuth secret, the TLS key, Te
 
 ## 1. The VPS (10 min)
 
-1. In OVH's panel, install **Ubuntu 24.04** (the release Raptor supports) and add your **SSH public key** (or add it after with `ssh-copy-id ubuntu@VPS_IP` from your PC).
-2. Log in and update:
+The server is a netcup **RS 2000** in **Manassas, Virginia** (US East): 8 dedicated cores, 16 GB RAM, 256 GB NVMe. Ordered 2026-10-28.
+
+1. In netcup's Server Control Panel, **Media → Images**: **Ubuntu 24.04 UEFI amd64**, Minimal (the release Raptor supports; not 26.04, not "cloudimg"), one large partition, locale **en_US.UTF-8**, any time zone (it's set below), **create an additional user** with sudo and your **SSH public key** (or add the key after with `ssh-copy-id YOU@VPS_IP` from your PC). No custom script.
+2. Leave netcup's own firewall with no policies: `firewall.sh` (step 4) does it on the server, and two firewalls disagreeing is how you get locked out.
+3. Log in and update:
    ```sh
-   ssh ubuntu@VPS_IP
+   ssh YOU@VPS_IP
    sudo apt-get update && sudo apt-get full-upgrade -y
    sudo timedatectl set-timezone America/New_York   # backups then run at night for US players
    sudo reboot
@@ -80,7 +84,7 @@ The game port is open to anyone until Minehut gives us their addresses. **TODO:*
 In the Raptor app, **Deploy server**:
 
 - **Game:** Minecraft Paper (any Java Minecraft recipe works: `install.sh` replaces the jar). **Runtime: Java 25.**
-- **Name** MostWanted, **port** 25565, **memory 9.5 GB** (`start.sh` gives Java 8 GB; the rest is Java's own overhead, and Raptor kills a server that goes over).
+- **Name** MostWanted, **port** 25565, **memory 11.5 GB** (`start.sh` gives Java 10 GB; the rest is Java's own overhead, and Raptor kills a server that goes over).
 - **Startup** tab: the command `bash start.sh`. If the recipe won't let you change it, make it an org game with that command (Raptor's docs: eggs), or ask in Raptor's Discord.
 - Stop it after the first start: our files go in next.
 
@@ -195,7 +199,7 @@ On the VPS:
 
 ## Backups
 
-- **The worlds and the servers' files:** Raptor backs every server up daily (4-5 AM, the node's time zone). In Raptor, **Node → Backups**, add a destination **off the VPS** (Raptor Backup Storage, or any S3: Cloudflare R2, OVH Object Storage, Backblaze) and set both servers to back up there as well as to the node's disk. **Back up now** once and check it arrives.
+- **The worlds and the servers' files:** Raptor backs every server up daily (4-5 AM, the node's time zone). In Raptor, **Node → Backups**, add a destination **off the VPS** (Raptor Backup Storage, or any S3: Cloudflare R2, Backblaze) and set both servers to back up there as well as to the node's disk. **Back up now** once and check it arrives.
 - **The database:** `mostwanted-backup-db` dumps PostgreSQL every night at 03:30 into `/var/backups/mostwanted` (root only), checks each dump, and keeps 14 days (`/etc/mostwanted/backup.env`). To take those dumps off the VPS too, point `COPY_TO` at a folder in the backend's server: it copies the newest there as `mostwanted-latest.dump`, and Raptor's 4 AM backup takes it along.
   ```sh
   sudo install -d /var/lib/raptor/volumes/API_ID/db-backups
@@ -203,7 +207,7 @@ On the VPS:
   sudoedit /etc/mostwanted/backup.env    # COPY_TO="/var/lib/raptor/volumes/API_ID/db-backups"
   sudo mostwanted-backup-db              # once now, to check
   ```
-- **The whole VPS:** OVH's daily backup of the VPS, as a last resort.
+- **The whole VPS:** a netcup snapshot (Server Control Panel → Snapshots) before big changes, as a last resort. It's kept on netcup's side, so it's no substitute for the off-server Raptor backups.
 - **Test a restore** before launch, not after: restore a few files from a Raptor backup into `.restore/`, and restore last night's dump (below) on a quiet evening.
 
 ## Rollback
@@ -217,4 +221,4 @@ On the VPS:
   It dumps what's there now first (so a wrong pick can be undone) and restores in one transaction.
 - **The API misbehaving:** stop the backend in Raptor. The website shows its "can't reach" states; set `open: false` in `site.ts` again if it should look closed. A 526 from Cloudflare means the certificate is wrong (step 6.1, `tls/origin.*`); a 525 or a failed handshake after turning on Authenticated Origin Pulls means the pull CA file is wrong: remove `TLS_CLIENT_CA` from the backend's `.env` to check, then put it back.
 - **The firewall:** `sudo ufw disable` and `sudo nft delete table inet mostwanted` turn it all off (SSH included in what's then open); run `firewall.sh` to put it back.
-- **Everything:** OVH's VPS backup, or a new VPS following this page, with the Raptor backups restored onto it and the latest dump restored with `--restore`. Update the IP in Minehut and in Cloudflare's `api` record.
+- **Everything:** a netcup snapshot, or a new server following this page, with the Raptor backups restored onto it and the latest dump restored with `--restore`. Update the IP in Minehut and in Cloudflare's `api` record.

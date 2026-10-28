@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sets up a fresh OVH VPS (Ubuntu 24.04, the release Raptor supports) for MostWanted,
+# Sets up a fresh server (netcup RS 2000, Ubuntu 24.04, the release Raptor supports) for MostWanted,
 # after Raptor is installed (docs/12-launch.md). Safe to run again: every step checks
 # first and only changes what isn't right yet.
 #
@@ -13,7 +13,7 @@
 #   3. Java 25 (Eclipse Temurin, Adoptium's apt repo) to build and test on the box.
 #   4. PostgreSQL 18 (the PostgreSQL project's apt repo): the database and its user
 #      from the .env (DB_NAME, DB_USER, DB_PASSWORD; a missing password is generated
-#      and saved there), small memory settings for the 12 GB box, listening on
+#      and saved there), memory settings for the 16 GB box, listening on
 #      localhost and on Raptor's bridge so its servers can connect.
 #   5. Hardening: automatic security updates, fail2ban for SSH, and SSH keys only, but
 #      only once a key is set up for the account you're using; otherwise it warns and
@@ -210,13 +210,13 @@ if $postgres; then
       run sysctl -q -w net.ipv4.ip_nonlocal_bind=1
     fi
   fi
-  # Memory: the game has 8 GB of the 12, so PostgreSQL stays small (docs/04-tech.md).
+  # Memory: the game has 11.5 GB of the 16, so PostgreSQL stays small (docs/04-tech.md).
   put "$pg_conf/conf.d/10-mostwanted.conf" 644 <<EOF && restart=true
 # Written by server/setup/provision.sh: run it again rather than editing this.
 listen_addresses = 'localhost${gateway:+,$gateway}'
 max_connections = 50
-shared_buffers = 256MB
-effective_cache_size = 1GB
+shared_buffers = 512MB
+effective_cache_size = 2GB
 work_mem = 8MB
 maintenance_work_mem = 64MB
 password_encryption = scram-sha-256
