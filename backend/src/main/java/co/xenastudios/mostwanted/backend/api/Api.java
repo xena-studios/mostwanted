@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.json.JsonMapper;
@@ -25,7 +26,8 @@ import tools.jackson.databind.json.JsonMapper;
 /**
  * api.mostwantedmc.com: public stats for the website, and /health. JSON only. Stats
  * responses are cached at Cloudflare for a couple of minutes, so most visits never
- * reach the VPS (docs/08-website.md#player-stats).
+ * reach the VPS (docs/08-website.md#player-stats). On the VPS it serves HTTPS and
+ * only answers Cloudflare ({@link OriginTls}); locally and in tests, plain HTTP.
  */
 public final class Api {
 
@@ -52,8 +54,15 @@ public final class Api {
     /** {@code discordUp} is for /health: whether the bot is connected, or null if it's switched off. */
     public static Api start(BackendConfig config, Stats stats, AccountRoutes accounts, BooleanSupplier discordUp) {
         RateLimits limits = new RateLimits(config.requestsPerMinute());
+        // Read now: a missing or wrong certificate stops the start with the reason.
+        SslContextFactory.Server ssl = config.tls() == null ? null : OriginTls.sslContext(config.tls());
         Javalin app = Javalin.create(javalin -> {
             javalin.concurrency.useVirtualThreads = true;
+            if (ssl != null) {
+                // HTTPS only: with a connector of our own, Javalin doesn't add its plain HTTP one.
+                javalin.jetty.addConnector((server, http) ->
+                        OriginTls.connector(server, http, ssl, config.host(), config.port()));
+            }
             javalin.startup.showJavalinBanner = false;
             javalin.jsonMapper(new JavalinJackson3(JsonMapper.builder().build(), false));
             javalin.bundledPlugins.enableCors(cors -> cors.addRule(rule -> {

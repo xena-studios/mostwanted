@@ -16,3 +16,7 @@ pack/out/
 
 # Worktrees made by Claude Code agents
 .claude/worktrees/
+# Secrets: never committed (server/.env.example, backend/.env.example)
+.env
+*.key
+backend/tls/
