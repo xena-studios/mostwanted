@@ -21,6 +21,8 @@ import co.xenastudios.mostwanted.player.StatsCommand;
 import co.xenastudios.mostwanted.player.WebsiteCommand;
 import co.xenastudios.mostwanted.privacy.Cleanup;
 import co.xenastudios.mostwanted.robbery.Robberies;
+import co.xenastudios.mostwanted.shop.ShopSettings;
+import co.xenastudios.mostwanted.shop.Shops;
 import co.xenastudios.mostwanted.storage.GameLog;
 import co.xenastudios.mostwanted.storage.Storage;
 import co.xenastudios.mostwanted.zone.ZoneCommand;
@@ -51,12 +53,14 @@ public final class MostWanted extends JavaPlugin {
         Settings settings;
         Messages messages;
         GunSettings gunSettings;
+        ShopSettings shopSettings;
         try {
             settings = Settings.read(getConfig());
             messages = Messages.load(this);
             gunSettings = GunSettings.read(file("guns.yml"));
+            shopSettings = ShopSettings.read(file("shops.yml"), gunSettings);
         } catch (IllegalArgumentException | IOException e) {
-            stop("Fix config.yml, messages.yml or guns.yml and restart: " + e.getMessage(), null);
+            stop("Fix config.yml, messages.yml, guns.yml or shops.yml and restart: " + e.getMessage(), null);
             return;
         }
         Database database;
@@ -97,7 +101,8 @@ public final class MostWanted extends JavaPlugin {
         Guns guns = new Guns(this, gunSettings, items, players, combat, messages);
         arrests.onArrest(guns::confiscate);
         Duty duty = new Duty(players, combat, handcuffs, guns, spawns, messages, gameLog, clock);
-        for (var each : List.of(arrests, combat, duty, guns,
+        Shops shops = new Shops(shopSettings, guns, players, tracker, messages, gameLog, clock);
+        for (var each : List.of(arrests, combat, duty, guns, shops,
                 new Cuffing(players, combat, arrests, handcuffs, messages, settings.rules()))) {
             getServer().getPluginManager().registerEvents(each, this);
         }
@@ -130,6 +135,7 @@ public final class MostWanted extends JavaPlugin {
             event.registrar().register(duty.command(), "Go on or off duty as a guard.");
             event.registrar().register(stats.command(), "Show or hide your stats on the website and Discord.");
             event.registrar().register(website.command(), "A code to sign in on mostwantedmc.com.");
+            event.registrar().register(shops.command(), "Open the shop where you stand.");
         });
     }
 

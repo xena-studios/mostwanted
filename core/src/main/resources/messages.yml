@@ -159,3 +159,13 @@ gun:
   no-ammo: "<error>✖</error> no <value><ammo></value> left. buy more at a hideout."
   tased: "<success>✔</success> you tased <criminal><player></criminal>. cuff them!"
   tased-you: "<error>⚡</error> <guard><player></guard> tased you!"
+
+shop:
+  none: "<error>✖</error> there's no shop for you here. criminals shop at a hideout, guards at the police station."
+  title: "<b><brand><name></brand></b>"
+  price: "price: <money><price></money>"
+  click: "click to buy"
+  balance: "<white>your money</white>"
+  bought: "<success>✔</success> bought <value><amount></value>× <value><item></value> for <money><price></money>."
+  cant-afford: "<error>✖</error> that costs <money><price></money>, more than your cash and bank together."
+  full: "<error>✖</error> your inventory is full."
