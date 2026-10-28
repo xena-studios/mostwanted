@@ -8,3 +8,5 @@ build/
 .cache/
 run/
 backend/discord-setup/.build-state.json
+# The backend when run from the repo
+backend/logs/
