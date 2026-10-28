@@ -107,6 +107,7 @@ In the dashboard for **mostwantedmc.com**:
 3. **SSL/TLS → Origin Server → Authenticated Origin Pulls: On.**
 4. **DNS → Add record:** `A`, name `api`, IPv4 `VPS_IP`, **Proxied** (orange cloud).
 5. **Rules → Origin Rules → Create rule:** "api to 8443", when **Hostname equals `api.mostwantedmc.com`**, **Destination Port → Rewrite to 8443**. (Raptor gives servers ports from 1024 up, so the backend can't take 443 itself.)
+6. **Caching → Cache Rules → Create rule:** "api stats", when **Hostname equals `api.mostwantedmc.com`** and **URI Path starts with `/v1/players/`** or **starts with `/v1/leaderboards/`**, **Eligible for cache**, Edge TTL **Use cache-control header if present**. Without it Cloudflare caches nothing from the API (it only caches file extensions by default), and every page view reaches the VPS.
 
 About step 3: the certificate Cloudflare shows the VPS is the same for **every** Cloudflare customer, so it proves a request came through Cloudflare, not through *our* zone. Someone with their own Cloudflare zone pointed at our IP could still get through. Closing that needs our own client certificate uploaded to the zone (Cloudflare's API only, no dashboard button: "zone-level Authenticated Origin Pulls with your own certificate" in their docs); then `TLS_CLIENT_CA` points at our CA instead of Cloudflare's. Fine to launch without, worth doing after.
 

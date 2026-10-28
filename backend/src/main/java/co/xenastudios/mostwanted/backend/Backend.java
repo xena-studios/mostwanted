@@ -42,7 +42,7 @@ public final class Backend {
             return;
         }
         LOG.info("Starting with {}", config);
-        Database database = Database.start(config.database(), "backend");
+        Database database = connect(config);
         Stats stats = new Stats(database.sql(), config.zone(), Clock.systemUTC());
         Bot bot = config.discordToken() == null ? null : Bot.start(config.discordToken(), stats, config.site());
         if (bot == null) {
@@ -75,6 +75,29 @@ public final class Backend {
         }, "shutdown"));
     }
 
+    /**
+     * Starts the pool, waiting up to 2 minutes for the database: after a reboot the
+     * backend can come up before PostgreSQL does.
+     */
+    private static Database connect(BackendConfig config) {
+        for (int attempt = 1; ; attempt++) {
+            try {
+                return Database.start(config.database(), "backend");
+            } catch (RuntimeException e) {
+                if (attempt == 12) {
+                    throw e;
+                }
+                LOG.warn("Database not reachable yet ({}); trying again in 10 s", e.getMessage());
+                try {
+                    Thread.sleep(Duration.ofSeconds(10));
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw e;
+                }
+            }
+        }
+    }
+
     /** Runs {@code task} now and then, a minute after starting (the bot needs to connect first). */
     private static void every(Duration gap, Runnable task) {
         try {
@@ -83,7 +106,7 @@ public final class Backend {
                 try {
                     task.run();
                 } catch (RuntimeException e) {
-                    LOG.warn("Rank roles failed", e);
+                    LOG.warn("Discord role sync failed", e);
                 }
                 Thread.sleep(gap);
             }

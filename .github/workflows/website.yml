@@ -32,10 +32,12 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
         run: |
           if [[ $GITHUB_EVENT_NAME != pull_request ]]; then echo "website=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          # Read first, so a failed call fails the step instead of skipping the build.
+          files=$(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only)
           website=false
           while read -r file; do
             case $file in website/* | .github/workflows/website.yml) website=true ;; esac
-          done < <(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only)
+          done <<< "$files"
           echo "website=$website" >> "$GITHUB_OUTPUT"
 
   build:

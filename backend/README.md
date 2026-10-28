@@ -33,6 +33,7 @@ discord-setup/   builds the Discord server (roles, channels, posts, AutoMod) fro
 - Code attempts are limited to 10 a minute per visitor.
 - Linking an account that already exists on its own (signed in with just the code, or just Discord) folds it in. One that's linked to someone else can't be taken.
 - When an account has both sides, the bot gives the **Linked** role; deleting the account takes it back.
+- Every 10 minutes, linked players get the Discord role of their store rank (VIP, VIP+, MVP, Legend), read from LuckPerms ([docs/10-discord-bot.md](../docs/10-discord-bot.md)).
 - Expired sessions and codes are deleted daily.
 
 Errors are `{"error": "..."}` with a reason. Each visitor gets 120 requests a minute (429 after that). Browsers can only call it from `API_ORIGINS`.

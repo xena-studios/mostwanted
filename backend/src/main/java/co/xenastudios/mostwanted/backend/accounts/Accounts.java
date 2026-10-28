@@ -66,20 +66,13 @@ public final class Accounts {
 
     /** Finds or makes the account for this Discord user, keeping their name up to date. */
     public long signInWithDiscord(String discordId, String name) {
-        return sql.transactionResult(tx -> {
-            DSLContext db = tx.dsl();
-            AccountsRecord found = db.selectFrom(ACCOUNTS).where(ACCOUNTS.DISCORD_ID.eq(discordId)).forUpdate().fetchOne();
-            if (found != null) {
-                found.setDiscordName(name);
-                found.store();
-                return found.getId();
-            }
-            return db.insertInto(ACCOUNTS)
-                    .set(ACCOUNTS.DISCORD_ID, discordId)
-                    .set(ACCOUNTS.DISCORD_NAME, name)
-                    .returningResult(ACCOUNTS.ID)
-                    .fetchSingle().value1();
-        });
+        // One statement, so two sign-ins at once can't both try to make the account.
+        return sql.insertInto(ACCOUNTS)
+                .set(ACCOUNTS.DISCORD_ID, discordId)
+                .set(ACCOUNTS.DISCORD_NAME, name)
+                .onConflict(ACCOUNTS.DISCORD_ID).doUpdate().set(ACCOUNTS.DISCORD_NAME, name)
+                .returningResult(ACCOUNTS.ID)
+                .fetchSingle().value1();
     }
 
     /** Uses up a /website code and finds or makes that player's account. Empty if the code is bad. */
@@ -106,16 +99,20 @@ public final class Accounts {
     public Link linkMinecraft(long accountId, String code) {
         return sql.transactionResult(tx -> {
             DSLContext db = tx.dsl();
+            AccountsRecord me = db.selectFrom(ACCOUNTS).where(ACCOUNTS.ID.eq(accountId)).forUpdate().fetchSingle();
+            if (me.getMinecraftUuid() != null) {
+                // Already linked: say so without using up the code, which may be for another account.
+                UUID whose = db.select(LOGIN_CODES.UUID).from(LOGIN_CODES)
+                        .where(LOGIN_CODES.CODE.eq(code)).and(LOGIN_CODES.EXPIRES_AT.gt(DSL.currentOffsetDateTime()))
+                        .fetchOne(LOGIN_CODES.UUID);
+                if (whose == null) {
+                    return Link.BAD_CODE;
+                }
+                return whose.equals(me.getMinecraftUuid()) ? Link.ALREADY_YOURS : Link.ALREADY_LINKED;
+            }
             UUID uuid = consume(db, code);
             if (uuid == null) {
                 return Link.BAD_CODE;
-            }
-            AccountsRecord me = db.selectFrom(ACCOUNTS).where(ACCOUNTS.ID.eq(accountId)).forUpdate().fetchSingle();
-            if (uuid.equals(me.getMinecraftUuid())) {
-                return Link.ALREADY_YOURS;
-            }
-            if (me.getMinecraftUuid() != null) {
-                return Link.ALREADY_LINKED;
             }
             AccountsRecord other = db.selectFrom(ACCOUNTS).where(ACCOUNTS.MINECRAFT_UUID.eq(uuid)).forUpdate().fetchOne();
             if (other != null) {

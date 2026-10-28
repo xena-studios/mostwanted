@@ -46,38 +46,43 @@ public final class AccountRoutes {
         this.linkedRole = linkedRole;
     }
 
+    /** Forgets code attempts from more than a minute ago (with the general limit's sweep). */
+    void sweep() {
+        codeAttempts.sweep();
+    }
+
     void register(JavalinConfig javalin) {
         javalin.routes.before("/v1/*", ctx -> {
             String method = ctx.method().name();
             String origin = ctx.header("Origin");
             if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("OPTIONS")
                     && (origin == null || !config.origins().contains(origin))) {
-                throw new Api.Failure(HttpStatus.FORBIDDEN, "requests that change things must come from the website");
+                throw new Api.Failure(HttpStatus.FORBIDDEN, "Changes must come from the website.");
             }
         });
 
         javalin.routes.get("/v1/me", ctx -> {
-            long id = signedIn(ctx).orElseThrow(() -> new Api.Failure(HttpStatus.UNAUTHORIZED, "not signed in"));
-            ctx.json(view(accounts.get(id).orElseThrow(() -> new Api.Failure(HttpStatus.UNAUTHORIZED, "not signed in"))));
+            long id = signedIn(ctx).orElseThrow(() -> new Api.Failure(HttpStatus.UNAUTHORIZED, "You're not signed in."));
+            ctx.json(view(accounts.get(id).orElseThrow(() -> new Api.Failure(HttpStatus.UNAUTHORIZED, "You're not signed in."))));
         });
 
         javalin.routes.post("/v1/auth/code", ctx -> {
             String code = code(ctx);
             long id = accounts.signInWithCode(code)
-                    .orElseThrow(() -> new Api.Failure(HttpStatus.BAD_REQUEST, "that code is wrong or has run out"));
+                    .orElseThrow(() -> new Api.Failure(HttpStatus.BAD_REQUEST, "That code is wrong or has run out. Get a new one with /website in game."));
             startSession(ctx, id);
             ctx.json(view(accounts.get(id).orElseThrow()));
         });
 
         javalin.routes.post("/v1/me/minecraft", ctx -> {
-            long id = signedIn(ctx).orElseThrow(() -> new Api.Failure(HttpStatus.UNAUTHORIZED, "not signed in"));
+            long id = signedIn(ctx).orElseThrow(() -> new Api.Failure(HttpStatus.UNAUTHORIZED, "You're not signed in."));
             String code = code(ctx);
             linked(ctx, id, accounts.linkMinecraft(id, code));
         });
 
         javalin.routes.get("/v1/auth/discord", ctx -> {
             if (discord == null) {
-                throw new Api.Failure(HttpStatus.SERVICE_UNAVAILABLE, "discord sign-in isn't set up yet");
+                throw new Api.Failure(HttpStatus.SERVICE_UNAVAILABLE, "Discord sign-in isn't set up yet.");
             }
             String state = random(24);
             ctx.res().addHeader("Set-Cookie", cookie(STATE, state, 600, "/v1/auth/discord"));
@@ -128,7 +133,7 @@ public final class AccountRoutes {
         });
 
         javalin.routes.delete("/v1/me", ctx -> {
-            long id = signedIn(ctx).orElseThrow(() -> new Api.Failure(HttpStatus.UNAUTHORIZED, "not signed in"));
+            long id = signedIn(ctx).orElseThrow(() -> new Api.Failure(HttpStatus.UNAUTHORIZED, "You're not signed in."));
             accounts.delete(id).filter(Accounts.Account::linked)
                     .ifPresent(account -> linkedRole.update(account.discordId(), false));
             ctx.res().addHeader("Set-Cookie", cookie(SESSION, "", 0, "/"));
@@ -147,17 +152,17 @@ public final class AccountRoutes {
     private String code(Context ctx) {
         if (!codeAttempts.allow(Api.client(ctx, config.behindCloudflare()))) {
             ctx.header("Retry-After", "60");
-            throw new Api.Failure(HttpStatus.TOO_MANY_REQUESTS, "too many tries, wait a minute");
+            throw new Api.Failure(HttpStatus.TOO_MANY_REQUESTS, "Too many tries. Try again in a minute.");
         }
         Map<?, ?> body;
         try {
             body = ctx.bodyAsClass(Map.class);
         } catch (RuntimeException e) {
-            throw new Api.Failure(HttpStatus.BAD_REQUEST, "send {\"code\": \"...\"}");
+            throw new Api.Failure(HttpStatus.BAD_REQUEST, "Send {\"code\": \"...\"}.");
         }
         String code = LoginCode.normalize(body.get("code") instanceof String s ? s : null);
         if (code == null) {
-            throw new Api.Failure(HttpStatus.BAD_REQUEST, "codes are 6 letters and numbers, from /website in game");
+            throw new Api.Failure(HttpStatus.BAD_REQUEST, "Codes are 6 letters and numbers, from /website in game.");
         }
         return code;
     }
@@ -169,16 +174,16 @@ public final class AccountRoutes {
                 ctx.json(view(accounts.get(id).orElseThrow()));
             }
             case ALREADY_YOURS -> ctx.json(view(accounts.get(id).orElseThrow()));
-            case BAD_CODE -> throw new Api.Failure(HttpStatus.BAD_REQUEST, "that code is wrong or has run out");
+            case BAD_CODE -> throw new Api.Failure(HttpStatus.BAD_REQUEST, "That code is wrong or has run out. Get a new one with /website in game.");
             default -> throw new Api.Failure(HttpStatus.CONFLICT, linkError(result));
         }
     }
 
     private static String linkError(Accounts.Link result) {
         return switch (result) {
-            case ALREADY_LINKED -> "this account is already linked to a different one";
-            case TAKEN -> "that account is already linked to someone else";
-            default -> "couldn't link";
+            case ALREADY_LINKED -> "This account already has a Minecraft account linked.";
+            case TAKEN -> "That Minecraft account is linked to someone else's Discord account.";
+            default -> "Couldn't link your accounts. Try again.";
         };
     }
 
