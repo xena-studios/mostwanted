@@ -18,7 +18,7 @@ Most of the game needs no commands: you walk, punch, right-click and run. These 
 | `/joinmessage set <message>` | Legend | Sets the message everyone sees when you join (one line, up to 48 characters). `/joinmessage clear` removes it. |
 | `/website` | Everyone | Gives you a one-time code to sign in on [mostwantedmc.com](/login), or to link your Minecraft account there. |
 
-Links to the website, sent in chat: `/store` (or `/buy`), `/site`, `/rules`, `/wiki` and `/apply`.
+Links to the website, sent in chat: `/store` (or `/buy`), `/rules`, `/wiki` and `/apply`.
 
 ## About `/website`
 
