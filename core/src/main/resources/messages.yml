@@ -233,3 +233,25 @@ cosmetics:
     set: "<success>✔</success> your join message is now: <white><message></white>"
     cleared: "<success>✔</success> your join message is gone."
     invalid: "<error>✖</error> a join message is one line of up to <value><max></value> characters."
+
+# Leaderboards in the world (/mw board). Titles are bold capitals, as written.
+board:
+  title:
+    most-wanted: "<b><criminal>MOST WANTED</criminal></b>"
+    escapes: "<b><inmate>TOP ESCAPES</inmate></b>"
+    guards: "<b><guard>TOP GUARDS</guard></b>"
+    robberies: "<b><money>TOP ROBBERS</money></b>"
+    bounty-earned: "<b><guard>BOUNTY HUNTERS</guard></b>"
+    most-arrested: "<b><criminal>MOST ARRESTED</criminal></b>"
+  period:
+    all: "<dim>all time</dim>"
+    month: "<dim>this month</dim>"
+    week: "<dim>this week</dim>"
+  line: "<dim><rank>.</dim> <white><player></white> <value><value></value>"
+  empty: "<dim>nobody yet</dim>"
+  added: "<success>✔</success> placed the <value><board></value> board. it updates every minute."
+  removed: "<success>✔</success> took away the <value><board></value> board."
+  none-near: "<error>✖</error> there's no board within 5 blocks."
+  unknown: "<error>✖</error> boards: most-wanted, escapes, guards, robberies, bounty-earned, most-arrested. periods: all, month, week."
+  list: "<info>ⓘ</info> <value><board></value> (<period>) in <value><world></value> at <value><x> <y> <z></value>"
+  list-empty: "<info>ⓘ</info> no boards placed. <value>/mw board add</value> places one where you stand."

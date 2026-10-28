@@ -27,6 +27,7 @@ Needs Java 25, Node 24 and Docker. It builds `core`, starts PostgreSQL in Docker
 | riot | Inmates pressing the alarm start a riot; inmates can then hurt guards |
 | duty | `/duty` swaps guard and inmate money |
 | cosmetics | `/cosmetics` refuses what you don't own, saves a trail and chat colour you do; `/mw boost` reaches everyone |
+| boards | `/mw board add escapes` puts up a board that lists a player who escaped |
 
 ## How the bots connect
 

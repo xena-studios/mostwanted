@@ -3,6 +3,7 @@ package co.xenastudios.mostwanted.backend.stats;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import co.xenastudios.mostwanted.common.Board;
 import co.xenastudios.mostwanted.backend.TestDatabase;
 import java.time.Clock;
 import java.time.Instant;

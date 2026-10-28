@@ -1,6 +1,8 @@
 package co.xenastudios.mostwanted;
 
 import co.xenastudios.mostwanted.arrest.Arrests;
+import co.xenastudios.mostwanted.board.BoardCommand;
+import co.xenastudios.mostwanted.board.Leaderboards;
 import co.xenastudios.mostwanted.arrest.Cuffing;
 import co.xenastudios.mostwanted.combat.Combat;
 import co.xenastudios.mostwanted.common.Database;
@@ -164,6 +166,11 @@ public final class MostWanted extends JavaPlugin {
         getServer().getScheduler().runTaskTimerAsynchronously(this, pack::refresh, 0, 20 * 60 * 5);
         store = new TebexQueue(this, settings.store(), getLogger());
         store.start();
+        Leaderboards boards = new Leaderboards(this, storage, messages, settings.zone(), clock,
+                new File(getDataFolder(), "boards.yml"), getLogger());
+        boards.load();
+        getServer().getPluginManager().registerEvents(boards, this);
+        getServer().getScheduler().runTaskTimer(this, boards::refresh, 40, 20 * 60);
         StatsCommand stats = new StatsCommand(players, messages);
         WebsiteCommand website = new WebsiteCommand(storage, messages, this::onMainThread, clock);
 
@@ -171,7 +178,8 @@ public final class MostWanted extends JavaPlugin {
             event.registrar().register(
                     MostWantedCommand.create(this, players, messages, gameLog,
                             new ZoneCommand(zones, tracker, messages, gameLog),
-                            new GiveCommand(guns, messages, gameLog), cosmetics),
+                            new GiveCommand(guns, messages, gameLog), cosmetics,
+                            new BoardCommand(boards, messages, gameLog)),
                     "The prison break game's admin command.",
                     List.of("mw"));
             event.registrar().register(duty.command(), "Go on or off duty as a guard.");

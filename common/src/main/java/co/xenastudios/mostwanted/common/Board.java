@@ -1,10 +1,8 @@
-package co.xenastudios.mostwanted.backend.stats;
-
-import co.xenastudios.mostwanted.common.Stat;
+package co.xenastudios.mostwanted.common;
 
 /**
- * The leaderboards the API serves (docs/08-website.md#leaderboards). The ids are in the
- * website's URLs. Fastest escapes, biggest heists and richest come when core records them.
+ * The leaderboards, on the website (docs/08-website.md#leaderboards) and in game. The
+ * ids are in the website's URLs and core's board command. Fastest escapes, biggest heists and richest come when core records them.
  */
 public enum Board {
     /** The highest bounties right now: no periods. */

@@ -578,6 +578,22 @@ const scenarios = {
     server.cmd("mw boost Crim1");
     await heard(bots.Inmate1, "boosted the server");
   },
+
+  async boards({ server, bots, tp }) {
+    // A board placed where Guard1 stands lists Inmate1, who escaped earlier.
+    await tp("Guard1", 10.5, -60, 40.5);
+    bots.Guard1.chat("/mw board add escapes");
+    await heard(bots.Guard1, "placed the");
+    // The board's text, as the server has it: read off the main thread, so ask a few times.
+    const shown = server.waitFor(/TOP ESCAPES.*Inmate1/, 8000);
+    for (let i = 0; i < 6; i++) {
+      await sleep(1000);
+      server.cmd("data get entity @e[type=minecraft:text_display,limit=1,sort=nearest,x=10,y=-60,z=40] text");
+    }
+    await shown;
+    bots.Guard1.chat("/mw board remove");
+    await heard(bots.Guard1, "took away");
+  },
 };
 
 // ---------------------------------------------------------------- run

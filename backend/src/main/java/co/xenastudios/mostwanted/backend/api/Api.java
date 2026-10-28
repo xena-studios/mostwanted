@@ -1,11 +1,11 @@
 package co.xenastudios.mostwanted.backend.api;
 
+import co.xenastudios.mostwanted.common.Board;
 import co.xenastudios.mostwanted.backend.BackendConfig;
 import co.xenastudios.mostwanted.backend.accounts.Accounts;
 import co.xenastudios.mostwanted.backend.accounts.DiscordOAuth;
 import co.xenastudios.mostwanted.backend.accounts.LinkedRole;
 import co.xenastudios.mostwanted.backend.accounts.Sessions;
-import co.xenastudios.mostwanted.backend.stats.Board;
 import co.xenastudios.mostwanted.backend.stats.Stats;
 import io.javalin.Javalin;
 import io.javalin.http.Context;

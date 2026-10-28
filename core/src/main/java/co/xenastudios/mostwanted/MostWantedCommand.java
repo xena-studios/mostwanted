@@ -1,6 +1,7 @@
 package co.xenastudios.mostwanted;
 
 import co.xenastudios.mostwanted.message.Messages;
+import co.xenastudios.mostwanted.board.BoardCommand;
 import co.xenastudios.mostwanted.common.style.Money;
 import co.xenastudios.mostwanted.cosmetic.Cosmetics;
 import co.xenastudios.mostwanted.player.PlayerState;
@@ -32,7 +33,8 @@ final class MostWantedCommand {
     private MostWantedCommand() {}
 
     static LiteralCommandNode<CommandSourceStack> create(MostWanted plugin, PlayerStore players, Messages messages,
-            GameLog gameLog, ZoneCommand zones, GiveCommand give, Cosmetics cosmetics) {
+            GameLog gameLog, ZoneCommand zones, GiveCommand give, Cosmetics cosmetics,
+            BoardCommand boards) {
         var set = Commands.literal("set").then(Commands.argument("player", StringArgumentType.word())
                 .then(Commands.literal("role").then(Commands.argument("role", StringArgumentType.word())
                         .suggests((context, builder) -> {
@@ -70,6 +72,7 @@ final class MostWantedCommand {
                 .then(set)
                 .then(zones.create())
                 .then(give.create())
+                .then(boards.create())
                 // Run by Tebex for the Server Boost: the buyer's name, who needn't be online.
                 .then(Commands.literal("boost").then(Commands.argument("player", StringArgumentType.word())
                         .executes(context -> {
