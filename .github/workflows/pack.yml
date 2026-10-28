@@ -1,0 +1,49 @@
+# Builds the resource pack (pack/) on every change to it, and publishes it to the
+# "pack" release on main. The plugin downloads the zip's SHA-1 from that release,
+# so a new pack reaches players without a config change or a restart.
+name: pack
+
+on:
+  pull_request:
+    paths: ["pack/**", "core/src/main/resources/guns.yml", ".github/workflows/pack.yml"]
+  push:
+    branches: [main]
+    paths: ["pack/**", "core/src/main/resources/guns.yml", ".github/workflows/pack.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      # Fails if an item has no texture.
+      - run: python3 pack/build.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pack
+          path: pack/out/
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: pack
+          path: out
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if ! gh release view pack >/dev/null 2>&1; then
+            gh release create pack --title "Resource pack" --latest=false --target "$GITHUB_SHA" \
+              --notes "The Java resource pack, rebuilt from pack/ on every change. The server reads mostwanted-pack.sha1 to know when it changes."
+          fi
+          gh release upload pack out/mostwanted-pack.zip out/mostwanted-pack.sha1 --clobber

@@ -1,13 +1,10 @@
 
 
-# Riots. Mark the alarm with /mw zone create <name> alarm, in the yard. When enough
-# inmates right-click inside it within the window, a riot starts: guards and inmates
-# fight inside the prison, and guards can cuff inmates there. It ends on time, or
-# once every rioter is caught.
-riots:
-  inmates-needed: 3
-  press-window-seconds: 30
-  length-minutes: 5
-  cooldown-minutes: 30
-  # Guards on duty needed to start one.
-  min-guards: 1
+# The resource pack (pack/ in the repo), published as the "pack" GitHub release.
+# Java players get it as they join; its SHA-1 is read from sha1-url, so publishing
+# a new pack needs no change here. Empty url turns it off. Without the pack, items
+# show as the vanilla items they're made from: the game still works.
+resource-pack:
+  url: https://github.com/xena-studios/mostwanted/releases/download/pack/mostwanted-pack.zip
+  sha1-url: https://github.com/xena-studios/mostwanted/releases/download/pack/mostwanted-pack.sha1
+  required: true

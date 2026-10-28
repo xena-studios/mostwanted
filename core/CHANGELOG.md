@@ -1,2 +1,2 @@
 
-- Riots: inmates press the alarm together; guards and inmates fight in the prison until time runs out or every rioter is caught.
+- The resource pack: sent on join, with vanilla-style textures for every item of ours. `pack-models` in `guns.yml` is gone (items are always tagged).
