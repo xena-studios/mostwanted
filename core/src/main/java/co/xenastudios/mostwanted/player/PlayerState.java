@@ -20,6 +20,9 @@ public final class PlayerState {
     private long bank;
     private long bounty;
     private Instant jailedUntil;
+    /** The other side's money while on or off duty: see {@link #swapStash}. */
+    private long stashedCash;
+    private long stashedBank;
     /** All-time totals, for the scoreboard. */
     private final Map<Stat, Long> totals;
     /** Added since the last save, for every period. */
@@ -28,7 +31,7 @@ public final class PlayerState {
     private boolean hudDirty = true;
 
     PlayerState(UUID uuid, String name, Role role, long cash, long bank, long bounty, Instant jailedUntil,
-            Map<Stat, Long> totals) {
+            long stashedCash, long stashedBank, Map<Stat, Long> totals) {
         this.uuid = uuid;
         this.name = name;
         this.role = role;
@@ -36,13 +39,15 @@ public final class PlayerState {
         this.bank = bank;
         this.bounty = bounty;
         this.jailedUntil = jailedUntil;
+        this.stashedCash = stashedCash;
+        this.stashedBank = stashedBank;
         this.totals = new EnumMap<>(Stat.class);
         this.totals.putAll(totals);
     }
 
     /** A new player: an inmate with nothing. */
     static PlayerState fresh(UUID uuid, String name) {
-        return new PlayerState(uuid, name, Role.INMATE, 0, 0, 0, null, Map.of());
+        return new PlayerState(uuid, name, Role.INMATE, 0, 0, 0, null, 0, 0, Map.of());
     }
 
     public UUID uuid() { return uuid; }
@@ -52,6 +57,13 @@ public final class PlayerState {
     public long bank() { return bank; }
     public long bounty() { return bounty; }
     public Instant jailedUntil() { return jailedUntil; }
+    public long stashedCash() { return stashedCash; }
+    public long stashedBank() { return stashedBank; }
+
+    /** Whether they're serving a sentence at this moment. */
+    public boolean jailed(Instant now) {
+        return jailedUntil != null && jailedUntil.isAfter(now);
+    }
 
     public long total(Stat stat) {
         return totals.getOrDefault(stat, 0L);
@@ -81,6 +93,17 @@ public final class PlayerState {
 
     public void jailedUntil(Instant until) {
         this.jailedUntil = until;
+        changed();
+    }
+
+    /** Going on or off duty: guard money and inmate/criminal money trade places. */
+    public void swapStash() {
+        long cash = this.cash;
+        long bank = this.bank;
+        this.cash = stashedCash;
+        this.bank = stashedBank;
+        stashedCash = cash;
+        stashedBank = bank;
         changed();
     }
 
@@ -118,7 +141,8 @@ public final class PlayerState {
 
     /** What to save, taken on the main thread; clears the dirty flag and the unsaved stats. */
     Snapshot snapshot() {
-        Snapshot snapshot = new Snapshot(uuid, name, role, cash, bank, bounty, jailedUntil, Map.copyOf(unsaved));
+        Snapshot snapshot = new Snapshot(uuid, name, role, cash, bank, bounty, jailedUntil, stashedCash, stashedBank,
+                Map.copyOf(unsaved));
         unsaved.clear();
         dirty = false;
         return snapshot;
@@ -139,5 +163,5 @@ public final class PlayerState {
 
     /** An immutable copy of the state to write, safe to hand to another thread. */
     record Snapshot(UUID uuid, String name, Role role, long cash, long bank, long bounty, Instant jailedUntil,
-            Map<Stat, Long> stats) {}
+            long stashedCash, long stashedBank, Map<Stat, Long> stats) {}
 }

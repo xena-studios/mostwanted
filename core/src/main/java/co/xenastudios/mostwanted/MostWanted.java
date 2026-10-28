@@ -1,8 +1,13 @@
 package co.xenastudios.mostwanted;
 
+import co.xenastudios.mostwanted.arrest.Arrests;
+import co.xenastudios.mostwanted.arrest.Cuffing;
+import co.xenastudios.mostwanted.combat.Combat;
 import co.xenastudios.mostwanted.common.Database;
 import co.xenastudios.mostwanted.config.Settings;
+import co.xenastudios.mostwanted.duty.Duty;
 import co.xenastudios.mostwanted.escape.Escapes;
+import co.xenastudios.mostwanted.item.Handcuffs;
 import co.xenastudios.mostwanted.hud.Hud;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerListener;
@@ -10,6 +15,7 @@ import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.storage.GameLog;
 import co.xenastudios.mostwanted.storage.Storage;
 import co.xenastudios.mostwanted.zone.ZoneCommand;
+import co.xenastudios.mostwanted.zone.Spawns;
 import co.xenastudios.mostwanted.zone.ZoneNotices;
 import co.xenastudios.mostwanted.zone.ZoneStore;
 import co.xenastudios.mostwanted.zone.ZoneTracker;
@@ -68,16 +74,31 @@ public final class MostWanted extends JavaPlugin {
         getServer().getPluginManager().registerEvents(tracker, this);
         getLogger().info("Loaded " + zones.all().size() + " zones");
 
+        Spawns spawns = new Spawns(zones);
+        Handcuffs handcuffs = new Handcuffs(this, messages);
+        Arrests arrests = new Arrests(this, players, zones, tracker, spawns, messages, gameLog, settings.rules(), clock);
+        tracker.listen(arrests);
+        Combat combat = new Combat(players, tracker, arrests, handcuffs, messages, gameLog, settings.rules(), clock);
+        Duty duty = new Duty(players, combat, handcuffs, spawns, messages, gameLog, clock);
+        for (var each : List.of(arrests, combat, duty,
+                new Cuffing(players, combat, arrests, handcuffs, messages, settings.rules()))) {
+            getServer().getPluginManager().registerEvents(each, this);
+        }
+
         long saveTicks = settings.saveEvery().toSeconds() * 20;
         getServer().getScheduler().runTaskTimer(this, players::saveChanged, saveTicks, saveTicks);
         getServer().getScheduler().runTaskTimer(this, hud::tick, 10, 10);
         getServer().getScheduler().runTaskTimer(this, listener::sweep, 600, 600);
+        getServer().getScheduler().runTaskTimer(this, arrests::tick, 20, 20);
 
-        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> event.registrar().register(
-                MostWantedCommand.create(this, players, messages, gameLog,
-                        new ZoneCommand(zones, tracker, messages, gameLog)),
-                "The prison break game's admin command.",
-                List.of("mw")));
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            event.registrar().register(
+                    MostWantedCommand.create(this, players, messages, gameLog,
+                            new ZoneCommand(zones, tracker, messages, gameLog)),
+                    "The prison break game's admin command.",
+                    List.of("mw"));
+            event.registrar().register(duty.command(), "Go on or off duty as a guard.");
+        });
     }
 
     @Override

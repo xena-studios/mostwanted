@@ -83,3 +83,35 @@ tab:
     inmate: "<inmate>inmate</inmate> <value><player></value>"
     criminal: "<criminal>criminal</criminal> <criminal><player></criminal>"
     guard: "<guard>guard</guard> <guard><player></guard>"
+
+arrest:
+  you: "<error>⛓</error> <guard><officer></guard> arrested you. you lost <money><cash></money> in cash, and you're in a cell for <value><time></value>."
+  you-died: "<error>⛓</error> you died, so you're back in prison. you lost <money><cash></money> in cash, and you're in a cell for <value><time></value>."
+  guard: "<success>✔</success> you arrested <criminal><player></criminal> and earned <money><amount></money>."
+  guard-killed: "<success>✔</success> you took down <criminal><player></criminal> and earned <money><amount></money>. cuff them for the whole bounty."
+  everyone: "<guard>⚑</guard> <criminal><player></criminal> was arrested by <guard><officer></guard>."
+  everyone-died: "<guard>⚑</guard> <criminal><player></criminal> is back in prison."
+  stay: "<error>✖</error> you're serving a sentence. back in your cell."
+  released: "<success>✔</success> your sentence is over. you're free to roam the prison."
+
+cuffs:
+  too-far: "<error>✖</error> get closer to <value><player></value>."
+  not-a-guard: "<error>✖</error> only guards on duty can use handcuffs."
+  not-a-criminal: "<error>✖</error> <value><player></value> isn't a criminal."
+  protected: "<error>✖</error> <value><player></value> is in a safe zone."
+
+duty:
+  on: "<success>✔</success> you're on duty. right-click a criminal with your <guard>handcuffs</guard> to arrest them."
+  off: "<success>✔</success> you're off duty."
+  in-combat: "<error>✖</error> you're in a fight. try again in a few seconds."
+  jailed: "<error>✖</error> finish your sentence first."
+  criminal: "<error>✖</error> criminals can't go on duty. get arrested first."
+  removed: "<info>ⓘ</info> you're not a guard any more, so you're off duty."
+
+bounty:
+  guard-killed: "<criminal>⚠</criminal> you killed <guard><player></guard>: <money>+<amount></money> bounty."
+
+item:
+  handcuffs:
+    name: "<guard>handcuffs</guard>"
+    lore: "right-click a criminal to arrest them"
