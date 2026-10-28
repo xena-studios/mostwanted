@@ -1,0 +1,83 @@
+---
+// The frame for the Terms and Privacy pages: one long readable panel, with the
+// date it last changed at the top.
+import Base from "../layouts/Base.astro";
+import PageHero from "./PageHero.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  lead: string;
+  updated: string;
+}
+
+const { title, description, lead, updated } = Astro.props;
+---
+<Base title={title} description={description}>
+  <PageHero title={title} lead={lead} />
+  <section class="section">
+    <div class="wrap">
+      <article class="panel legal-doc">
+        <p class="updated">Last updated {updated}</p>
+        <slot />
+      </article>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .legal-doc {
+    max-width: calc(var(--measure) + 2 * var(--s-6));
+    margin-inline: auto;
+    padding: var(--s-6);
+  }
+
+  .updated {
+    color: var(--sand);
+    font-size: 0.9375rem;
+  }
+
+  .legal-doc :global(h2) {
+    margin-top: var(--s-6);
+    font-size: 1.75rem;
+    color: var(--orange);
+  }
+
+  .legal-doc :global(h3) {
+    margin-top: var(--s-5);
+    font-family: var(--body);
+    font-size: 1.0625rem;
+    font-weight: 700;
+  }
+
+  .legal-doc :global(p),
+  .legal-doc :global(li) {
+    color: var(--muted);
+  }
+
+  .legal-doc :global(p),
+  .legal-doc :global(ul) {
+    margin-top: var(--s-3);
+  }
+
+  .legal-doc :global(ul) {
+    display: grid;
+    gap: var(--s-2);
+    padding-left: var(--s-5);
+  }
+
+  .legal-doc :global(strong) {
+    color: var(--text);
+  }
+
+  .legal-doc :global(.summary) {
+    margin-top: var(--s-5);
+    padding: var(--s-4) var(--s-5);
+    border-left: 3px solid var(--orange);
+    background: color-mix(in srgb, var(--orange) 8%, transparent);
+  }
+
+  .legal-doc :global(.summary ul) {
+    margin-top: var(--s-2);
+  }
+</style>

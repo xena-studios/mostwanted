@@ -1,0 +1,118 @@
+---
+import LegalPage from "../components/LegalPage.astro";
+import { site } from "../site";
+
+const updated = "October 27, 2026";
+---
+<LegalPage
+  title="Privacy"
+  description="What MostWanted collects when you play, use the website or the Discord bot, why, who sees it, and how to get it deleted."
+  lead="What we collect when you play, why, and how to get it deleted. We collect as little as we can."
+  updated={updated}
+>
+  <div class="summary">
+    <p><strong>The short version</strong></p>
+    <ul>
+      <li>We keep what the game needs: your Minecraft name and ID, your progress and stats, and the IP address you connect from.</li>
+      <li>Your name and stats are public on the website and in Discord. You can hide them from the website.</li>
+      <li>No ads, no tracking cookies, no analytics. We never sell your data.</li>
+      <li>You must be 13 or older. Email <a href={`mailto:${site.email}`}>{site.email}</a> to see or delete your data.</li>
+    </ul>
+  </div>
+
+  <h2>Who we are</h2>
+  <p>MostWanted (the Minecraft server at <code>{site.address}</code>, the website at mostwantedmc.com, and the MostWanted Discord server and bot) is run by an individual in the United States under the name <strong>Xena Studios</strong>. In this policy, "we" means Xena Studios. Questions go to <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+
+  <h2>What we collect</h2>
+
+  <h3>When you play</h3>
+  <ul>
+    <li><strong>Your Minecraft account:</strong> your username, your account's unique ID (UUID), and whether you play on Java or Bedrock.</li>
+    <li><strong>Your IP address:</strong> needed to connect you. It's kept in the server's logs, and with a punishment if staff ban an IP address.</li>
+    <li><strong>Your progress:</strong> your role, in-game cash, bank, bounty, sentence, rank, and when you first and last played.</li>
+    <li><strong>Your stats:</strong> escapes, arrests, robberies and similar counts, all-time, monthly and weekly.</li>
+    <li><strong>What happens in the game:</strong> a record of events such as arrests, escapes, robberies and staff actions, with who was involved.</li>
+    <li><strong>Chat and commands:</strong> what you type in chat and the commands you use, in the server's logs, so staff can deal with reports.</li>
+    <li><strong>Anti-cheat checks:</strong> the server checks how you move and fight to catch cheats. It keeps the alerts, not a recording of your play.</li>
+    <li><strong>Punishments:</strong> warnings, mutes and bans, with the reason, the staff member, and the dates.</li>
+  </ul>
+
+  <h3>On the website</h3>
+  <ul>
+    <li><strong>Visiting:</strong> the site is served by Cloudflare, which processes your IP address and browser details to deliver pages and block attacks. Forms are protected by Cloudflare Turnstile, which checks you're not a bot.</li>
+    <li><strong>Signing in with Discord:</strong> your Discord user ID, username and avatar. We don't ask Discord for your email or your servers.</li>
+    <li><strong>Signing in with Minecraft:</strong> the code from <code>/website</code> in game connects your website account to your Minecraft account.</li>
+    <li><strong>Cookies:</strong> one, to keep you signed in. It's needed for signing in to work and isn't used for anything else. We use no advertising or analytics cookies.</li>
+    <li><strong>Support tickets and applications:</strong> what you write, and staff replies.</li>
+  </ul>
+
+  <h3>On Discord</h3>
+  <ul>
+    <li>If you join our Discord server: your Discord user ID, username and roles, and what you post there (Discord holds the messages).</li>
+    <li>If you use the bot: the commands you send it. If you link your accounts, the link between your Discord and Minecraft accounts.</li>
+  </ul>
+
+  <h3>When you buy something</h3>
+  <p>The store is run by <strong>Tebex</strong>, which sells the items, takes payment and handles tax and fraud. We never see your card or bank details. Tebex tells us what was bought, for which Minecraft username, the price and a transaction ID, so we can deliver it. Tebex's own <a href="https://checkout.tebex.io/privacy">privacy policy</a> covers the checkout.</p>
+
+  <h3>When you contact us</h3>
+  <p>If you email us, we have your email address and what you send.</p>
+
+  <h2>Why we use it</h2>
+  <ul>
+    <li>To run the game: connect you, save your progress, and show you your stats.</li>
+    <li>To show stats and leaderboards on the website, in Discord and in game.</li>
+    <li>To keep the game fair and safe: catching cheats, handling reports, and enforcing the <a href="/rules">rules</a>.</li>
+    <li>To answer support tickets and applications, and to tell you about replies on the site, in Discord and in game.</li>
+    <li>To deliver purchases and deal with refunds and chargebacks.</li>
+    <li>To keep our servers secure and working.</li>
+  </ul>
+  <p>We don't use your data for advertising, and we don't make automated decisions about you beyond the anti-cheat's alerts, which staff review.</p>
+
+  <h2>What's public</h2>
+  <p>Your Minecraft username, your skin's head, your role and your stats appear on your player page and on leaderboards on the website, on <code>/profile</code> in Discord, and in game. To hide them from the website and Discord, use <code>/stats private</code> in game. They still show in game, where other players can see you anyway.</p>
+
+  <h2>Who else handles it</h2>
+  <p>We don't sell or rent your data, and we don't share it for advertising. These services handle some of it to run MostWanted, each under its own privacy policy:</p>
+  <ul>
+    <li><strong>OVHcloud</strong> hosts the game server and the database, in the United States.</li>
+    <li><strong>Minehut</strong> connects players to the server, including all Bedrock players. It sees your connection before we do.</li>
+    <li><strong>Cloudflare</strong> serves the website and protects it and our API.</li>
+    <li><strong>Discord</strong>, for sign-in, the Discord server and the bot.</li>
+    <li><strong>Tebex</strong>, for the store.</li>
+    <li><strong>mc-heads.net</strong>, which draws skin heads on the website and in Discord from your Minecraft ID.</li>
+  </ul>
+  <p>We may also share information if the law requires it, or to protect players or MostWanted from harm, such as reporting a threat to the authorities.</p>
+
+  <h2>How long we keep it</h2>
+  <ul>
+    <li><strong>Server logs</strong> (chat, commands, IP addresses): 90 days.</li>
+    <li><strong>The record of game events:</strong> 12 months.</li>
+    <li><strong>Your progress and stats:</strong> while the server runs, or until you ask us to delete them.</li>
+    <li><strong>Punishments:</strong> as long as they're needed to enforce the rules, so a ban can't be dodged by asking us to forget it.</li>
+    <li><strong>Your website account, tickets and applications:</strong> until you delete your account.</li>
+    <li><strong>Sign-in sessions:</strong> 30 days.</li>
+    <li><strong>Purchase records:</strong> as long as we need them for refunds, chargebacks and our accounts.</li>
+  </ul>
+
+  <h2>Your choices</h2>
+  <ul>
+    <li><strong>See or get a copy</strong> of what we hold about you.</li>
+    <li><strong>Correct it</strong> if it's wrong.</li>
+    <li><strong>Delete it.</strong> Delete your website account from your account page, or email us to delete your game data too. We keep only what we must: active punishments and purchase records.</li>
+    <li><strong>Hide your stats</strong> from the website and Discord with <code>/stats private</code>.</li>
+  </ul>
+  <p>Email <a href={`mailto:${site.email}`}>{site.email}</a> from any address and tell us your Minecraft username. We may ask you to prove the account is yours, such as by typing a code in game. We answer within 30 days. Depending on where you live, you may have more rights over your data; we'll honor them.</p>
+
+  <h2>Children</h2>
+  <p>You must be <strong>13 or older</strong> to play on MostWanted or use the website and Discord. If you're under 18, ask a parent or guardian to read this with you. If we learn we've collected data from someone under 13, we delete it. Parents can email <a href={`mailto:${site.email}`}>{site.email}</a> to ask us to.</p>
+
+  <h2>Keeping it safe</h2>
+  <p>Our database and server aren't reachable from the internet except through the game and Cloudflare. Connections to the website and API are encrypted. Sign-in sessions are stored scrambled, so a stolen copy of the database can't be used to sign in. Only the people who run MostWanted can reach the database, and staff see only what they need to moderate. No system is perfectly secure; if something goes wrong that affects your data, we'll tell you.</p>
+
+  <h2>Where it's stored</h2>
+  <p>In the United States. If you play from elsewhere, your data is sent there.</p>
+
+  <h2>Changes</h2>
+  <p>If we change this policy, we'll update the date at the top. For important changes, we'll also post in the announcements on Discord or in game before they apply.</p>
+</LegalPage>
