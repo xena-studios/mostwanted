@@ -39,3 +39,24 @@ rules:
   cuff-range: 3
   # A guard can't go off duty this soon after a fight.
   combat-tag-seconds: 15
+
+# Robberies. Every robbery zone (/mw zone create <name> robbery) is a spot: it
+# opens, a criminal walking in starts it and the alarm goes off for guards, and
+# the robbers must stay inside until the time is up. The payout is split between
+# them; each gets the bounty. A spot without its own section uses the defaults.
+robberies:
+  defaults:
+    seconds: 60
+    payout: 2500
+    bounty: 1500
+    closed-minutes: 10
+  # A spot's section is its zone name. name is what players see.
+  bank:
+    name: Bank
+    seconds: 120
+    payout: 10000
+    bounty: 5000
+    closed-minutes: 15
+  # More guards on duty, more risk, more reward: +10% each, up to +100%.
+  payout-per-guard-percent: 10
+  max-guard-bonus-percent: 100

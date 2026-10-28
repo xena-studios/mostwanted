@@ -13,3 +13,5 @@
 - Arrests: handcuffs (one right-click), half the bounty for a kill, unbanked cash lost, a sentence in a cell of 1 minute plus 1 per $2,500 of bounty, up to 5.
 - `/duty` for guards (`mostwanted.guard`), with guard money kept apart. +$500 bounty for killing a guard.
 - Gameplay numbers in `config.yml` under `rules`.
+- Banking: criminals' cash is banked when they walk into a hideout.
+- Robberies: every robbery zone opens, is robbed by standing inside with the alarm going off for guards, pays out split between the robbers with a bonus per guard on duty, then closes and reopens. A red HEIST section on the scoreboard while one is on.
