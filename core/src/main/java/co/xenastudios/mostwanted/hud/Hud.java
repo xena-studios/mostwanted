@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.object.ObjectContents;
@@ -43,6 +44,9 @@ public final class Hud {
     private final Map<UUID, Sidebar> sidebars = new HashMap<>();
     private String lastMinute = "";
     private boolean tabChanged = true;
+    /** Live events (a robbery, later a riot): a section everyone sees while they're on. */
+    private Supplier<List<Component>> live = List::of;
+    private List<Component> lastLive = List.of();
 
     public Hud(PlayerStore store, Messages messages, Clock clock, ZoneId zone, String zoneLabel) {
         this.store = store;
@@ -50,6 +54,10 @@ public final class Hud {
         this.clock = clock;
         this.zone = zone;
         this.zoneLabel = zoneLabel;
+    }
+
+    public void live(Supplier<List<Component>> live) {
+        this.live = live;
     }
 
     public void show(Player player) {
@@ -71,6 +79,9 @@ public final class Hud {
         String minute = TIME.format(now.atZone(zone));
         boolean clockChanged = !minute.equals(lastMinute);
         lastMinute = minute;
+        List<Component> events = live.get();
+        boolean liveChanged = !events.equals(lastLive);
+        lastLive = events;
         for (Player player : Bukkit.getOnlinePlayers()) {
             Sidebar sidebar = sidebars.get(player.getUniqueId());
             PlayerState state = store.get(player.getUniqueId()).orElse(null);
@@ -83,8 +94,8 @@ public final class Hud {
                 player.setPlayerListOrder(listOrder(state));
                 tabChanged = true;
             }
-            if (changed || clockChanged || serving(state, now)) {
-                sidebar.lines(lines(state, now));
+            if (changed || clockChanged || liveChanged || serving(state, now)) {
+                sidebar.lines(lines(state, now, events));
             }
         }
         if (tabChanged) {
@@ -93,7 +104,7 @@ public final class Hud {
         }
     }
 
-    List<Component> lines(PlayerState state, Instant now) {
+    List<Component> lines(PlayerState state, Instant now, List<Component> events) {
         List<Component> lines = new ArrayList<>();
         var at = now.atZone(zone);
         lines.add(messages.get("hud.clock", Messages.value("time", TIME.format(at)),
@@ -128,6 +139,10 @@ public final class Hud {
                 lines.add(count("hud.arrests", state.total(Stat.ARRESTS)));
                 lines.add(money("hud.bounty-earned", state.total(Stat.BOUNTY_EARNED)));
             }
+        }
+        if (!events.isEmpty()) {
+            lines.add(Component.empty());
+            lines.addAll(events);
         }
         lines.add(Component.empty());
         lines.add(messages.get("hud.footer"));
@@ -194,7 +209,7 @@ public final class Hud {
     }
 
     /** "2:14", "1:02:05". */
-    static String clockTime(Duration left) {
+    public static String clockTime(Duration left) {
         long seconds = Math.max(0, (left.toMillis() + 999) / 1000);
         long h = seconds / 3600;
         long m = seconds % 3600 / 60;

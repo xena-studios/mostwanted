@@ -6,12 +6,14 @@ import co.xenastudios.mostwanted.combat.Combat;
 import co.xenastudios.mostwanted.common.Database;
 import co.xenastudios.mostwanted.config.Settings;
 import co.xenastudios.mostwanted.duty.Duty;
+import co.xenastudios.mostwanted.economy.Banking;
 import co.xenastudios.mostwanted.escape.Escapes;
 import co.xenastudios.mostwanted.item.Handcuffs;
 import co.xenastudios.mostwanted.hud.Hud;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerListener;
 import co.xenastudios.mostwanted.player.PlayerStore;
+import co.xenastudios.mostwanted.robbery.Robberies;
 import co.xenastudios.mostwanted.storage.GameLog;
 import co.xenastudios.mostwanted.storage.Storage;
 import co.xenastudios.mostwanted.zone.ZoneCommand;
@@ -90,6 +92,11 @@ public final class MostWanted extends JavaPlugin {
         getServer().getScheduler().runTaskTimer(this, hud::tick, 10, 10);
         getServer().getScheduler().runTaskTimer(this, listener::sweep, 600, 600);
         getServer().getScheduler().runTaskTimer(this, arrests::tick, 20, 20);
+
+        tracker.listen(new Banking(messages));
+        Robberies robberies = new Robberies(zones, tracker, players, messages, gameLog, settings.robberies(), clock);
+        hud.live(robberies::hudLines);
+        getServer().getScheduler().runTaskTimer(this, robberies::tick, 20, 20);
 
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             event.registrar().register(

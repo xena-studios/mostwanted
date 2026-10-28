@@ -73,6 +73,11 @@ hud:
   patrol: "<b><brand>PATROL</brand></b>"
   arrests: "⛓ arrests: <value><count></value>"
   bounty-earned: "✪ bounty earned: <money><amount></money>"
+  # Live events, red while they're on.
+  heist: "<b><error>HEIST</error></b>"
+  heist-place: "⚑ place: <value><place></value>"
+  heist-time: "⧗ time left: <value><time></value>"
+  heist-guards: "⚔ guards: <guard><count></guard>"
   footer: "<brand>mostwantedmc.com</brand>"
 
 # The tab list. <head> is the player's own head (Java only).
@@ -115,3 +120,15 @@ item:
   handcuffs:
     name: "<guard>handcuffs</guard>"
     lore: "right-click a criminal to arrest them"
+
+robbery:
+  open: "<money>⛃</money> <value><place></value> is open. criminals, it's yours if you can hold it."
+  started: "<criminal>⚠</criminal> you're robbing <value><place></value>. stay inside for <value><time></value>: if everyone leaves, it fails."
+  alarm: "<error>⚠</error> alarm! <value><place></value> is being robbed."
+  bar: "robbing <place> · <time>"
+  got-away: "<success>✔</success> you got <money><amount></money> from <value><place></value>, and <money>+<bounty></money> bounty. bank it at a hideout before you're caught!"
+  robbed: "<criminal>⚠</criminal> <value><place></value> was robbed!"
+  failed: "<guard>⚑</guard> the robbery at <value><place></value> failed."
+
+bank:
+  deposited: "<success>✔</success> banked <money><amount></money>. you have <money><total></money> safe in the bank."
