@@ -67,8 +67,7 @@ jobs:
           name: server-log
           path: build/server/test-console.log
 
-  # Every shell script in the repo, including the VPS setup scripts that can't be
-  # run here (provision.sh, firewall.sh, backup-db.sh). A few seconds, so always.
+  # Every shell script in the repo. A few seconds, so always.
   shellcheck:
     runs-on: ubuntu-26.04
     steps:

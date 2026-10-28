@@ -1,0 +1,64 @@
+# Publishes what Raptor installs to the "server" release on every change to main,
+# so a Reinstall in Raptor gets the latest: the game server's bundle (server/ with
+# its install.sh, the server icon and the core plugin) and the API's (backend.jar
+# and start.sh). The eggs in server/raptor/ download these. main only ever has code
+# that passed CI (build-ok is required).
+name: server release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "core/**"
+      - "common/**"
+      - "backend/**"
+      - "server/**"
+      - "brand/out/server-icon.png"
+      - "build-logic/**"
+      - "gradle/**"
+      - "*.gradle.kts"
+      - ".github/workflows/server-release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One at a time, so an older build can't land after a newer one.
+concurrency:
+  group: server-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+      - run: ./gradlew :core:jar :backend:shadowJar
+      - name: Bundle
+        run: |
+          mkdir -p out/server/brand/out out/api
+          cp -r server out/server/
+          rm -rf out/server/server/setup
+          cp brand/out/server-icon.png out/server/brand/out/
+          cp core/build/libs/core-*.jar out/server/core.jar
+          echo "$GITHUB_SHA" > out/server/COMMIT
+          tar -czf mostwanted-server.tar.gz -C out/server .
+          cp backend/build/libs/backend.jar backend/start.sh out/api/
+          echo "$GITHUB_SHA" > out/api/COMMIT
+          tar -czf mostwanted-api.tar.gz -C out/api .
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if ! gh release view server >/dev/null 2>&1; then
+            gh release create server --title "Server builds" --latest=false --target "$GITHUB_SHA" \
+              --notes "What Raptor installs, rebuilt from main on every change: mostwanted-server.tar.gz for the game server and mostwanted-api.tar.gz for the API (server/raptor/ has the eggs). Each has a COMMIT file saying which commit it is."
+          fi
+          gh release upload server mostwanted-server.tar.gz mostwanted-api.tar.gz --clobber

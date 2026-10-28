@@ -1,8 +1,8 @@
 # Launch
 
-From "bought the VPS" to "players can join and the API answers", in order. Each step is copy-paste; the scripts it runs are safe to run again, so if something fails, fix it and run the same step again. About an hour, most of it waiting for installs.
+From "bought the VPS" to "players can join and the API answers", in order. **Raptor runs everything**: the game server, the API and Discord bot, the database, backups, schedules, alerts and the firewall, all in the [Raptor app](https://app.raptorpanel.net). Nothing of ours runs on the machine outside it. About an hour, most of it waiting for installs.
 
-Why the setup looks like this: [tech](04-tech.md), [server stack](07-server-stack.md), [the API](08-website.md#the-api). The scripts: [`server/setup/`](../server/setup/).
+Why the setup looks like this: [tech](04-tech.md), [server stack](07-server-stack.md), [the API](08-website.md#the-api). What Raptor installs: [`server/raptor/`](../server/raptor/) (the eggs), built from `main` by the [server release](../.github/workflows/server-release.yml) workflow.
 
 **Values you'll fill in along the way** (keep them in a note on your PC, not in the repo):
 
@@ -10,124 +10,85 @@ Why the setup looks like this: [tech](04-tech.md), [server stack](07-server-stac
 | --- | --- |
 | `VPS_IP` | netcup's Server Control Panel (the server's page, Network) |
 | `YOU` | The user you made when installing Ubuntu (step 1) |
-| The database's host, name, user and password | The game server's **Databases** tab in Raptor (step 5) |
-| `GAME_ID`, `API_ID` | The two Raptor servers' IDs (the app shows them; `sudo ls /var/lib/raptor/volumes` lists them) |
 
-Secrets (the database password, the bot token, the OAuth secret, the TLS key, Tebex's secret key) only ever go in `.env` files and `tls/` on the VPS (edited with `sudoedit`, or in Raptor's file editor), and in Raptor. Never in the repo, a commit, a chat or a screenshot.
+Secrets (the database password, the bot token, the OAuth secret, the TLS key, Tebex's secret key) only ever go in Raptor: a server's **Startup** tab, its **Databases** tab, or its files. Never in the repo, a commit, a chat or a screenshot.
 
 ## 1. The VPS (10 min)
 
 The server is a netcup **RS 2000** in **Manassas, Virginia** (US East): 8 dedicated cores, 16 GB RAM, 256 GB NVMe. Ordered 2026-10-28.
 
-1. In netcup's Server Control Panel, **Media → Images**: **Ubuntu 24.04 UEFI amd64**, Minimal (the release Raptor supports; not 26.04, not "cloudimg"), one large partition, locale **en_US.UTF-8**, any time zone (it's set below), **create an additional user** with sudo and your **SSH public key** (or add the key after with `ssh-copy-id YOU@VPS_IP` from your PC). No custom script.
-2. Leave netcup's own firewall with no policies: `firewall.sh` (step 4) does it on the server, and two firewalls disagreeing is how you get locked out.
+1. In netcup's Server Control Panel, **Media → Images**: **Ubuntu 24.04 UEFI amd64**, Minimal (the release Raptor supports; not 26.04, not "cloudimg"), one large partition, locale **en_US.UTF-8**, **create an additional user** with sudo and your **SSH public key** (or add the key after with `ssh-copy-id YOU@VPS_IP` from your PC). No custom script.
+2. Leave netcup's own firewall with no policies of yours: Raptor's firewall does it (step 3).
 3. Log in and update:
    ```sh
    ssh YOU@VPS_IP
    sudo apt-get update && sudo apt-get full-upgrade -y
-   sudo timedatectl set-timezone America/New_York   # backups then run at night for US players
    sudo reboot
+   ```
+4. SSH by key only, once a key works (check from a second terminal before closing the first):
+   ```sh
+   echo "PasswordAuthentication no" | sudo tee /etc/ssh/sshd_config.d/10-keys-only.conf
+   sudo systemctl reload ssh
    ```
 
 ## 2. Raptor (5 min)
 
-Raptor wants a freshly installed machine, so it goes first. In the [Raptor app](https://app.raptorpanel.net): **Nodes → Connect node → Make a join token**, sign with your passkey, and run the command it shows (it holds the token, so copy it from there):
+Raptor wants a freshly installed machine, so it goes first. In the Raptor app: **Nodes → Connect node → Make a join token**, sign with your passkey, and run the command it shows (it holds the token, so copy it from there):
 
 ```sh
 curl -fsSL https://get.raptorpanel.net | sudo bash -s -- -token rpt_join_…
 ```
 
-Take the default **image** storage. When the app says the node is linked, carry on. (It also needs **Settings → Alerts** set up to tell you when a server crashes: do that whenever.)
+Take the default **image** storage. When the app says the node is linked, carry on.
 
-## 3. Provision (10 min)
+## 3. The node (5 min)
 
-Raptor runs the database (step 5), so the machine itself only needs Java (to build), the security settings, and the repo:
+On the node's **System** tab:
 
-```sh
-git clone https://github.com/xena-studios/mostwanted /tmp/mostwanted
-sudo install -D -m 600 /tmp/mostwanted/server/.env.example /etc/mostwanted/server.env
-sudo /tmp/mostwanted/server/setup/provision.sh --no-postgres --dry-run    # read what it will do
-sudo /tmp/mostwanted/server/setup/provision.sh --no-postgres
-```
+- **Time zone** America/New_York: logs match the game's clock, and the 4–5 AM backups land when US players are asleep.
+- **Keep the clock in sync:** on.
+- **Firewall:** turn on **Block everything not listed**. Raptor opens SSH and each server's port itself. The API's port only lets Cloudflare in anyway: it refuses any connection without Cloudflare's client certificate (step 6).
 
-It installs Java 25, turns on automatic security updates and fail2ban, and switches SSH to keys only (only if your account has a key; otherwise it says how). Read its **Warnings** at the end. **Check SSH still works** from a second terminal before closing the first.
+Then the **Networks** tab: **New network** named **MostWanted**. The game, the API and the database go on it, apart from anything else ever put on the node.
 
-Then the checkout everything is built from, owned by the `mostwanted` user:
-
-```sh
-sudo -u mostwanted git clone https://github.com/xena-studios/mostwanted /srv/mostwanted/repo
-rm -rf /tmp/mostwanted
-sudo -u mostwanted -H bash -c 'cd /srv/mostwanted/repo && ./gradlew :core:build :backend:build -x test'
-```
-
-(CI already ran the tests on `main`.)
-
-## 4. Firewall (5 min)
-
-```sh
-sudo /srv/mostwanted/repo/server/setup/firewall.sh --dry-run
-sudo /srv/mostwanted/repo/server/setup/firewall.sh
-```
-
-Nothing comes in except SSH, the game (25565) and the API (8443, **Cloudflare's addresses only**); the database is only on Raptor's network, behind Raptor's own firewall. Cloudflare's list is refreshed daily (`systemctl list-timers 'mostwanted*'`). Check SSH from a second terminal again.
-
-The game port is open to anyone until Minehut gives us their addresses. **TODO:** when they do, put them in `GAME_ALLOW` in `/etc/mostwanted/firewall.env` and run `firewall.sh` again. Raptor's SFTP (2022) stays closed unless you set `SFTP_PORT=2022` there.
-
-## 5. Raptor: the network, the database and the game server (20 min)
-
-Everything here is in the [Raptor app](https://app.raptorpanel.net).
-
-**The network.** On the node's **Networks** tab, **New network**: name it **MostWanted**. The game, the API and the database go on it, apart from anything else ever put on the node.
-
-**The database.** On the node's **Databases** tab, **New instance**:
+And the **Databases** tab: **New instance**:
 - **Engine** PostgreSQL (the recommended version), **name** MostWanted, **memory** 1 GB, **network** MostWanted.
 - **Advanced:** **time zone** America/New_York, and under **Engine settings** `log_min_duration_statement = 500ms` (slow queries show in its log).
 
-Raptor's backups of the game server hold this database (below), and its alerts cover it.
+## 4. The eggs (2 min)
 
-**The eggs.** On the org's **Eggs** page, **Import an egg** from these two links, read what they run, and import them:
-- `https://github.com/xena-studios/mostwanted/blob/main/server/raptor/egg-mostwanted.json`: the game server (Java 25, `bash start.sh`; its install does nothing, so **Reinstall** can't replace Leaf).
-- `https://github.com/xena-studios/mostwanted/blob/main/server/raptor/egg-mostwanted-api.json`: the API and bot (step 7).
+On the org's **Eggs** page, **Import an egg** from each link, read what it runs, and import it:
 
-**The game server.** **Deploy server**:
+- `https://github.com/xena-studios/mostwanted/blob/main/server/raptor/egg-mostwanted.json`: the game server.
+- `https://github.com/xena-studios/mostwanted/blob/main/server/raptor/egg-mostwanted-api.json`: the API and Discord bot.
+
+Each installs the latest build of `main` from the [`server` release](https://github.com/xena-studios/mostwanted/releases/tag/server), and has its settings on the server's **Startup** tab.
+
+## 5. The game server (10 min)
+
+**Deploy server**:
 - **Game** MostWanted (your org's), **runtime** Java 25, **network** MostWanted.
-- **Name** MostWanted, **port** 25565, **memory 11.5 GB** (`start.sh` gives Java 10 GB; the rest is Java's own overhead, and Raptor kills a server that goes over). Accept the EULA when it asks: Raptor writes `eula.txt`.
-- Once it's made, before starting it: its **Databases** tab, **New database** named `mostwanted`. Copy the **Host**, **Database**, **User** and **password** it shows into the server's settings:
-  ```sh
-  sudoedit /etc/mostwanted/server.env
-  # DB_HOST=<Host, like mostwanted.db.raptor>  DB_PORT=5432
-  # DB_NAME=<Database, like s3e4f5a6b7c8d_mostwanted>  DB_USER=<the same>  DB_PASSWORD=<the password>
-  ```
-  LuckPerms, LibertyBans and the game plugin all use this one database. (Raptor also gives the server `DB_*` variables; ours come from this file, which `install.sh` writes into the configs.)
-- **Network** tab: **Shown address** `play.mostwantedmc.com`.
-- **Settings** tab: **Force stop after** 120 seconds, so a big world always finishes saving.
+- **Name** MostWanted, **port** 25565, **memory 11.5 GB**: Java gets 10 GB of it, the rest is Java's own overhead (`start.sh` works it out from this setting).
+- Accept the EULA when it asks.
 
-Then our files go in (`GAME_ID` is the server's ID, on its **Settings → Details**):
+Raptor installs it: Leaf, every plugin we use (pinned, checksums checked), our configs and the core plugin. It then tries to start, and stops with "needs DB_HOST": it has no database yet. That's expected.
 
-```sh
-GAME=/var/lib/raptor/volumes/GAME_ID
-cd /srv/mostwanted/repo
-sudo install -m 600 /etc/mostwanted/server.env $GAME/.env
-sudo server/install.sh $GAME
-sudo cp core/build/libs/core-*.jar $GAME/plugins/
-sudo chown -R --reference=$GAME $GAME          # Raptor's container user owns its files
-```
+1. **Databases** tab: **New database** named `mostwanted`. Raptor gives the server its details at every start (`DB_HOST`, `DB_NAME`, …), and `start.sh` fills them into LuckPerms', LibertyBans' and the game plugin's configs. Nothing to copy. Note its **Database** and **User** names, and its password (**Password**), for the API (step 7).
+2. **Startup** tab: **Tebex secret key** stays `none` until the store is set up (step 10).
+3. **Network** tab: **Shown address** `play.mostwantedmc.com`.
+4. **Settings** tab: **Force stop after** 120 seconds, so a big world always finishes saving.
+5. **Start** it, and watch the console for `Done (`. Then, once, paste the `lp` lines from [`server/setup/luckperms.txt`](../server/setup/luckperms.txt) into the console (store ranks included), and `lp user <your name> parent add owner` for yourself.
+6. **Schedules** tab: **New schedule**, 5:30 AM America/New_York, every day:
+   ```
+   Command   say Restarting in 5 minutes
+   Wait      4 minutes
+   Command   say Restarting in 1 minute
+   Wait      1 minute
+   Power     restart
+   ```
+   (The **Daily backup** schedule is already there, between 4 and 5 AM.)
 
-Start it in Raptor and watch the console for `Done (`. Then, once, paste the `lp` lines from [`server/setup/luckperms.txt`](../server/setup/luckperms.txt) into the console (store ranks included), and `lp user <your name> parent add owner` for yourself.
-
-The whitelist is on until launch day ([step 11](#11-open-the-doors)).
-
-**A nightly restart.** On its **Schedules** tab, **New schedule** at 5:30 AM, America/New_York, every day:
-
-```
-Command   say Restarting in 5 minutes
-Wait      4 minutes
-Command   say Restarting in 1 minute
-Wait      1 minute
-Power     restart
-```
-
-(The **Daily backup** schedule is already there, between 4 and 5 AM.)
+The whitelist is on until launch day ([step 11](#11-open-the-doors)). Configs come from the repo: change them there, not in the file manager, or the next update puts them back. The three with settings filled in (`plugins/*/config.yml`, LibertyBans' `sql.yml`) are written fresh from their `.tmpl` at every start.
 
 ## 6. Cloudflare (10 min)
 
@@ -137,53 +98,32 @@ In the dashboard for **mostwantedmc.com**:
 2. **SSL/TLS → Overview → Full (strict).** (The website is a Worker, so this only changes how Cloudflare talks to the VPS.)
 3. **SSL/TLS → Origin Server → Authenticated Origin Pulls: On.**
 4. **DNS → Add record:** `A`, name `api`, IPv4 `VPS_IP`, **Proxied** (orange cloud).
-5. **Rules → Origin Rules → Create rule:** "api to 8443", when **Hostname equals `api.mostwantedmc.com`**, **Destination Port → Rewrite to 8443**. (Raptor gives servers ports from 1024 up, so the backend can't take 443 itself.)
+5. **Rules → Origin Rules → Create rule:** "api to 8443", when **Hostname equals `api.mostwantedmc.com`**, **Destination Port → Rewrite to 8443**. (Raptor gives servers ports from 1024 up, so the API can't take 443 itself.)
 6. **Caching → Cache Rules → Create rule:** "api stats", when **Hostname equals `api.mostwantedmc.com`** and **URI Path starts with `/v1/players/`** or **starts with `/v1/leaderboards/`**, **Eligible for cache**, Edge TTL **Use cache-control header if present**. Without it Cloudflare caches nothing from the API (it only caches file extensions by default), and every page view reaches the VPS.
 
 About step 3: the certificate Cloudflare shows the VPS is the same for **every** Cloudflare customer, so it proves a request came through Cloudflare, not through *our* zone. Someone with their own Cloudflare zone pointed at our IP could still get through. Closing that needs our own client certificate uploaded to the zone (Cloudflare's API only, no dashboard button: "zone-level Authenticated Origin Pulls with your own certificate" in their docs); then `TLS_CLIENT_CA` points at our CA instead of Cloudflare's. Fine to launch without, worth doing after.
 
-## 7. The backend (10 min)
+## 7. The API and Discord bot (10 min)
 
-In Raptor, **Deploy server**: **Game** MostWanted API (your org's), **runtime** Java 25, **network** MostWanted, **name** MostWanted API, **port 8443**, **memory 512 MB** (`start.sh` gives Java 256 MB).
+**Deploy server**: **Game** MostWanted API (your org's), **runtime** Java 25, **network** MostWanted, **name** MostWanted API, **port 8443**, **memory 512 MB** (Java gets 256 MB). Like the game, its first start stops: it has no settings yet.
 
-Before starting it, on its **Databases** tab make a database named `api`. Nothing uses it: Raptor's database only answers servers that have a database on it, and this is how the API gets in. The API signs in to the **game's** database (step 5), with the game's user.
+1. **Databases** tab: **New database** named `api`, and leave it empty. Raptor's database only lets in servers that have a database on it; the API really uses the game's.
+2. **Startup** tab:
+   - **Game database name**, **user** and **password**: the game server's `mostwanted` database, from step 5.
+   - **Discord bot token**: the bot's token (on your PC in `~/.config/mostwanted/discord.env`).
+   - **Discord client secret**: from step 8.
+   - The rest are already right for mostwantedmc.com.
+3. **Files** tab: in the `tls` folder, **New file** `origin.pem` with the Origin Certificate from step 6.1, and `origin.key` with its private key. (Cloudflare's pull CA is already there: the install downloads it.)
+4. **Start** it. It logs `https with client certificates` and `API listening`; a bad file or a key that doesn't match the certificate stops it with the reason ([backend/README.md](../backend/README.md#https-and-authenticated-origin-pulls)).
 
-Its files, from the build in step 3 (or upload `backend.jar` and `backend/start.sh` on its **Files** tab, and write `.env` and the `tls/` files in the file editor):
-
-```sh
-API=/var/lib/raptor/volumes/API_ID
-cd /srv/mostwanted/repo
-sudo install -m 644 backend/build/libs/backend.jar backend/start.sh $API/
-sudo install -m 600 backend/.env.example $API/.env
-sudo install -d -m 700 $API/tls
-sudoedit $API/tls/origin.pem           # paste the Origin Certificate from step 6.1
-sudoedit $API/tls/origin.key           # paste its private key
-sudo curl -fsSL -o $API/tls/cloudflare-origin-pull-ca.pem \
-  https://developers.cloudflare.com/ssl/static/authenticated_origin_pull_ca.pem
-sudo chmod 600 $API/tls/*
-sudoedit $API/.env
-sudo chown -R --reference=$API $API
-```
-
-In the backend's `.env`:
-
-| Setting | Value |
-| --- | --- |
-| `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | the **game's** database, as in `/etc/mostwanted/server.env` (`sudo grep ^DB_ /etc/mostwanted/server.env`) |
-| `DISCORD_TOKEN` | the bot token (on your PC in `~/.config/mostwanted/discord.env`) |
-| `DISCORD_CLIENT_SECRET` | from step 8 |
-| the rest | as in [`backend/.env.example`](../backend/.env.example): `API_PORT=8443`, the three `TLS_` paths, `COOKIE_DOMAIN=.mostwantedmc.com` |
-
-If the database's password is ever reset in Raptor, put the new one in both `/etc/mostwanted/server.env` (then run `install.sh` again) and this `.env`.
-
-The URL for the pull CA is the one on Cloudflare's [Authenticated Origin Pulls setup page](https://developers.cloudflare.com/ssl/origin-configuration/authenticated-origin-pull/set-up/zone-level/): check it's still the one they give before downloading. Start the server in Raptor. It logs `https with client certificates` and `API listening`; a bad path or a key that doesn't match the certificate stops it with the reason. All of it is explained in [backend/README.md](../backend/README.md#https-and-authenticated-origin-pulls).
+If the game database's password is ever reset in Raptor, put the new one in the API's **Startup** tab too.
 
 ## 8. Discord (5 min)
 
 In the [developer portal](https://discord.com/developers/applications), the **MostWanted** app:
 
 1. **OAuth2 → Redirects:** add `https://api.mostwantedmc.com/v1/auth/discord/callback`.
-2. **OAuth2 → Client Secret → Reset Secret**, and put it in the backend's `.env` as `DISCORD_CLIENT_SECRET` (`sudoedit`), then restart the backend in Raptor.
+2. **OAuth2 → Client Secret → Reset Secret**, and put it in the API's **Startup** tab as **Discord client secret**, then restart the API.
 3. **General Information:** Terms of Service `https://mostwantedmc.com/terms`, Privacy Policy `https://mostwantedmc.com/privacy`.
 
 ## 9. Minehut (5 min)
@@ -193,22 +133,16 @@ In the [Minehut panel](https://minehut.com), on our server ([tech](04-tech.md#ho
 1. Plan: **External**.
 2. External Server Settings: IP `VPS_IP`, proxy type **Other**, DNS record type **Port**, port **25565**, TCPShield **Not Configured**.
 
-The server already speaks Minehut's PROXY protocol and checks logins with Minehut, so direct connections can't join anyway. Ask Minehut for their IP ranges for `GAME_ALLOW` (step 4), and how Bedrock players are marked.
+The server already speaks Minehut's PROXY protocol and checks logins with Minehut, so direct connections can't join anyway. Ask Minehut for their IP ranges (for the firewall, once Raptor can limit a server's port to them) and how Bedrock players are marked.
 
 ## 10. Tebex
 
-Follow [store: setting up Tebex](11-store.md#setting-up-tebex-whats-left-for-you): the webstore, the packages, and the **public token** as the `TEBEX_PUBLIC_TOKEN` repository variable (GitHub → Settings → Secrets and variables → Actions → Variables). Delivery in game is built into core: put the game server's Tebex secret key in its `.env` as `TEBEX_SECRET` ([11-store.md](11-store.md), step 5), never here.
+Follow [store: setting up Tebex](11-store.md#setting-up-tebex-whats-left-for-you): the webstore, the packages, and the **public token** as the `TEBEX_PUBLIC_TOKEN` repository variable (GitHub → Settings → Secrets and variables → Actions → Variables). Delivery in game is built into core: put the game server's Tebex secret key in its **Startup** tab as **Tebex secret key**, and restart.
 
 ## 11. Open the doors
 
 1. **Website**, in a pull request: `open: true` and the permanent Discord invite in `discord` in [`website/src/site.ts`](../website/src/site.ts). Merging deploys it (the website workflow), with the Tebex token from step 10.
-2. **Game**, in a pull request: `white-list=false` and `enforce-whitelist=false` in [`server/files/server.properties`](../server/files/server.properties); after merging, on the VPS:
-   ```sh
-   sudo -u mostwanted git -C /srv/mostwanted/repo pull
-   sudo /srv/mostwanted/repo/server/install.sh /var/lib/raptor/volumes/GAME_ID
-   sudo chown -R --reference=/var/lib/raptor/volumes/GAME_ID /var/lib/raptor/volumes/GAME_ID
-   ```
-   and restart it in Raptor. (`whitelist off` in the console works at once, but the next `install.sh` would turn it back on without the PR.)
+2. **Game**, in a pull request: `white-list=false` and `enforce-whitelist=false` in [`server/files/server.properties`](../server/files/server.properties). Once it's merged and the server release has run, **Reinstall** the game server in Raptor and start it. (`whitelist off` in the console works at once, but the next update would turn it back on without the PR.)
 
 ## 12. Smoke test
 
@@ -225,9 +159,12 @@ From your PC:
 
 On the VPS:
 
-- [ ] `curl -sk https://127.0.0.1:8443/health` fails with a certificate error: the backend really wants Cloudflare's certificate.
-- [ ] `sudo ufw status` and `sudo nft list table inet mostwanted` look right; `systemctl list-timers 'mostwanted*'` shows the firewall refresh.
-- [ ] `sudo raptor doctor` is happy.
+- [ ] `curl -sk https://127.0.0.1:8443/health` fails with a certificate error: the API really wants Cloudflare's certificate.
+- [ ] `sudo raptor doctor` is happy, and the node's **System** tab shows no warnings.
+
+## Updating
+
+Every change merged to `main` is built into the [`server` release](https://github.com/xena-studios/mostwanted/releases/tag/server) a few minutes later. To put it on a server: Raptor, the server's **Settings → Reinstall** (it takes a safety backup first, and keeps the world, plugin data and settings), then start it. The install's log names the build (`MostWanted build <commit>`).
 
 ## Alerts
 
@@ -243,15 +180,14 @@ Then the bell's settings: how alerts reach **you** (email is on; Discord or ntfy
 ## Backups
 
 - **Where:** on the node's **Backups** tab, add **Raptor Backup Storage** (offsite, nothing to set up), or any S3 (Cloudflare R2, Backblaze), and **Test** it. On each server's **Backups** tab, back up to it **and** the node's disk (fast restores), keeping **Standard** (the last 3, a week of dailies, a month of weeklies).
-- **What:** the **Daily backup** schedule (4–5 AM) backs up the game's files and, dumped just before, its **database**: the whole game, consistent. Minecraft is told to save first. The API's backup holds its `.env` and `tls/`.
+- **What:** the **Daily backup** schedule (4–5 AM) backs up the game's files and, dumped just before, its **database**: the whole game, consistent. Minecraft is told to save first. The API's backup holds its `tls/`.
 - **Back up now** on both once, and check they arrive offsite.
 - **The whole VPS:** a netcup snapshot (Server Control Panel → Snapshots) before big changes, as a last resort. It's kept on netcup's side, so it's no substitute for the offsite backups.
 - **Test a restore** before launch, not after: on a backup, **Restore → a few files** into `.restore/`, and on the Databases tab, **Restore from a backup** on a quiet evening.
 
 ## Rollback
 
-- **A bad plugin or config update:** check out the last good commit (`sudo -u mostwanted git -C /srv/mostwanted/repo checkout <commit>`), run `install.sh` and copy the core jar as in step 5, restart. Or in Raptor, **Backups → Restore** the files from before the update.
-- **The database:** stop the game and the backend in Raptor, then on the game's **Databases** tab, **Restore from a backup** on `mostwanted`. Raptor exports what's there now first, so a wrong pick can be undone. **Restore everything** on a backup puts back the files and the database together.
-- **The API misbehaving:** stop the backend in Raptor. The website shows its "can't reach" states; set `open: false` in `site.ts` again if it should look closed. A 526 from Cloudflare means the certificate is wrong (step 6.1, `tls/origin.*`); a 525 or a failed handshake after turning on Authenticated Origin Pulls means the pull CA file is wrong: remove `TLS_CLIENT_CA` from the backend's `.env` to check, then put it back.
-- **The firewall:** `sudo ufw disable` and `sudo nft delete table inet mostwanted` turn it all off (SSH included in what's then open); run `firewall.sh` to put it back.
+- **A bad update:** the Reinstall took a safety backup: on **Backups**, **Restore everything** from it. Then revert the change on `main`, so the next update doesn't bring it back.
+- **The database:** stop the game and the API in Raptor, then on the game's **Databases** tab, **Restore from a backup** on `mostwanted`. Raptor exports what's there now first, so a wrong pick can be undone. **Restore everything** on a backup puts back the files and the database together.
+- **The API misbehaving:** stop it in Raptor. The website shows its "can't reach" states; set `open: false` in `site.ts` again if it should look closed. A 526 from Cloudflare means the certificate is wrong (step 6.1, `tls/origin.*`); a 525 or a failed handshake after turning on Authenticated Origin Pulls means the pull CA is wrong: clear **Cloudflare pull CA** on the API's Startup tab to check, then put it back.
 - **Everything:** a netcup snapshot, or a new server following this page, with the Raptor backups (files and database) restored onto it. Update the IP in Minehut and in Cloudflare's `api` record.

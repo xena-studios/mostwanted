@@ -1,5 +1,5 @@
 {
-  "_comment": "MostWanted's website API and Discord bot (the backend), for Raptor. Import it on the Eggs page. Upload backend.jar and start.sh, and write .env and tls/: docs/12-launch.md, step 7.",
+  "_comment": "MostWanted's website API and Discord bot (backend/), for Raptor. Import it on the Eggs page: docs/12-launch.md.",
   "meta": {
     "version": "PTDL_v2",
     "update_url": null
@@ -7,7 +7,7 @@
   "exported_at": "2026-10-28T00:00:00+00:00",
   "name": "MostWanted API",
   "author": "contact@xenastudios.co",
-  "description": "The website's API and the Discord bot, one Java app (backend/ in the MostWanted repo). start.sh reads .env and runs backend.jar with a 256 MB heap. https://github.com/xena-studios/mostwanted",
+  "description": "The website's API and the Discord bot, one Java app, from the latest build of github.com/xena-studios/mostwanted. Reinstall to update. It uses the game server's database: give it an empty one of its own on the same instance, so Raptor lets it in.",
   "features": [
     "java_version"
   ],
@@ -24,10 +24,171 @@
   },
   "scripts": {
     "installation": {
-      "script": "#!/bin/bash\n# Nothing to download: backend.jar and start.sh are uploaded, .env and tls/ written\n# by hand (docs/12-launch.md, step 7).\nmkdir -p /mnt/server\necho \"MostWanted API: upload backend.jar and start.sh, then write .env and tls/.\"\n",
+      "script": "#!/bin/bash\n# MostWanted's API and Discord bot: the latest build (the \"server\" release, from\n# main). Reinstall in Raptor to update. tls/origin.pem and tls/origin.key are yours\n# to write (Files tab); they're never replaced here.\nset -euo pipefail\napt-get update -qq\napt-get install -y -qq curl ca-certificates >/dev/null\nwork=$(mktemp -d)\ncurl -fsSL -o \"$work/api.tar.gz\" \"https://github.com/xena-studios/mostwanted/releases/download/${RELEASE}/mostwanted-api.tar.gz\"\ntar -xzf \"$work/api.tar.gz\" -C \"$work\"\necho \"MostWanted build $(cat \"$work/COMMIT\")\"\ncp \"$work/backend.jar\" \"$work/start.sh\" /mnt/server/\nmkdir -p /mnt/server/tls\n# Cloudflare's Authenticated Origin Pulls CA: only Cloudflare gets through (docs/12-launch.md, step 6).\ncurl -fsSL -o /mnt/server/tls/cloudflare-origin-pull-ca.pem https://developers.cloudflare.com/ssl/static/authenticated_origin_pull_ca.pem\nrm -rf \"$work\"\necho \"Installed. Before the first start: the Startup tab's settings, and tls/origin.pem and tls/origin.key on the Files tab.\"\n",
       "container": "ghcr.io/pelican-eggs/installers:debian",
       "entrypoint": "bash"
     }
   },
-  "variables": []
+  "variables": [
+    {
+      "name": "Build",
+      "description": "Which build to install: a release on github.com/xena-studios/mostwanted. \"server\" is always the latest from main. Reinstall to get it.",
+      "env_variable": "RELEASE",
+      "default_value": "server",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:64",
+      "field_type": "text"
+    },
+    {
+      "name": "Game database name",
+      "description": "The game server's database (its Databases tab), like s3e4f5a6b7c8d_mostwanted.",
+      "env_variable": "GAME_DB_NAME",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:64",
+      "field_type": "text"
+    },
+    {
+      "name": "Game database user",
+      "description": "Its user: the same as its name.",
+      "env_variable": "GAME_DB_USER",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:64",
+      "field_type": "text"
+    },
+    {
+      "name": "Game database password",
+      "description": "Its password (Password on the game server's Databases tab). Reset it there? Put the new one here too.",
+      "env_variable": "GAME_DB_PASSWORD",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:128",
+      "field_type": "text"
+    },
+    {
+      "name": "Discord bot token",
+      "description": "The bot's token (Discord developer portal → Bot). Empty turns the bot off.",
+      "env_variable": "DISCORD_TOKEN",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:128",
+      "field_type": "text"
+    },
+    {
+      "name": "Discord client secret",
+      "description": "For \"Sign in with Discord\" (developer portal → OAuth2). Empty turns it off.",
+      "env_variable": "DISCORD_CLIENT_SECRET",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:128",
+      "field_type": "text"
+    },
+    {
+      "name": "Discord client ID",
+      "description": "The Discord application's ID.",
+      "env_variable": "DISCORD_CLIENT_ID",
+      "default_value": "1564123260562440303",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:32",
+      "field_type": "text"
+    },
+    {
+      "name": "Website",
+      "description": "The website, where sign-in sends people back to.",
+      "env_variable": "SITE_URL",
+      "default_value": "https://mostwantedmc.com",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:128",
+      "field_type": "text"
+    },
+    {
+      "name": "Website origins",
+      "description": "Sites allowed to call the API with cookies, comma-separated.",
+      "env_variable": "API_ORIGINS",
+      "default_value": "https://mostwantedmc.com",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:256",
+      "field_type": "text"
+    },
+    {
+      "name": "API address",
+      "description": "Where the API is reached, for Discord's sign-in to come back to.",
+      "env_variable": "API_URL",
+      "default_value": "https://api.mostwantedmc.com",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:128",
+      "field_type": "text"
+    },
+    {
+      "name": "Cookie domain",
+      "description": "So the website and the API share the sign-in cookie.",
+      "env_variable": "COOKIE_DOMAIN",
+      "default_value": ".mostwantedmc.com",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:128",
+      "field_type": "text"
+    },
+    {
+      "name": "Behind Cloudflare",
+      "description": "true: visitors' addresses come from Cloudflare's header (rate limits per visitor).",
+      "env_variable": "API_BEHIND_CLOUDFLARE",
+      "default_value": "true",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|in:true,false",
+      "field_type": "text"
+    },
+    {
+      "name": "Time zone",
+      "description": "For the month and week leaderboards: the same as the game's clock.timezone.",
+      "env_variable": "TIMEZONE",
+      "default_value": "America/New_York",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:64",
+      "field_type": "text"
+    },
+    {
+      "name": "TLS certificate",
+      "description": "Cloudflare's Origin Certificate, PEM, written on the Files tab.",
+      "env_variable": "TLS_CERT",
+      "default_value": "tls/origin.pem",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:128",
+      "field_type": "text"
+    },
+    {
+      "name": "TLS key",
+      "description": "Its private key, PEM.",
+      "env_variable": "TLS_KEY",
+      "default_value": "tls/origin.key",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:128",
+      "field_type": "text"
+    },
+    {
+      "name": "Cloudflare pull CA",
+      "description": "Only connections with Cloudflare's client certificate get through. The install downloads it.",
+      "env_variable": "TLS_CLIENT_CA",
+      "default_value": "tls/cloudflare-origin-pull-ca.pem",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:128",
+      "field_type": "text"
+    }
+  ]
 }

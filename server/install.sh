@@ -9,8 +9,10 @@
 # no longer in the manifest, and overwrites the config files this repo tracks.
 # Anything else in <server-dir> (the world, plugin data, other configs) is left alone.
 #
-# Secrets never live in this repo. Files ending in .tmpl are rendered with values
-# from <server-dir>/.env (see server/.env.example); a missing value fails the install.
+# Secrets never live in this repo. Files ending in .tmpl are copied as they are:
+# start.sh fills them in at every start, from the server's environment (Raptor's
+# database and the egg's settings) or <server-dir>/.env (see server/.env.example).
+# Raptor runs this from the MostWanted egg's install (server/raptor/egg-mostwanted.json).
 #
 # Needs bash, curl, jq and shasum. Downloads are cached in <server-dir>/.cache/.
 set -euo pipefail
@@ -72,29 +74,11 @@ while read -r plugin; do
 done < <(jq -c '.plugins[]' "$manifest")
 
 echo "Configs"
-# Values for the .tmpl files, from <server-dir>/.env.
-if [[ -f $dir/.env ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source "$dir/.env"
-  set +a
-fi
+# Templates (.tmpl) go in as they are: start.sh fills them in at every start.
 (cd "$here/files" && find . -type f) | while read -r rel; do
   rel=${rel#./}
-  src="$here/files/$rel"
-  if [[ $rel == *.tmpl ]]; then
-    dest="$dir/${rel%.tmpl}"
-    mkdir -p "$(dirname "$dest")"
-    # Every ${NAME} in the template must be set: a half-rendered config is worse than none.
-    # shellcheck disable=SC2016 # the ${...} is the literal text being searched for
-    for name in $(grep -o '\${[A-Z0-9_]*}' "$src" | tr -d '${}' | sort -u); do
-      [[ -n ${!name:-} ]] || { echo "$rel needs $name: set it in $dir/.env (see server/.env.example)" >&2; exit 1; }
-    done
-    perl -pe 's/\$\{([A-Z0-9_]+)\}/$ENV{$1}/g' "$src" >"$dest"
-  else
-    mkdir -p "$(dirname "$dir/$rel")"
-    cp "$src" "$dir/$rel"
-  fi
+  mkdir -p "$(dirname "$dir/$rel")"
+  cp "$here/files/$rel" "$dir/$rel"
   echo "  $rel"
 done
 cp "$root/brand/out/server-icon.png" "$dir/server-icon.png"
@@ -103,5 +87,5 @@ chmod +x "$dir/start.sh"
 
 echo
 echo "Installed $(wc -l <"$managed" | tr -d ' ') plugins and the configs in $dir."
-[[ -f $dir/eula.txt ]] || echo "Before the first start, accept Minecraft's EULA (https://aka.ms/MinecraftEULA): echo eula=true > $dir/eula.txt"
+[[ -f $dir/eula.txt ]] || echo "Before the first start, accept Minecraft's EULA (https://aka.ms/MinecraftEULA): echo eula=true > $dir/eula.txt (Raptor does it for you)"
 echo "Start it with: (cd $dir && ./start.sh)"

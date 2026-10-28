@@ -1,17 +1,50 @@
 #!/usr/bin/env bash
-# Starts the MostWanted game server. install.sh copies this next to server.jar.
+# Starts the MostWanted game server. install.sh copies this next to server.jar;
+# Raptor runs it (the MostWanted egg, server/raptor/).
 #
 #   MEMORY=10G ./start.sh
 #
-# MEMORY is the Java heap (default 10G: Java needs another ~1.5 GB outside it, and
-# PostgreSQL, Raptor and the bot share the 16 GB server; see docs/04-tech.md).
+# MEMORY is the Java heap. Unset, it's Raptor's memory setting for the server
+# (SERVER_MEMORY) less 1.5 GB, which Java needs outside the heap: 11.5 GB in Raptor
+# is a 10 GB heap (docs/04-tech.md). Without either, 10G.
+#
+# First, every config template (*.tmpl) is filled in from the environment: Raptor
+# gives the database's DB_* from the server's Databases tab, and the egg's settings
+# (TEBEX_SECRET, ...); a .env file here (server/.env.example) does it elsewhere.
+# A value that's missing stops the start: a half-filled config is worse than none.
 # The flags are Paper's recommended G1 set, plus Minehut's: players join through
 # Minehut's network, so the server checks logins with Minehut's session server
 # (https://support.minehut.com/hc/en-us/articles/33252734474899).
 set -euo pipefail
 cd "$(dirname "$0")"
 
-memory=${MEMORY:-10G}
+if [[ -f .env ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  . ./.env
+  set +a
+fi
+
+while IFS= read -r -d '' template; do
+  text=$(<"$template")
+  # shellcheck disable=SC2016 # the ${...} is the literal text being searched for
+  for name in $(grep -o '\${[A-Z0-9_]*}' "$template" | tr -d '${}' | sort -u); do
+    if [[ -z ${!name:-} ]]; then
+      echo "${template#./} needs $name: on Raptor, the server's Databases tab gives DB_*, and its Startup tab the rest" >&2
+      exit 1
+    fi
+    text=${text//"\${$name}"/"${!name}"}
+  done
+  printf '%s\n' "$text" >"${template%.tmpl}"
+done < <(find . -name '*.tmpl' -not -path './.cache/*' -print0)
+
+if [[ -n ${MEMORY:-} ]]; then
+  memory=$MEMORY
+elif [[ -n ${SERVER_MEMORY:-} ]]; then
+  memory=$((SERVER_MEMORY > 2560 ? SERVER_MEMORY - 1536 : 1024))M
+else
+  memory=10G
+fi
 
 exec java \
   -Xms"$memory" -Xmx"$memory" \
