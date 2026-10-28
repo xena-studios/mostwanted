@@ -12,7 +12,7 @@
 
 import { execFileSync, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import mineflayer from "mineflayer";
@@ -129,27 +129,47 @@ async function row(name) {
   return { role, cash: +cash, bank: +bank, bounty: +bounty, jailed: jailed === "t" };
 }
 
-/** Paper's latest build for our Minecraft version, cached with the boot test's jars and checked. */
+/** The file's bytes, or null if it isn't there. */
+function readIfThere(path) {
+  try {
+    return readFileSync(path);
+  } catch {
+    return null;
+  }
+}
+
+const digest = (algorithm, data) => createHash(algorithm).update(data).digest("hex");
+
+/**
+ * Paper's latest build for our Minecraft version, cached with the boot test's jars.
+ * Downloads are checked before they're written, and a cached copy is checked before it's used.
+ */
 async function paperJar() {
   const build = await (await fetch(`https://fill.papermc.io/v3/projects/paper/versions/${MINECRAFT}/builds/latest`)).json();
   const server = Object.values(build.downloads).find((d) => d.name.endsWith(".jar"));
-  const path = join(ROOT, ".cache/servers", server.name);
-  mkdirSync(dirname(path), { recursive: true });
-  if (!existsSync(path)) {
-    console.log(`Downloading ${server.name}…`);
-    writeFileSync(path, Buffer.from(await (await fetch(server.url)).arrayBuffer()));
+  if (!/^[\w.-]+\.jar$/.test(server.name) || !/^[0-9a-f]{64}$/.test(server.checksums.sha256)) {
+    throw new Error(`unexpected download from Paper: ${server.name}`);
   }
-  const sha256 = createHash("sha256").update(readFileSync(path)).digest("hex");
-  if (sha256 !== server.checksums.sha256) throw new Error(`${server.name} doesn't match its checksum`);
+  const path = join(ROOT, ".cache/servers", server.name);
+  const cached = readIfThere(path);
+  if (cached && digest("sha256", cached) === server.checksums.sha256) return path;
+  console.log(`Downloading ${server.name}…`);
+  const data = Buffer.from(await (await fetch(server.url)).arrayBuffer());
+  if (digest("sha256", data) !== server.checksums.sha256) throw new Error(`${server.name} doesn't match its checksum`);
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, data);
   return path;
 }
 
-function download(plugin) {
-  mkdirSync(PLUGINS, { recursive: true });
+/** A plugin pinned by URL and SHA-512: checked before it's written or used. */
+async function download(plugin) {
   const path = join(PLUGINS, plugin.file);
-  if (!existsSync(path)) sh("curl", ["-sSfL", "-o", path, plugin.url]);
-  const hash = createHash("sha512").update(readFileSync(path)).digest("hex");
-  if (hash !== plugin.sha512) throw new Error(`${plugin.file} doesn't match its checksum`);
+  const cached = readIfThere(path);
+  if (cached && digest("sha512", cached) === plugin.sha512) return path;
+  const data = Buffer.from(await (await fetch(plugin.url)).arrayBuffer());
+  if (digest("sha512", data) !== plugin.sha512) throw new Error(`${plugin.file} doesn't match its checksum`);
+  mkdirSync(PLUGINS, { recursive: true });
+  writeFileSync(path, data);
   return path;
 }
 
@@ -159,8 +179,8 @@ class Server {
     this.waiters = [];
   }
 
-  start(paper) {
-    const jars = VIA.map(download);
+  async start(paper) {
+    const jars = await Promise.all(VIA.map(download));
     const core = join(ROOT, "core/build/libs/core-0.1.0.jar");
     this.proc = spawn("java", ["-Xmx2G", "-jar", paper, "--nogui", `--add-plugin=${core}`, ...jars.map((j) => `--add-plugin=${j}`)], {
       cwd: DIR,
