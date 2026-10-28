@@ -101,7 +101,7 @@
       "url": "https://cdn.modrinth.com/data/z4HZZnLr/versions/b9Fl6Ct5/FastAsyncWorldEdit-Bukkit-2.16.1.jar",
       "sha512": "239344f1e906aac37ffed4939ea30a5ba1a1a3935dd4930067e25b8f9864b081ce3ad72473f4a93af8235a70824900649c4450983b2b3dda57d2df655ea3cb4b",
       "why": "Building the map (replaces WorldEdit)",
-      "note": "For building the map. Can come off the live server once the map is done."
+      "note": "For building the map, and marking zones with /mw zone. Can come off the live server once both are done."
     }
   ]
 }
