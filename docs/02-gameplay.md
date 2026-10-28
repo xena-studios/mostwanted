@@ -56,6 +56,7 @@ Robbery spots around the map, each with its own risk and reward:
 
 - Each location **opens and closes** on a timer and is announced (e.g. "The bank is open!"). This spreads players around the map and gives guards something to respond to.
 - Robbing raises your **bounty**. Cash is only banked once you reach a **criminal base** (safe zone).
+- **How a robbery works** (built 2026-10-27, numbers in `config.yml`): walking into an open spot starts it and sets off the alarm for guards. Robbers must stay inside until the timer ends; if all of them leave or are caught, it fails. The payout is split between the robbers, +10% per guard on duty (up to double), and each gets bounty. The spot then closes (10 minutes by default, 15 for the bank) and reopens with an announcement. Banking is automatic on walking into a hideout.
 
 ### Guards: arresting
 

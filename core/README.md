@@ -17,13 +17,15 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
   | `cell` | Where arrested players serve their sentence. Leaving one mid-sentence puts you back. |
   | `police` | The police station: safe for guards. |
   | `hideout` | A criminal base: safe for criminals, and where they bank cash. |
-  | `robbery` | A place to rob, such as the bank. |
+  | `robbery` | A place to rob, such as the bank. Its zone name picks its settings in `config.yml`. |
   | `safe` | No fighting at all. |
 
   Zones can overlap, such as cells inside the prison. Walking into one shows its name above the hotbar. Set a spawn (`/mw zone spawn`) on the prison, the police station and each cell: that's where players are sent.
 - **Combat:** guards and criminals fight; nobody else can hurt anyone (riots will change that). Nobody fights in a `safe` zone, guards are safe at the `police` station and criminals in a `hideout`, and neither can attack out of one.
 - **Arrests:** guards on duty carry handcuffs. One right-click on a criminal within 3 blocks arrests them for their whole bounty; killing them pays half; a criminal who dies any other way is arrested with nobody paid. They lose their unbanked cash and serve 1 minute plus 1 per $2,500 of bounty, up to 5, in the emptiest `cell`, then go to the `prison` spawn.
-- **Bounty:** +$500 for killing a guard on duty. Robberies will add more.
+- **Bounty:** +$500 for killing a guard on duty, and more for each robbery.
+- **Banking:** a criminal's cash is banked the moment they walk into a `hideout`. Unbanked cash is lost on arrest.
+- **Robberies:** every `robbery` zone is a place to rob. A criminal walking into an open one starts it, and the alarm goes off for guards on duty. The robbers must stay inside until the time is up (a red bar fills); if they all leave or are caught, it fails. The payout is split between the robbers and grows with the guards on duty; each robber gets bounty. Then it closes for a while and reopens with an announcement. While one is on, everyone's scoreboard has a red HEIST section. Times and payouts per spot are in `config.yml` under `robberies`.
 - **Duty:** `/duty` swaps between guard and inmate, each with their own cash and bank. Guards respawn at the `police` spawn, inmates at the `prison` spawn.
 - **Admin commands** for testing, each written to the game log.
 
@@ -44,7 +46,7 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
 
 ## Config
 
-`plugins/MostWanted/config.yml`: the database, how often to save, the scoreboard clock's timezone, and the gameplay numbers under `rules` (sentence length, kill share, guard-kill bounty, cuff range, combat tag). On the server it's rendered from [`server/files/plugins/MostWanted/config.yml.tmpl`](../server/files/plugins/MostWanted/config.yml.tmpl) with the password from `.env`. `messages.yml` holds every message.
+`plugins/MostWanted/config.yml`: the database, how often to save, the scoreboard clock's timezone, the gameplay numbers under `rules` (sentence length, kill share, guard-kill bounty, cuff range, combat tag), and each robbery spot under `robberies`. On the server it's rendered from [`server/files/plugins/MostWanted/config.yml.tmpl`](../server/files/plugins/MostWanted/config.yml.tmpl) with the password from `.env`. `messages.yml` holds every message.
 
 FAWE is optional: without it the game runs, but zones can't be marked out.
 
