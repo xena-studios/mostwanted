@@ -13,3 +13,6 @@ backend/logs/
 
 # The built resource pack
 pack/out/
+
+# Worktrees made by Claude Code agents
+.claude/worktrees/

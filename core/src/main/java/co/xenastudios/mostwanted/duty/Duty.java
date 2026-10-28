@@ -72,7 +72,7 @@ public final class Duty implements Listener {
                     return;
                 }
                 off(player, state);
-                messages.send(player, "duty.off");
+                messages.send(player, "duty.went-off");
             }
             case INMATE -> {
                 if (state.jailed(clock.instant())) {
@@ -84,7 +84,7 @@ public final class Duty implements Listener {
                 kit.forEach(gear -> gear.give(player));
                 spawns.of(ZoneKind.POLICE).ifPresent(player::teleportAsync);
                 gameLog.record("duty", player.getUniqueId(), null, Map.of("on", "true"));
-                messages.send(player, "duty.on");
+                messages.send(player, "duty.went-on");
             }
             case CRIMINAL -> messages.send(player, "duty.criminal");
         }

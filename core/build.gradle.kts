@@ -70,3 +70,9 @@ tasks.jar {
 tasks.test {
     inputs.dir(rootProject.layout.projectDirectory.dir("pack/textures")).withPropertyName("packTextures")
 }
+
+// ShippedFilesTest compares config.yml with the server's template.
+tasks.test {
+    inputs.file(rootProject.layout.projectDirectory.file("server/files/plugins/MostWanted/config.yml.tmpl"))
+        .withPropertyName("configTemplate")
+}

@@ -114,8 +114,8 @@ cuffs:
   protected: "<error>✖</error> <value><player></value> is in a safe zone."
 
 duty:
-  on: "<success>✔</success> you're on duty. right-click a criminal with your <guard>handcuffs</guard> to arrest them."
-  off: "<success>✔</success> you're off duty."
+  went-on: "<success>✔</success> you're on duty. right-click a criminal with your <guard>handcuffs</guard> to arrest them."
+  went-off: "<success>✔</success> you're off duty."
   in-combat: "<error>✖</error> you're in a fight. try again in a few seconds."
   jailed: "<error>✖</error> finish your sentence first."
   criminal: "<error>✖</error> criminals can't go on duty. get arrested first."
