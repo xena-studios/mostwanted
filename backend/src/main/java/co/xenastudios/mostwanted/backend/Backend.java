@@ -32,6 +32,14 @@ public final class Backend {
             System.exit(2);
             return;
         }
+        try {
+            // Before anything starts: a wrong certificate path or key stops it here, with the reason.
+            Api.checkTls(config);
+        } catch (IllegalArgumentException e) {
+            LOG.error("Bad TLS settings: {}", e.getMessage());
+            System.exit(2);
+            return;
+        }
         LOG.info("Starting with {}", config);
         Database database = Database.start(config.database(), "backend");
         Stats stats = new Stats(database.sql(), config.zone(), Clock.systemUTC());

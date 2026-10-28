@@ -51,6 +51,13 @@ public final class Api {
         return new AccountRoutes(config, accounts, sessions, discord, linkedRole);
     }
 
+    /** Reads and checks the TLS files, if any; throws IllegalArgumentException with the reason. */
+    public static void checkTls(BackendConfig config) {
+        if (config.tls() != null) {
+            OriginTls.sslContext(config.tls());
+        }
+    }
+
     /** {@code discordUp} is for /health: whether the bot is connected, or null if it's switched off. */
     public static Api start(BackendConfig config, Stats stats, AccountRoutes accounts, BooleanSupplier discordUp) {
         RateLimits limits = new RateLimits(config.requestsPerMinute());

@@ -78,7 +78,7 @@ if [[ $mode == install ]]; then
     say "would enable mostwanted-backup-db.timer (nightly 03:30)"
     exit 0
   fi
-  install -m 755 "$0" "$INSTALLED"
+  [[ $0 -ef $INSTALLED ]] || install -m 755 "$0" "$INSTALLED"
   install -d -m 755 /etc/mostwanted
   if [[ ! -f $CONFIG ]]; then
     cat >"$CONFIG" <<EOF

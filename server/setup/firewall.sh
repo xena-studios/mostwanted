@@ -270,7 +270,7 @@ if $dry; then
   say "    mostwanted-firewall.service        --load at boot, before Docker"
   say "    mostwanted-firewall-refresh.timer  --refresh daily (and 5 minutes after boot)"
 elif [[ -d /run/systemd/system ]]; then
-  install -m 755 "$0" "$INSTALLED"
+  [[ $0 -ef $INSTALLED ]] || install -m 755 "$0" "$INSTALLED"
   cat >/etc/systemd/system/mostwanted-firewall.service <<EOF
 [Unit]
 Description=MostWanted firewall: API port from Cloudflare only (saved ranges)
