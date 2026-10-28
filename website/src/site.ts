@@ -11,7 +11,12 @@ export const site = {
   store: null as string | null,
   email: "contact@xenastudios.co",
   source: "https://github.com/xena-studios/mostwanted",
+  // The backend (backend/). PUBLIC_API_URL points a local build at a local one.
+  api: (import.meta.env.PUBLIC_API_URL as string | undefined) ?? "https://api.mostwantedmc.com",
 };
+
+// Sign-in works once the server opens; `astro dev` turns it on to try locally.
+export const signInOpen = site.open || import.meta.env.DEV;
 
 export const nav = [
   { href: "/news", label: "News" },

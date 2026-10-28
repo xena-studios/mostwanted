@@ -107,8 +107,12 @@ public final class AccountRoutes {
                 if (result == Accounts.Link.LINKED) {
                     syncRole(current.get());
                 }
-                ctx.redirect(config.site() + "/account" + (result == Accounts.Link.LINKED
-                        || result == Accounts.Link.ALREADY_YOURS ? "" : "?error=" + linkError(result)));
+                // A short code in the URL; the site words it.
+                ctx.redirect(config.site() + "/account" + switch (result) {
+                    case LINKED, ALREADY_YOURS -> "";
+                    case ALREADY_LINKED -> "?error=already-linked";
+                    default -> "?error=taken";
+                });
                 return;
             }
             long id = accounts.signInWithDiscord(user.id(), user.name());
