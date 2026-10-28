@@ -25,6 +25,8 @@ export type Package = {
   ribbon?: string;
   /** What it gives, for the card. */
   perks?: string[];
+  /** For ranks: the cosmetics it includes (their ids), for value and the cart's suggestions. */
+  includes?: string[];
   /** What Tebex runs on the server when it's bought ({username} is filled in). */
   commands: string[];
 };
@@ -39,6 +41,7 @@ export const ranks: Package[] = [
     colour: "#99ff33",
     blurb: "A tag by your name and your first effect.",
     perks: ["VIP tag in chat and the tab list", "Confetti escape effect", "VIP role on Discord", "Supporter badge on your player page"],
+    includes: ["escape-confetti"],
     commands: ["lp user {username} parent add vip"],
   },
   {
@@ -50,6 +53,7 @@ export const ranks: Package[] = [
     colour: "#33ffcc",
     blurb: "Everything in VIP, plus a trail and chat colours.",
     perks: ["VIP+ tag in chat and the tab list", "Confetti escape effect", "Smoke trail", "Chat colours", "VIP+ role on Discord", "Supporter badge on your player page"],
+    includes: ["escape-confetti", "trail-smoke", "chat-colours"],
     commands: ["lp user {username} parent add vip_plus"],
   },
   {
@@ -62,6 +66,11 @@ export const ranks: Package[] = [
     ribbon: "Most popular",
     blurb: "Every trail and effect, and the server knows when you arrive.",
     perks: ["MVP tag and a coloured name", "Every trail", "Every escape and arrest effect", "Chat colours", "Your joins are announced", "MVP role on Discord", "Supporter badge on your player page"],
+    includes: [
+      "trail-cash", "trail-ember", "trail-smoke", "trail-siren",
+      "escape-fireworks", "escape-confetti", "escape-thunder",
+      "arrest-spotlight", "arrest-siren", "chat-colours",
+    ],
     commands: ["lp user {username} parent add mvp"],
   },
   {
@@ -128,7 +137,17 @@ export const support: Package[] = [
   },
 ];
 
+// Legend includes every cosmetic, including ones added later.
+ranks.find((r) => r.id === "legend")!.includes = cosmetics.map((c) => c.id);
+
 export const catalog: Package[] = [...ranks, ...cosmetics, ...support];
+
+/** What a rank's included cosmetics cost on their own: the honest "worth" on its card. */
+export const includedValue = (rank: Package) =>
+  (rank.includes ?? []).reduce((sum, id) => sum + (cosmetics.find((c) => c.id === id)?.price ?? 0), 0);
+
+/** The cheapest rank that includes a cosmetic, or none. */
+export const firstRankWith = (id: string) => ranks.find((r) => r.includes?.includes(id));
 
 // The rank table: each row's value per rank (true, false or text).
 export const rankTable: { perk: string; values: (boolean | string)[] }[] = [

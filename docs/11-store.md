@@ -55,6 +55,17 @@ Each is a `mostwanted.cosmetic.<id>` permission, so they stack with ranks and wo
 
 Prices are starting points: change them in Tebex (the site shows Tebex's prices once connected) and in `catalog.ts` (shown before then).
 
+## Built to sell, honestly
+
+The page is laid out to make buying easy and to show real value, without the tricks that work on kids:
+
+- **Easy to get around:** a bar under the header with Ranks, Cosmetics, Support and Questions, highlighting the section you're in. The cart sits at the bottom right, with its count and total, once something is in it.
+- **Value you can check:** each rank shows what its included cosmetics cost on their own (Legend: every cosmetic, worth more than its price), and each cosmetic says which rank includes it.
+- **A cart that saves you money:** if a rank covers what's in the cart for less, it offers a one-click swap ("MVP includes all of these and costs $5.94 less"); if a rank costs only a little more (up to $5), it says so. It flags anything already included in a rank in the cart, and lower ranks a higher one covers, so nobody pays twice.
+- **Fewer mistakes at checkout:** the username is remembered and shows that player's head, so you can see it's the right account. The creator code is tucked away until you need it.
+- **Adding** shows a short confirmation with a way straight to checkout.
+- **Not used, on purpose:** countdown timers, "only N left", fake "X people bought this", pre-ticked extras, subscriptions. Tebex's community goals (a "help pay for the server" bar) need the private key, so they'd go through the backend later rather than the browser.
+
 ## How the website store works
 
 - The page shows the catalogue from `catalog.ts`. Once the Tebex **public token** is set, it loads the live store from Tebex's [Headless API](https://docs.tebex.io/developers/headless-api/introduction) and **matches packages by name**: prices come from Tebex, and anything not found in Tebex shows "Unavailable".
