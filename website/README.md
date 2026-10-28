@@ -15,7 +15,9 @@ npm run brand:sync   # copy the logo, background and icons in from ../brand,
                      # and the XENA footer logo from a xena-studios/brand checkout at ../../brand
 ```
 
-Pages are Astro components rendered to HTML at build time. The only JavaScript is the address copy button and the player lookup, a few lines each.
+Pages are Astro components rendered to HTML at build time. The JavaScript is small and per page: the address copy button, the player lookup, sign-in and the account page, and the store's cart and checkout.
+
+**The store** ([docs/11-store.md](../docs/11-store.md)) reads its catalogue from `src/store/catalog.ts` and, when the `PUBLIC_TEBEX_TOKEN` build variable is set (the `TEBEX_PUBLIC_TOKEN` repository variable in CI), live prices and checkout from Tebex's Headless API (`src/store/tebex.ts`). Without it the store shows everything and says checkout opens at launch.
 
 ## Layout
 
@@ -29,13 +31,16 @@ src/
     wiki/              wiki index and articles (from src/content/wiki/)
     leaderboards.astro the boards (filled by the stats feed once it exists)
     player.astro       player lookup (/player?name=…)
-    rules, staff, creators, apply, support, store, login, 404, sitemap.xml
+    store.astro        the store: ranks, comparison, cosmetics, cart and Tebex checkout
+    rules, staff, creators, apply, support, login, account, terms, privacy, 404, sitemap.xml
+  store/               the catalogue (catalog.ts), the cart and the Tebex client
   content/             news posts and wiki articles in Markdown: add a file to publish
   components/          PageHero (the desert header on inner pages), CopyAddress
   layouts/Base.astro   <head>, header, footer
   styles/global.css    tokens, panels, buttons, forms, long-form text
   brand/               synced from ../brand by npm run brand:sync: don't edit
-public/                _headers (CSP and security headers), _redirects, robots.txt, icons, og.png
+public/                _headers (CSP and security headers), _redirects, robots.txt, icons, og.png,
+                       store/ (the store's pixel icons, in vanilla's style)
 ```
 
 ## Writing news and wiki pages

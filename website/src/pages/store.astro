@@ -1,86 +1,868 @@
 ---
-import { BadgeCheck, Brush, Crosshair, Shirt, Sparkles, Store } from "@lucide/astro";
+import { Check, Gamepad2, Heart, Lock, ShieldCheck, ShoppingCart, Sparkles, X, Zap } from "@lucide/astro";
 import Base from "../layouts/Base.astro";
 import PageHero from "../components/PageHero.astro";
 import { site } from "../site";
+import { catalog, cosmetics, money, never, ranks, rankTable, support } from "../store/catalog";
 import road from "../brand/scene-road.png";
 
-const categories = [
-  { icon: BadgeCheck, title: "Ranks", body: "Supporter ranks with a chat tag, a name colour and cosmetic perks." },
-  { icon: Shirt, title: "Jumpsuits & uniforms", body: "Your inmate jumpsuit or guard uniform, in your colours." },
-  { icon: Crosshair, title: "Gun skins", body: "New looks for every gun. Same stats as everyone else's." },
-  { icon: Sparkles, title: "Trails & effects", body: "Escape trails, arrest effects and particles." },
-  { icon: Brush, title: "Cell decor", body: "Make your cell yours." },
+const kinds = [...new Set(cosmetics.map((c) => c.kind!))];
+
+// What the cart and live prices need in the browser: name to show, Tebex name, price, icon.
+const packages = Object.fromEntries(catalog.map((p) => [p.id, { name: p.name, price: p.price, icon: p.icon }]));
+
+const faq = [
+  ["How long does it take to arrive?", "Usually under a minute. If you're online it shows up straight away; if not, it's waiting next time you join."],
+  ["I play on Bedrock. Can I buy?", "Yes. Enter the name you play under, exactly as it shows in game (on the tab list), and everything works the same."],
+  ["Can I buy for a friend?", "Yes: put their Minecraft username in the cart instead of yours. It goes to them."],
+  ["Does anything here help me win?", "No. Ranks and cosmetics change how you look, never how you play. Guns, armor, cash, shorter sentences and the guard rank can't be bought, by anyone."],
+  ["What if I already have a rank and buy a higher one?", "You get the higher rank, and keep every cosmetic you already had."],
+  ["Who handles payment?", "Tebex, the store most Minecraft servers use. We never see your card details. Their checkout takes cards, PayPal and more."],
+  ["Can I get a refund?", "See the Terms. If something didn't arrive, contact Support with your transaction ID and we'll sort it."],
 ];
 ---
-<Base title="Store" description="The MostWanted store: cosmetic ranks, jumpsuits, gun skins, trails and cell decor. Cosmetics only, never pay to win.">
-  <PageHero title="Store" lead="Cosmetics only. Nothing in the store wins a fight, an escape or a robbery." image={road} />
-  <section class="section">
-    <div class="wrap">
-      {
-        site.store ? (
-          <a class="button primary" href={site.store}><Store aria-hidden="true" /> Open the store</a>
-        ) : (
-          <p class="note"><strong>The store opens at launch.</strong> Purchases go through Tebex, and show up in game within a minute.</p>
-        )
-      }
-      <ul class="cats">
+<Base title="Store" description="The MostWanted store: ranks, trails, escape and arrest effects, gun skins and more. Cosmetics only, never pay to win.">
+  <PageHero title="Store" lead="Support the server and stand out. Cosmetics only: nothing here wins a fight, an escape or a robbery." image={road}>
+    <div class="hero-actions">
+      <a class="button primary" href="#ranks"><ShieldCheck aria-hidden="true" /> See the ranks</a>
+      <a class="button" href="#cosmetics"><Sparkles aria-hidden="true" /> Browse cosmetics</a>
+    </div>
+  </PageHero>
+
+  <div class="store" data-store data-token={site.tebexToken ?? ""} data-packages={JSON.stringify(packages)}>
+    <section class="wrap trust" aria-label="About buying">
+      <ul>
+        <li><Lock aria-hidden="true" /> Secure checkout by Tebex</li>
+        <li><Zap aria-hidden="true" /> In game within a minute</li>
+        <li><Gamepad2 aria-hidden="true" /> Java and Bedrock</li>
+        <li><ShieldCheck aria-hidden="true" /> Never pay to win</li>
+      </ul>
+      <p class="banner" data-thanks hidden><Heart aria-hidden="true" /> Thank you! Your purchase is on its way: it shows up in game within a minute.</p>
+      {!site.tebexToken && <p class="note"><strong>The store opens with the server.</strong> Have a look around and fill your cart: checkout turns on at launch.</p>}
+    </section>
+
+    <section class="section" id="ranks" aria-labelledby="ranks-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="ranks-title">Ranks</h2>
+          <p class="sub">One-time, yours for good. Each includes everything in the ones before it.</p>
+        </div>
+        <ul class="ranks">
+          {
+            ranks.map((r) => (
+              <li class:list={["panel rank", { featured: r.ribbon === "Most popular" }]} style={`--rank: ${r.colour}`}>
+                {r.ribbon && <span class="ribbon pixel">{r.ribbon}</span>}
+                <img class="icon" src={r.icon} alt="" width="80" height="80" />
+                <h3>{r.name}</h3>
+                <p class="price" data-price={r.id}>{money(r.price)}</p>
+                <p class="blurb">{r.blurb}</p>
+                <ul class="perks">
+                  {r.perks!.map((perk) => (
+                    <li>
+                      <Check aria-hidden="true" /> {perk}
+                    </li>
+                  ))}
+                </ul>
+                <button class="button primary add" type="button" data-add={r.id} aria-pressed="false">
+                  <ShoppingCart aria-hidden="true" /> <span>Add to cart</span>
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="panel compare">
+          <table>
+            <caption class="visually-hidden">What each rank includes</caption>
+            <thead>
+              <tr>
+                <th scope="col">Compare ranks</th>
+                {ranks.map((r) => <th scope="col" style={`--rank: ${r.colour}`}>{r.name}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {
+                rankTable.map((row) => (
+                  <tr>
+                    <th scope="row">{row.perk}</th>
+                    {row.values.map((v) => (
+                      <td>
+                        {v === true ? (
+                          <Check class="yes" aria-label="Yes" />
+                        ) : v === false ? (
+                          <X class="no" aria-label="No" />
+                        ) : (
+                          <span>{v}</span>
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="cosmetics" aria-labelledby="cosmetics-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="cosmetics-title">Cosmetics</h2>
+          <p class="sub">Pick exactly what you want. MVP and Legend already include most of these.</p>
+        </div>
+        <div class="filters" role="group" aria-label="Show">
+          <button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>
+          {kinds.map((k) => <button class="chip" type="button" data-filter={k} aria-pressed="false">{k}</button>)}
+        </div>
+        <ul class="items">
+          {
+            cosmetics.map((c) => (
+              <li class="panel item" data-kind={c.kind}>
+                <img class="icon" src={c.icon} alt="" width="64" height="64" />
+                <div class="item-copy">
+                  <span class="label">{c.kind}</span>
+                  <h3>{c.name}</h3>
+                  <p>{c.blurb}</p>
+                </div>
+                <div class="item-buy">
+                  <p class="price" data-price={c.id}>{money(c.price)}</p>
+                  <button class="button add small" type="button" data-add={c.id} aria-pressed="false">
+                    <ShoppingCart aria-hidden="true" /> <span>Add</span>
+                  </button>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="support-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="support-title">Support the <span class="accent">server</span></h2>
+          <p class="sub">Every purchase pays for the server, the map and new updates.</p>
+        </div>
+        <ul class="items support">
+          {
+            support.map((s) => (
+              <li class="panel item">
+                <img class="icon" src={s.icon} alt="" width="64" height="64" />
+                <div class="item-copy">
+                  <h3>{s.name}</h3>
+                  <p>{s.blurb}</p>
+                </div>
+                <div class="item-buy">
+                  <p class="price" data-price={s.id}>{money(s.price)}</p>
+                  <button class="button add small" type="button" data-add={s.id} aria-pressed="false">
+                    <ShoppingCart aria-hidden="true" /> <span>Add</span>
+                  </button>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="never-title">
+      <div class="wrap">
+        <div class="panel never">
+          <h2 id="never-title">Never for sale</h2>
+          <p>Under Mojang's rules, and because it's no fun when money decides who wins:</p>
+          <ul>
+            {never.map((n) => <li><X aria-hidden="true" /> {n}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="faq-title">
+      <div class="wrap faq">
+        <div class="section-head">
+          <h2 id="faq-title">Questions</h2>
+        </div>
         {
-          categories.map((c) => (
-            <li class="panel cat">
-              <c.icon aria-hidden="true" />
-              <h2>{c.title}</h2>
-              <p>{c.body}</p>
-            </li>
+          faq.map(([q, a]) => (
+            <details class="panel">
+              <summary>{q}</summary>
+              <p>{a}</p>
+            </details>
           ))
         }
-      </ul>
-      <div class="panel never">
-        <h2>Never for sale</h2>
-        <p>Guns, ammo, armor, cash, shorter jail time, the guard rank, or anything random like crates. Under Mojang's rules, and because it's not fun when money decides who wins.</p>
+        <p class="small">Purchases are covered by the <a href="/terms">Terms</a> and <a href="/privacy">Privacy</a> policy.</p>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <button class="button primary cart-button" type="button" data-open-cart hidden>
+      <ShoppingCart aria-hidden="true" /> Cart <span class="count pixel" data-count>0</span> <span data-total></span>
+    </button>
+
+    <dialog class="panel cart" data-cart aria-labelledby="cart-title">
+      <div class="cart-head">
+        <h2 id="cart-title">Your cart</h2>
+        <button class="close" type="button" data-close-cart aria-label="Close"><X aria-hidden="true" /></button>
+      </div>
+      <p class="empty" data-empty>Nothing here yet.</p>
+      <ul class="lines" data-lines></ul>
+      <template data-line>
+        <li>
+          <img alt="" width="40" height="40" />
+          <span class="line-name"></span>
+          <span class="line-price"></span>
+          <button class="remove" type="button" aria-label="Remove"><X aria-hidden="true" /></button>
+        </li>
+      </template>
+      <form class="checkout" data-checkout>
+        <p class="total">Total <strong data-cart-total></strong></p>
+        <label for="mc-name">Minecraft username</label>
+        <input id="mc-name" class="input" name="username" required maxlength="32" spellcheck="false" autocomplete="off" placeholder="The name you play under" />
+        <p class="hint">Bedrock? Use your name exactly as it shows on the tab list. Buying for a friend? Use theirs.</p>
+        <label for="creator">Creator code <span class="optional">(optional)</span></label>
+        <input id="creator" class="input" name="creator" maxlength="32" spellcheck="false" autocomplete="off" placeholder="Supports a creator" />
+        <p class="error" role="alert" data-cart-error hidden></p>
+        <button class="button primary pay" type="submit" data-pay>
+          <Lock aria-hidden="true" /> {site.tebexToken ? "Checkout" : "Checkout opens at launch"}
+        </button>
+        <p class="hint">Payment is on Tebex's secure checkout.</p>
+      </form>
+    </dialog>
+  </div>
 </Base>
 
+<script>
+  import { read, toggle, write } from "../store/cart";
+  import { checkout, loadLive, toPayment, type Live } from "../store/tebex";
+
+  type Info = { name: string; price: number; icon: string };
+
+  const root = document.querySelector<HTMLElement>("[data-store]")!;
+  const token = root.dataset.token || "";
+  const packages: Record<string, Info> = JSON.parse(root.dataset.packages!);
+  const $ = <T extends HTMLElement>(name: string) => root.querySelector<T>(`[data-${name}]`)!;
+  const dialog = $<HTMLDialogElement>("cart");
+  const errorBox = $("cart-error");
+  let live: Live | null = null;
+  let currency = "USD";
+
+  const format = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency }).format(n);
+  const price = (id: string) => live?.prices.get(packages[id].name) ?? packages[id].price;
+
+  function showError(message: string) {
+    errorBox.textContent = message;
+    errorBox.hidden = false;
+  }
+
+  /** Buttons, the floating cart button and the cart's lines, from what's in the cart. */
+  function render() {
+    const ids = read().filter((id) => id in packages);
+    root.querySelectorAll<HTMLButtonElement>("[data-add]").forEach((button) => {
+      const added = ids.includes(button.dataset.add!);
+      button.setAttribute("aria-pressed", String(added));
+      button.querySelector("span")!.textContent = added ? "In cart" : button.classList.contains("small") ? "Add" : "Add to cart";
+    });
+    const total = ids.reduce((sum, id) => sum + price(id), 0);
+    $("open-cart").hidden = ids.length === 0;
+    $("count").textContent = String(ids.length);
+    $("total").textContent = format(total);
+    $("cart-total").textContent = format(total);
+    $("empty").hidden = ids.length > 0;
+    $("checkout").hidden = ids.length === 0;
+
+    const lines = $("lines");
+    lines.replaceChildren();
+    const template = root.querySelector<HTMLTemplateElement>("template[data-line]")!;
+    for (const id of ids) {
+      const line = template.content.firstElementChild!.cloneNode(true) as HTMLElement;
+      line.querySelector("img")!.src = packages[id].icon;
+      line.querySelector(".line-name")!.textContent = packages[id].name;
+      line.querySelector(".line-price")!.textContent = format(price(id));
+      line.querySelector("button")!.addEventListener("click", () => toggle(id));
+      lines.append(line);
+    }
+  }
+
+  root.querySelectorAll<HTMLButtonElement>("[data-add]").forEach((button) =>
+    button.addEventListener("click", () => {
+      if (toggle(button.dataset.add!)) {
+        $("open-cart").classList.remove("bump");
+        void $("open-cart").offsetWidth;
+        $("open-cart").classList.add("bump");
+      }
+    }),
+  );
+  window.addEventListener("cart-changed", render);
+  window.addEventListener("storage", render);
+
+  $("open-cart").addEventListener("click", () => dialog.showModal());
+  $("close-cart").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  // Cosmetics filter.
+  const chips = root.querySelectorAll<HTMLButtonElement>("[data-filter]");
+  chips.forEach((chip) =>
+    chip.addEventListener("click", () => {
+      chips.forEach((c) => c.setAttribute("aria-pressed", String(c === chip)));
+      root.querySelectorAll<HTMLElement>(".item[data-kind]").forEach((item) => {
+        item.hidden = chip.dataset.filter !== "all" && item.dataset.kind !== chip.dataset.filter;
+      });
+    }),
+  );
+
+  // Checkout: through Tebex once the store is connected.
+  const form = $<HTMLFormElement>("checkout");
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    errorBox.hidden = true;
+    if (!token || !live) {
+      showError("The store opens with the server. Your cart will still be here.");
+      return;
+    }
+    const data = new FormData(form);
+    const username = String(data.get("username") ?? "").trim();
+    if (!/^[A-Za-z0-9_.* -]{1,32}$/.test(username)) {
+      showError("That doesn't look like a Minecraft username.");
+      return;
+    }
+    const ids = read().filter((id) => id in packages);
+    const missing = ids.filter((id) => !live!.idents.has(packages[id].name));
+    if (missing.length) {
+      showError(`${missing.map((id) => packages[id].name).join(", ")} can't be bought right now. Remove it to check out.`);
+      return;
+    }
+    const pay = $<HTMLButtonElement>("pay");
+    pay.disabled = true;
+    try {
+      await checkout(token, username, ids.map((id) => live!.idents.get(packages[id].name)!), String(data.get("creator") ?? "").trim());
+    } catch (e) {
+      showError((e as Error).message);
+      pay.disabled = false;
+    }
+  });
+
+  const params = new URLSearchParams(location.search);
+  if (params.get("thanks")) {
+    write([]);
+    $("thanks").hidden = false;
+  }
+
+  render();
+  if (token) {
+    loadLive(token).then(
+      (loaded) => {
+        live = loaded;
+        currency = loaded.currency;
+        root.querySelectorAll<HTMLElement>("[data-price]").forEach((el) => {
+          const name = packages[el.dataset.price!].name;
+          el.textContent = loaded.prices.has(name) ? format(loaded.prices.get(name)!) : "Unavailable";
+        });
+        render();
+        // Back from Tebex's sign-in: on to payment.
+        const basket = params.get("checkout");
+        if (basket) toPayment(token, basket).catch((e) => showError((e as Error).message));
+      },
+      () => showError("Couldn't reach the store just now. Try again in a minute."),
+    );
+  }
+</script>
+
 <style>
-  .cats {
+  [hidden] {
+    display: none !important;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-top: var(--s-5);
+  }
+
+  .sub {
+    max-width: 34rem;
+    color: var(--muted);
+  }
+
+  /* ---------------------------------------------------------------- trust strip */
+
+  .trust {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
     gap: var(--s-4);
     margin-top: var(--s-6);
+  }
+
+  .trust ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-3) var(--s-6);
+    padding: var(--s-4) var(--s-5);
+    border: 2px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--raised);
+    list-style: none;
+  }
+
+  .trust li {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-weight: 600;
+  }
+
+  .trust li :global(svg) {
+    width: 1.2rem;
+    height: 1.2rem;
+    color: var(--orange);
+  }
+
+  .banner {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-4) var(--s-5);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--green) 18%, var(--raised));
+    font-weight: 600;
+  }
+
+  .banner :global(svg) {
+    color: var(--green);
+  }
+
+  /* ---------------------------------------------------------------- ranks */
+
+  .ranks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--s-4);
     padding: 0;
     list-style: none;
   }
 
-  .cat {
-    padding: var(--s-5);
+  .rank {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-6) var(--s-5);
+    border-top: 4px solid var(--rank);
+    text-align: center;
   }
 
-  .cat :global(svg) {
-    width: 2rem;
-    height: 2rem;
-    color: var(--orange);
+  .rank.featured {
+    border-color: var(--rank);
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--rank) 50%, transparent),
+      0 14px 40px color-mix(in srgb, var(--rank) 25%, transparent);
   }
 
-  h2 {
-    margin-top: var(--s-3);
-    font-size: 1.5rem;
+  .ribbon {
+    position: absolute;
+    top: -0.9rem;
+    padding: 0.1rem var(--s-3);
+    border-radius: 6px;
+    background: var(--rank);
+    color: var(--ink);
+    font-size: 1.15rem;
   }
 
-  .cat p,
-  .never p {
-    margin-top: var(--s-2);
+  .icon {
+    image-rendering: pixelated;
+  }
+
+  .rank h3 {
+    font-size: 2rem;
+    color: var(--rank);
+    text-shadow: 0 3px 0 color-mix(in srgb, black 45%, transparent);
+  }
+
+  .price {
+    font-family: var(--display);
+    font-size: 1.75rem;
+    color: var(--sand);
+  }
+
+  .blurb {
+    min-height: 3em;
     color: var(--muted);
   }
 
+  .perks {
+    display: grid;
+    gap: var(--s-2);
+    width: 100%;
+    margin: var(--s-2) 0 var(--s-4);
+    padding: 0;
+    list-style: none;
+    text-align: left;
+  }
+
+  .perks li {
+    display: flex;
+    gap: var(--s-2);
+    font-size: 0.95rem;
+  }
+
+  .perks :global(svg) {
+    flex: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.15rem;
+    color: var(--rank);
+  }
+
+  .rank .add {
+    width: 100%;
+    margin-top: auto;
+  }
+
+  .add[aria-pressed="true"] {
+    filter: saturate(0.4) brightness(0.9);
+  }
+
+  /* ---------------------------------------------------------------- compare */
+
+  .compare {
+    margin-top: var(--s-6);
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    min-width: 40rem;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: var(--s-3) var(--s-4);
+    border-bottom: 1px solid var(--rule);
+    text-align: center;
+  }
+
+  thead th {
+    font-family: var(--display);
+    font-size: 1.25rem;
+    color: var(--rank, var(--text));
+  }
+
+  thead th:first-child,
+  tbody th {
+    text-align: left;
+  }
+
+  tbody th {
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+
+  td :global(.yes) {
+    color: var(--green);
+  }
+
+  td :global(.no) {
+    color: color-mix(in srgb, var(--muted) 50%, transparent);
+  }
+
+  /* ---------------------------------------------------------------- cosmetics */
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin-bottom: var(--s-5);
+  }
+
+  .chip {
+    padding: var(--s-2) var(--s-4);
+    border: 2px solid var(--rule);
+    border-radius: 999px;
+    background: var(--raised);
+    color: var(--muted);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .chip[aria-pressed="true"] {
+    border-color: var(--orange);
+    color: var(--text);
+    background: color-mix(in srgb, var(--orange) 18%, var(--raised));
+  }
+
+  .items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+    gap: var(--s-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .item {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    align-items: start;
+    column-gap: var(--s-4);
+    row-gap: var(--s-3);
+    padding: var(--s-5);
+  }
+
+  .item h3 {
+    font-size: 1.25rem;
+  }
+
+  .item p {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  /* Price and button on one row under the text, so the text has the card's width. */
+  .item-buy {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+    margin-top: auto;
+  }
+
+  .item .price {
+    font-size: 1.25rem;
+  }
+
+  .button.small {
+    min-height: 2.5rem;
+    padding: 0 var(--s-4);
+    font-size: 1rem;
+  }
+
+  /* ---------------------------------------------------------------- never, faq */
+
   .never {
-    margin-top: var(--s-4);
     padding: var(--s-6);
-    border-left: 5px solid var(--red);
   }
 
   .never h2 {
-    margin-top: 0;
+    font-size: 2rem;
+    color: var(--orange);
+  }
+
+  .never p {
+    margin-top: var(--s-3);
+    color: var(--muted);
+  }
+
+  .never ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-5);
+    margin-top: var(--s-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .never li {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-weight: 600;
+  }
+
+  .never li :global(svg) {
+    color: #ff3333;
+  }
+
+  .faq {
+    display: grid;
+    gap: var(--s-3);
+    max-width: 52rem;
+  }
+
+  .faq details {
+    padding: var(--s-4) var(--s-5);
+  }
+
+  .faq summary {
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .faq details p {
+    margin-top: var(--s-3);
+    color: var(--muted);
+  }
+
+  .small {
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  /* ---------------------------------------------------------------- cart */
+
+  .cart-button {
+    position: fixed;
+    right: var(--s-5);
+    bottom: var(--s-5);
+    z-index: 20;
+    box-shadow: 0 10px 30px color-mix(in srgb, black 50%, transparent);
+  }
+
+  .cart-button.bump {
+    animation: bump 300ms var(--ease);
+  }
+
+  @keyframes bump {
+    40% {
+      transform: scale(1.08);
+    }
+  }
+
+  .count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.6rem;
+    padding: 0 0.3rem;
+    border-radius: 6px;
+    background: var(--ink);
+    color: var(--orange);
+    font-size: 1.15rem;
+  }
+
+  .cart {
+    width: min(30rem, 100% - 2rem);
+    max-height: min(44rem, 100% - 2rem);
+    margin: auto;
+    padding: var(--s-6);
+    color: var(--text);
+  }
+
+  .cart::backdrop {
+    background: color-mix(in srgb, var(--dusk) 75%, transparent);
+  }
+
+  .cart-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cart h2 {
+    font-size: 1.75rem;
+  }
+
+  .close,
+  .remove {
+    display: grid;
+    place-items: center;
+    padding: var(--s-2);
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .close:hover,
+  .remove:hover {
+    color: var(--text);
+    background: var(--raised-2);
+  }
+
+  .empty {
+    margin-top: var(--s-4);
+    color: var(--muted);
+  }
+
+  .lines {
+    display: grid;
+    gap: var(--s-2);
+    margin: var(--s-4) 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lines li {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-2) var(--s-3);
+    border-radius: 10px;
+    background: var(--raised);
+  }
+
+  .lines img {
+    image-rendering: pixelated;
+  }
+
+  .line-name {
+    font-weight: 600;
+  }
+
+  .line-price {
+    color: var(--sand);
+    font-family: var(--display);
+  }
+
+  .checkout {
+    display: grid;
+    gap: var(--s-2);
+  }
+
+  .total {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--s-3);
+    font-size: 1.15rem;
+  }
+
+  .total strong {
+    font-family: var(--display);
+    color: var(--sand);
+  }
+
+  .checkout label {
+    margin-top: var(--s-2);
+    font-weight: 600;
+  }
+
+  .optional,
+  .hint {
+    color: var(--muted);
+    font-size: 0.875rem;
+    font-weight: 400;
+  }
+
+  .error {
+    padding: var(--s-3);
+    border-radius: 10px;
+    background: color-mix(in srgb, #ff3333 15%, transparent);
+  }
+
+  .pay {
+    margin-top: var(--s-3);
+  }
+
+  @media (max-width: 30rem) {
+    .item {
+      grid-template-columns: 48px minmax(0, 1fr);
+    }
+
+    .item .icon {
+      width: 48px;
+      height: 48px;
+    }
+
+    .item-buy {
+      grid-column: 1 / -1;
+    }
   }
 </style>

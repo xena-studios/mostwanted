@@ -53,7 +53,11 @@ jobs:
           cache: npm
           cache-dependency-path: website/package-lock.json
       - run: npm ci
+      # The store's Tebex public token (a repository variable, not a secret: it's
+      # meant for browsers). Without it the store shows its catalogue, closed.
       - run: npm run build
+        env:
+          PUBLIC_TEBEX_TOKEN: ${{ vars.TEBEX_PUBLIC_TOKEN }}
       - run: npx wrangler deploy --dry-run
 
   # Main only (on push or by hand), once the build passes. The Cloudflare token
@@ -77,7 +81,11 @@ jobs:
           cache: npm
           cache-dependency-path: website/package-lock.json
       - run: npm ci
+      # The store's Tebex public token (a repository variable, not a secret: it's
+      # meant for browsers). Without it the store shows its catalogue, closed.
       - run: npm run build
+        env:
+          PUBLIC_TEBEX_TOKEN: ${{ vars.TEBEX_PUBLIC_TOKEN }}
       - name: Deploy to Cloudflare
         run: npx wrangler deploy
         env:

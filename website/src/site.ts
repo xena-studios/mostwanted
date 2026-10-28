@@ -8,7 +8,10 @@ export const site = {
   // their "starts when the server opens" state.
   open: false,
   discord: null as string | null,
-  store: null as string | null,
+  // Tebex's public webstore token (creator.tebex.io > Developers > API keys), set as
+  // the TEBEX_PUBLIC_TOKEN repository variable. Without it the store shows its
+  // catalogue and prices from src/store/catalog.ts, and checkout says it opens soon.
+  tebexToken: (import.meta.env.PUBLIC_TEBEX_TOKEN as string | undefined) || null,
   email: "contact@xenastudios.co",
   source: "https://github.com/xena-studios/mostwanted",
   // The backend (backend/). PUBLIC_API_URL points a local build at a local one.
@@ -27,7 +30,6 @@ export const nav = [
   { href: "/creators", label: "Creators" },
   { href: "/apply", label: "Apply" },
   { href: "/support", label: "Support" },
-  { href: "/store", label: "Store" },
 ];
 
 // The boards the API fills (docs/08-website.md#leaderboards).
