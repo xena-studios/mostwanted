@@ -212,9 +212,9 @@ Decided 2026-10-26. **Java, like `core`**, so the game, the API and the bot shar
 - **Staff tools.** Punishments (LibertyBans), anti-cheat alerts (Grim), block logs (CoreProtect), and reports. Guards are players with power over others, so staff need to be able to review guard abuse too. Minehut staff can't moderate external servers for us.
 - **Backups and a recovery drill.** Raptor's backup system for the world files and nightly PostgreSQL dumps, with a copy kept off the VPS, plus OVH's daily backup. Actually test restoring one.
 - **Monitoring.** spark for lag spikes; the bot alerts 🔒│admin when the game, API or database goes down or the server lags.
-- **Before launch:**
+- **Before launch** (the step-by-step is [launch](12-launch.md)):
   - Terms and Privacy pages, and a "delete my account" button (collect as little as possible: many players are kids).
-  - VPS hardening: SSH keys only, no root login, automatic security updates, PostgreSQL only on localhost, `.env` files readable only by their service, firewall (443 from Cloudflare only, 25565 from Minehut only).
+  - VPS hardening: SSH keys only, no root login, automatic security updates, PostgreSQL only on localhost, `.env` files readable only by their service, firewall (the API from Cloudflare only, 25565 from Minehut only). Scripted in [`server/setup/`](../server/setup/): `provision.sh`, `firewall.sh`, `backup-db.sh`.
   - 2FA on Cloudflare, GitHub, OVH, Discord, Tebex and Minehut.
   - `support@mostwantedmc.com` through Cloudflare Email Routing.
   - A 100-bot stress test (the VPS estimate is 15–30 players; the server has 100 slots).

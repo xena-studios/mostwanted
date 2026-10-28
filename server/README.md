@@ -16,12 +16,15 @@ files/                configs copied into the server; changes from the defaults 
   plugins/            LuckPerms and LibertyBans (templates), Grim, ViaVersion, Fancy*, FAWE,
                       xUtilities and zChat in the message style
 setup/luckperms.txt   the ranks, run once in the console
+setup/provision.sh    the VPS: Java 25, PostgreSQL 18 and the database, updates, fail2ban, SSH keys only
+setup/firewall.sh     ufw + nftables: the API from Cloudflare only, the game from Minehut once known
+setup/backup-db.sh    nightly pg_dump with retention, and --restore
 .env.example          the secrets the templates need; copy to <server-dir>/.env
 ```
 
 ## Set up the server
 
-On the VPS, with Java 25, PostgreSQL, `curl`, `jq` and `git` installed (Raptor's Java 25 image has the first; see [docs/04-tech.md](../docs/04-tech.md) for the rest).
+On launch day, follow [docs/12-launch.md](../docs/12-launch.md): it covers the VPS, Raptor, these scripts, Cloudflare, Discord and Minehut in order. The short version, on the VPS, with Java 25, PostgreSQL, `curl`, `jq` and `git` installed (Raptor's Java 25 image has the first; see [docs/04-tech.md](../docs/04-tech.md) for the rest).
 
 ```sh
 git clone https://github.com/xena-studios/mostwanted.git
@@ -35,7 +38,9 @@ Then, once:
 
 1. Run the `lp` lines from [`setup/luckperms.txt`](setup/luckperms.txt) in the console.
 2. In Minehut's panel, set the server to **External** and point it at the VPS ([docs/04-tech.md](../docs/04-tech.md#how-players-connect)).
-3. Firewall port 25565 to Minehut's addresses only, once Minehut tells us them.
+3. Firewall port 25565 to Minehut's addresses only, once Minehut tells us them: `GAME_ALLOW` in `/etc/mostwanted/firewall.env`, then `setup/firewall.sh` again.
+
+The `setup/*.sh` scripts need a real Ubuntu 24.04 box, so CI only lints them (shellcheck). Each has `--dry-run`, which prints what it would do without changing anything.
 
 ## Update the server
 

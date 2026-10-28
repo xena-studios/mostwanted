@@ -10,7 +10,7 @@ Why each choice was made is in [tech](04-tech.md).
 | --- | --- | --- | --- |
 | **Leaf** (server) | `leaf-26.3-12.jar` | [Leaf's download API](https://api.leafmc.one/v2/projects/leaf/versions/26.3/builds) (keeps every build) / [leafmc.one](https://www.leafmc.one/download) | Paper fork. Fallback: [Paper 26.3](https://papermc.io/downloads/paper) (build 223, stable) |
 | **Java** | **25** | Raptor's Java 25 image / [Adoptium Temurin 25](https://adoptium.net) | Paper 26.3 requires Java 25+ |
-| **PostgreSQL** | latest 17 or 18 | Raptor / distro package | Our plugin's data (cash, bounty, stats) + LuckPerms |
+| **PostgreSQL** | 18 | [PostgreSQL's apt repo](https://www.postgresql.org/download/linux/ubuntu/), installed by [`server/setup/provision.sh`](../server/setup/provision.sh) | Our plugin's data (cash, bounty, stats) + LuckPerms + the backend |
 | **Raptor** | latest | [raptorpanel.net](https://raptorpanel.net) | Runs the server on the VPS |
 | **Minehut External** | | [Minehut panel](https://minehut.com) | Bedrock, DDoS, server list. Setup in [tech](04-tech.md#how-players-connect) |
 
