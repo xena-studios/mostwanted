@@ -187,3 +187,7 @@ riot:
   alarm: "<error>⚠</error> riot at the prison! get back and take control: you can cuff rioting inmates."
   over: "<guard>⚑</guard> the riot has died down."
   quelled: "<guard>⚑</guard> the guards stopped the riot."
+
+pack:
+  prompt: "<white>MostWanted's resource pack: guns, handcuffs and keycards. Small, and needed to play.</white>"
+  failed: "<error>✖</error> the resource pack didn't load. you can still play: items look like plain vanilla ones."

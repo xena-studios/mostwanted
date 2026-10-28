@@ -18,6 +18,7 @@ import co.xenastudios.mostwanted.item.CustomItems;
 import co.xenastudios.mostwanted.item.Handcuffs;
 import co.xenastudios.mostwanted.hud.Hud;
 import co.xenastudios.mostwanted.message.Messages;
+import co.xenastudios.mostwanted.pack.ResourcePack;
 import co.xenastudios.mostwanted.player.PlayerListener;
 import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.player.StatsCommand;
@@ -142,6 +143,9 @@ public final class MostWanted extends JavaPlugin {
         Cleanup cleanup = new Cleanup(Path.of("logs").toAbsolutePath(), storage,
                 settings.retention(), clock, getLogger());
         getServer().getScheduler().runTaskTimerAsynchronously(this, cleanup::run, 20 * 60, 20 * 60 * 60 * 24);
+        ResourcePack pack = new ResourcePack(settings.pack(), messages, getLogger());
+        getServer().getPluginManager().registerEvents(pack, this);
+        getServer().getScheduler().runTaskTimerAsynchronously(this, pack::refresh, 0, 20 * 60 * 5);
         StatsCommand stats = new StatsCommand(players, messages);
         WebsiteCommand website = new WebsiteCommand(storage, messages, this::onMainThread, clock);
 

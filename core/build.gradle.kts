@@ -65,3 +65,8 @@ tasks.jar {
         exclude("META-INF/MANIFEST.MF")
     }
 }
+
+// CustomItemsTest checks every item has a texture in the resource pack.
+tasks.test {
+    inputs.dir(rootProject.layout.projectDirectory.dir("pack/textures")).withPropertyName("packTextures")
+}

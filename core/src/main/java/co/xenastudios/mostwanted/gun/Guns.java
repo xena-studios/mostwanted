@@ -93,9 +93,6 @@ public final class Guns implements Listener {
                     Messages.value("magazine", gun.magazine()))));
             items.mark(meta, "gun:" + gun.id());
             meta.getPersistentDataContainer().set(loadedKey, PersistentDataType.INTEGER, gun.magazine());
-            if (settings.packModels()) {
-                meta.setItemModel(new NamespacedKey("mostwanted", gun.id()));
-            }
         });
         return item;
     }
@@ -105,9 +102,6 @@ public final class Guns implements Listener {
         item.editMeta(meta -> {
             meta.itemName(messages.get("item.ammo.name", Messages.value("name", ammo.name())));
             items.mark(meta, "ammo:" + ammo.id());
-            if (settings.packModels()) {
-                meta.setItemModel(new NamespacedKey("mostwanted", "ammo_" + ammo.id()));
-            }
         });
         return item;
     }

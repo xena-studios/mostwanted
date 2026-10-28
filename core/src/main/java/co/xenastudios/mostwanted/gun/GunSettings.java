@@ -14,10 +14,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
  *
  * @param headshot damage multiplier for a hit on the head
  * @param confiscate whether an arrest takes the criminal's guns and ammo
- * @param packModels give items their resource-pack model (on once the pack has them)
  */
-public record GunSettings(Map<String, Gun> guns, Map<String, Ammo> ammo, double headshot, boolean confiscate,
-        boolean packModels) {
+public record GunSettings(Map<String, Gun> guns, Map<String, Ammo> ammo, double headshot, boolean confiscate) {
 
     /**
      * One gun.
@@ -70,7 +68,7 @@ public record GunSettings(Map<String, Gun> guns, Map<String, Ammo> ammo, double 
             }
         }
         return new GunSettings(Map.copyOf(guns), Map.copyOf(ammo), file.getDouble("headshot-multiplier", 1.5),
-                file.getBoolean("confiscate-on-arrest", true), file.getBoolean("pack-models", false));
+                file.getBoolean("confiscate-on-arrest", true));
     }
 
     private static Material material(String name, String id) {
