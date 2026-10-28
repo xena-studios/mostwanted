@@ -1,2 +1,2 @@
 
-- `/website`: a one-time code to sign in on the website or link accounts.
+- Guns: pistol, shotgun, rifle and the guards' taser, hitscan, with magazines and auto-reload from ammo. Arrests confiscate them. `/mw give` for testing.
