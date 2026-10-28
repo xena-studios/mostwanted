@@ -44,6 +44,13 @@ public final class PlayerListener implements Listener {
             return;
         }
         UUID uuid = event.getUniqueId();
+        if (joining.remove(uuid) != null) {
+            // Loaded before but never got in: refused after this event (the whitelist,
+            // a full server) or dropped mid-login. Without this they'd count as still
+            // connected until the sweep.
+            firstTime.remove(uuid);
+            store.forget(uuid);
+        }
         try {
             switch (store.load(uuid, event.getName())) {
                 case ALREADY_ONLINE -> event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
