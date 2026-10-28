@@ -1,0 +1,33 @@
+{
+  "_comment": "MostWanted's website API and Discord bot (the backend), for Raptor. Import it on the Eggs page. Upload backend.jar and start.sh, and write .env and tls/: docs/12-launch.md, step 7.",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2026-10-28T00:00:00+00:00",
+  "name": "MostWanted API",
+  "author": "contact@xenastudios.co",
+  "description": "The website's API and the Discord bot, one Java app (backend/ in the MostWanted repo). start.sh reads .env and runs backend.jar with a 256 MB heap. https://github.com/xena-studios/mostwanted",
+  "features": [
+    "java_version"
+  ],
+  "docker_images": {
+    "Java 25": "ghcr.io/pelican-eggs/yolks:java_25"
+  },
+  "file_denylist": [],
+  "startup": "bash start.sh",
+  "config": {
+    "files": "{}",
+    "startup": "{\"done\": \"API listening\"}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/bash\n# Nothing to download: backend.jar and start.sh are uploaded, .env and tls/ written\n# by hand (docs/12-launch.md, step 7).\nmkdir -p /mnt/server\necho \"MostWanted API: upload backend.jar and start.sh, then write .env and tls/.\"\n",
+      "container": "ghcr.io/pelican-eggs/installers:debian",
+      "entrypoint": "bash"
+    }
+  },
+  "variables": []
+}

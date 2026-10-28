@@ -1,0 +1,35 @@
+{
+  "_comment": "MostWanted's game server, for Raptor (or any Pterodactyl/Pelican panel). Import it on the Eggs page. Its files come from server/install.sh, not from this egg: see docs/12-launch.md.",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2026-10-28T00:00:00+00:00",
+  "name": "MostWanted",
+  "author": "contact@xenastudios.co",
+  "description": "The MostWanted game server: Leaf with our plugins and configs. The install does nothing on purpose, so a reinstall never swaps Leaf for another jar: server/install.sh puts the files in, and start.sh starts it. https://github.com/xena-studios/mostwanted",
+  "features": [
+    "eula",
+    "java_version",
+    "pid_limit"
+  ],
+  "docker_images": {
+    "Java 25": "ghcr.io/pelican-eggs/yolks:java_25"
+  },
+  "file_denylist": [],
+  "startup": "bash start.sh",
+  "config": {
+    "files": "{}",
+    "startup": "{\"done\": \")! For help, type \"}",
+    "logs": "{}",
+    "stop": "stop"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/bash\n# Nothing to download: server/install.sh fills this server from the MostWanted repo\n# (docs/12-launch.md, step 5). Doing nothing here means Reinstall can't replace Leaf.\nmkdir -p /mnt/server\necho \"MostWanted: run server/install.sh on the node to put the server's files in.\"\n",
+      "container": "ghcr.io/pelican-eggs/installers:debian",
+      "entrypoint": "bash"
+    }
+  },
+  "variables": []
+}
