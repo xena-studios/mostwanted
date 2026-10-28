@@ -49,10 +49,10 @@ On the node's **System** tab:
 - **Keep the clock in sync:** on.
 - **Firewall:** turn on **Block everything not listed**. Raptor opens SSH and each server's port itself. The API's port only lets Cloudflare in anyway: it refuses any connection without Cloudflare's client certificate (step 6).
 
-Then the **Networks** tab: **New network** named **MostWanted**. The game, the API and the database go on it, apart from anything else ever put on the node.
+The node is MostWanted's alone, so everything stays on the **default network**: the game, the API and the database reach each other with nothing to set up. (A network of its own only matters once something else shares the node; then Raptor's database firewall would also need the API to have a database of its own there.)
 
-And the **Databases** tab: **New instance**:
-- **Engine** PostgreSQL (the recommended version), **name** MostWanted, **memory** 1 GB, **network** MostWanted.
+Then the **Databases** tab: **New instance**:
+- **Engine** PostgreSQL (the recommended version), **name** MostWanted, **memory** 1 GB, the **default** network.
 - **Advanced:** **time zone** America/New_York, and under **Engine settings** `log_min_duration_statement = 500ms` (slow queries show in its log).
 
 ## 4. The eggs (2 min)
@@ -67,13 +67,13 @@ Each installs the latest build of `main` from the [`server` release](https://git
 ## 5. The game server (10 min)
 
 **Deploy server**:
-- **Game** MostWanted (your org's), **runtime** Java 25, **network** MostWanted.
+- **Game** MostWanted (your org's), **runtime** Java 25, the default network.
 - **Name** MostWanted, **port** 25565, **memory 11.5 GB**: Java gets 10 GB of it, the rest is Java's own overhead (`start.sh` works it out from this setting).
 - Accept the EULA when it asks.
 
 Raptor installs it: Leaf, every plugin we use (pinned, checksums checked), our configs and the core plugin. It then tries to start, and stops with "needs DB_HOST": it has no database yet. That's expected.
 
-1. **Databases** tab: **New database** named `mostwanted`. Raptor gives the server its details at every start (`DB_HOST`, `DB_NAME`, …), and `start.sh` fills them into LuckPerms', LibertyBans' and the game plugin's configs. Nothing to copy. Note its **Database** and **User** names, and its password (**Password**), for the API (step 7).
+1. **Databases** tab: **New database** named `mostwanted`. Raptor gives the server its details at every start (`DB_HOST`, `DB_NAME`, …), and `start.sh` fills them into LuckPerms', LibertyBans' and the game plugin's configs. Nothing to copy. Note its **Host**, **Database** and **User**, and its password (**Password**), for the API (step 7).
 2. **Startup** tab: **Tebex secret key** stays `none` until the store is set up (step 10).
 3. **Network** tab: **Shown address** `play.mostwantedmc.com`.
 4. **Settings** tab: **Force stop after** 120 seconds, so a big world always finishes saving.
@@ -105,16 +105,15 @@ About step 3: the certificate Cloudflare shows the VPS is the same for **every**
 
 ## 7. The API and Discord bot (10 min)
 
-**Deploy server**: **Game** MostWanted API (your org's), **runtime** Java 25, **network** MostWanted, **name** MostWanted API, **port 8443**, **memory 512 MB** (Java gets 256 MB). Like the game, its first start stops: it has no settings yet.
+**Deploy server**: **Game** MostWanted API (your org's), **runtime** Java 25, the default network, **name** MostWanted API, **port 8443**, **memory 512 MB** (Java gets 256 MB). Like the game, its first start stops: it has no settings yet.
 
-1. **Databases** tab: **New database** named `api`, and leave it empty. Raptor's database only lets in servers that have a database on it; the API really uses the game's.
-2. **Startup** tab:
-   - **Game database name**, **user** and **password**: the game server's `mostwanted` database, from step 5.
+1. **Startup** tab:
+   - **Game database host**, **port**, **name**, **user** and **password**: the game server's `mostwanted` database, from step 5. The API has no database of its own.
    - **Discord bot token**: the bot's token (on your PC in `~/.config/mostwanted/discord.env`).
    - **Discord client secret**: from step 8.
    - The rest are already right for mostwantedmc.com.
-3. **Files** tab: in the `tls` folder, **New file** `origin.pem` with the Origin Certificate from step 6.1, and `origin.key` with its private key. (Cloudflare's pull CA is already there: the install downloads it.)
-4. **Start** it. It logs `https with client certificates` and `API listening`; a bad file or a key that doesn't match the certificate stops it with the reason ([backend/README.md](../backend/README.md#https-and-authenticated-origin-pulls)).
+2. **Files** tab: in the `tls` folder, **New file** `origin.pem` with the Origin Certificate from step 6.1, and `origin.key` with its private key. (Cloudflare's pull CA is already there: the install downloads it.)
+3. **Start** it. It logs `https with client certificates` and `API listening`; a bad file or a key that doesn't match the certificate stops it with the reason ([backend/README.md](../backend/README.md#https-and-authenticated-origin-pulls)).
 
 If the game database's password is ever reset in Raptor, put the new one in the API's **Startup** tab too.
 
