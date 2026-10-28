@@ -96,7 +96,8 @@ public final class PlayerStore {
                 });
         OffsetDateTime jailed = row.getJailedUntil();
         online.put(uuid, new PlayerState(uuid, name, Role.fromKey(row.getRole()), row.getCash(), row.getBank(),
-                row.getBounty(), jailed == null ? null : jailed.toInstant(), totals));
+                row.getBounty(), jailed == null ? null : jailed.toInstant(), row.getStashedCash(),
+                row.getStashedBank(), totals));
         // Inserted just now: both default to the same now().
         return row.getFirstJoined().equals(row.getLastSeen()) ? Loaded.FIRST_TIME : Loaded.RETURNING;
     }
@@ -173,6 +174,8 @@ public final class PlayerStore {
                         .set(PLAYERS.BANK, s.bank())
                         .set(PLAYERS.BOUNTY, s.bounty())
                         .set(PLAYERS.JAILED_UNTIL, offset(s.jailedUntil()))
+                        .set(PLAYERS.STASHED_CASH, s.stashedCash())
+                        .set(PLAYERS.STASHED_BANK, s.stashedBank())
                         .set(PLAYERS.LAST_SEEN, DSL.currentOffsetDateTime())
                         .where(PLAYERS.UUID.eq(s.uuid())));
                 s.stats().forEach((stat, amount) -> {

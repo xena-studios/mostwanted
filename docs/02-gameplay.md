@@ -18,7 +18,7 @@ There are two teams. The prisoner team has two states.
 
 - **Everyone starts as a prisoner** (decided). There's no team-select menu.
 - **Becoming a guard:** apply on the website (or with `/apply` in Discord). Staff review it, and approved players get the guard rank in-game. That makes guards a trusted, moderated role, which matters since they can arrest and shoot people.
-- **On/off duty:** approved guards can probably go off duty and play as a prisoner. Decide whether off-duty guards keep their prisoner progress separate.
+- **On/off duty** (decided 2026-10-27): guards (the `mostwanted.guard` permission, from the guard rank) use `/duty` in the prison to go on duty, and again to go off and play as an inmate. Guard money is kept separate: each switch swaps cash and bank with the other side's. Criminals can't go on duty, and guards can't go off duty mid-fight.
 - **Not enough guards:** with up to 100 players and guards coming only from applications, we need enough guards online at peak times. Options: recruit lots of guards, show "guards online" so prisoners know the risk, and scale robbery payouts with how many guards are on.
 - An inmate becomes a **criminal** once they cross the prison boundary.
 
@@ -59,7 +59,7 @@ Robbery spots around the map, each with its own risk and reward:
 
 ### Guards: arresting
 
-- **Handcuffs**: an item. Right-click a criminal at close range (maybe hold for a second) to arrest them.
+- **Handcuffs** (decided 2026-10-27): an item guards get on duty. One right-click on a criminal within 3 blocks arrests them, the same on Bedrock touch controls. Not in a hideout or safe zone.
 - **Taser**: slows or stuns for a short time. Needs a cooldown so it isn't oppressive.
 - **Tools**: spike strips, roadblocks, maybe a police helicopter later.
 - **Rule:** guards can't arrest **inmates** still inside the prison who aren't escaping (or only inside certain zones). This stops spawn camping.
@@ -83,8 +83,8 @@ Criminals **can fight back** (decided). Guards vs. criminals is full PvP.
   - Tipping off guards (a "snitch" button that reveals another criminal's location to guards)
   - Stealing unbanked cash from a downed/arrested criminal
   - Sabotage (cutting power to a robbery so the alarm goes off for someone else)
-- **Dying vs. getting arrested:** a criminal killed by a guard should count like an arrest (back to prison, guard gets the bounty, maybe a smaller share). Otherwise criminals would rather die than get cuffed.
-- **Guard deaths:** the guard respawns at the police station. The criminal maybe gets extra bounty for killing a guard.
+- **Dying vs. getting arrested** (decided 2026-10-27): a criminal killed by a guard is arrested, and the guard gets **half** the bounty (cuffing pays all of it). A criminal who dies any other way is arrested with nobody paid. Otherwise criminals would rather die than get cuffed.
+- **Guard deaths:** the guard respawns at the police station. The criminal gets **+$500 bounty** for killing a guard on duty.
 - **No spawn camping:** safe zones at the police station, criminal base, and inside the prison.
 
 ### Riots
@@ -106,7 +106,7 @@ Inmates **can start a riot** (decided).
 
 ### Getting arrested
 
-- You go back to prison as an inmate, maybe with a jail timer that scales with your bounty.
+- You go back to prison as an inmate and serve a sentence in a cell (decided 2026-10-27): **1 minute, plus 1 for every $2,500 of bounty, up to 5 minutes.** Nobody can hurt you there, and leaving puts you back. Then you're let out into the prison.
 - You lose unbanked cash.
 
 ## Economy

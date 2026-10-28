@@ -110,4 +110,28 @@ class PlayerStoreTest {
         storage.write("nothing", sql -> { }).get();
         assertEquals("NewName", storage.sql().fetchValue(PLAYERS.NAME, PLAYERS.UUID.eq(uuid)));
     }
+
+    @Test
+    void dutyMoneyStaysApartAcrossARejoin() {
+        UUID uuid = UUID.randomUUID();
+        store.load(uuid, "Officer");
+        PlayerState state = store.get(uuid).orElseThrow();
+        state.cash(300);
+        state.bank(1_000);
+        // On duty: starts with the (empty) guard money; earns some.
+        state.swapStash();
+        assertEquals(0, state.cash());
+        state.cash(5_000);
+        store.quit(uuid);
+
+        store.load(uuid, "Officer");
+        PlayerState again = store.get(uuid).orElseThrow();
+        assertEquals(5_000, again.cash());
+        // Off duty: the inmate money comes back, and the guard money waits.
+        again.swapStash();
+        assertEquals(300, again.cash());
+        assertEquals(1_000, again.bank());
+        assertEquals(5_000, again.stashedCash());
+        store.quit(uuid);
+    }
 }

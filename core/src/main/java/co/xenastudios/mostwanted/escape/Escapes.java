@@ -28,7 +28,9 @@ public final class Escapes implements ZoneListener {
 
     @Override
     public void left(Player player, PlayerState state, Zone zone) {
-        if (zone.kind() != ZoneKind.PRISON || state.role() != Role.INMATE || tracker.isIn(player, ZoneKind.PRISON)) {
+        // A prisoner serving a sentence is put back in their cell instead (Arrests).
+        if (zone.kind() != ZoneKind.PRISON || state.role() != Role.INMATE || state.jailedUntil() != null
+                || tracker.isIn(player, ZoneKind.PRISON)) {
             return;
         }
         state.role(Role.CRIMINAL);
