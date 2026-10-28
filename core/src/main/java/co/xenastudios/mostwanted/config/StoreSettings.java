@@ -11,7 +11,8 @@ import org.bukkit.configuration.ConfigurationSection;
  * @param tebexSecret the webstore's secret key; empty or "none" switches delivery off
  * @param allowed patterns a delivered command must match in full. Anything else stays
  *     in the queue and is logged, so a leaked key can't run any console command it likes.
- * @param website the website, whose store.json the store menu shows and whose /buy links it gives
+ * @param website the website, whose store.json the store menu shows and whose /buy links it gives;
+ *     empty to not fetch it (tests)
  */
 public record StoreSettings(String tebexSecret, List<Pattern> allowed, String website) {
 

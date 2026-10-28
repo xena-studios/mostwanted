@@ -77,6 +77,9 @@ public final class StoreCatalog {
 
     /** Off the main thread: the website's catalogue now. Keeps the last one if it can't be read. */
     public void refresh() {
+        if (settings.website().isEmpty()) {
+            return;
+        }
         try {
             HttpResponse<String> response = http.send(HttpRequest.newBuilder(URI.create(settings.website() + "/store.json"))
                     .timeout(Duration.ofSeconds(15)).header("User-Agent", "MostWanted").GET().build(),
