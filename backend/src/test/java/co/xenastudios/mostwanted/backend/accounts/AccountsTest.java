@@ -73,6 +73,17 @@ class AccountsTest {
     }
 
     @Test
+    void linkedListsOnlyAccountsWithBothSides() {
+        UUID uuid = db.player("Both", "inmate", 0, false);
+        long id = accounts.signInWithDiscord("4001", "Both");
+        db.code(uuid, "EEEEE2", Duration.ofMinutes(10));
+        assertEquals(Accounts.Link.LINKED, accounts.linkMinecraft(id, "EEEEE2"));
+        accounts.signInWithDiscord("4002", "DiscordOnly");
+        assertEquals(uuid, accounts.linked().get("4001"));
+        assertFalse(accounts.linked().containsKey("4002"));
+    }
+
+    @Test
     void someoneElsesLinkedAccountCantBeTaken() {
         UUID uuid = db.player("Owner", "guard", 0, false);
         long owner = accounts.signInWithDiscord("2001", "Owner");

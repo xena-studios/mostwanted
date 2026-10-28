@@ -111,6 +111,4 @@ Ops aren't given a rank tag: only a LuckPerms group really set counts. They do o
 
 - **Supporter badge:** a player's page on the website shows their rank ("★ MVP supporter", in its colour, linking to the store). The backend reads it from LuckPerms' own table, which shares our database (`Stats.supporter`). Players with private stats have no page, so no badge either.
 
-## Still to do
-
-- **Discord roles** per rank (the bot can sync them like the Linked role, once the roles exist on the server).
+- **Discord roles:** linked players get their rank's role on Discord ([10-discord-bot.md](10-discord-bot.md)) once you've made roles named VIP, VIP+, MVP and Legend.

@@ -37,6 +37,7 @@ Support, applications and account linking live on the **website** ([accounts](08
 
 **At launch**
 - **Linking:** players link Discord and Minecraft on the website; the bot gives the **Linked** role and keeps it right (unlink, leave and rejoin).
+- **Store ranks:** a linked player with a store rank gets the role named after it, **VIP**, **VIP+**, **MVP** or **Legend** (exact names, in the rank's colour: `#99ff33`, `#33ffcc`, `#6633ff`, `#ff3366`), and loses the others. The bot checks every 10 minutes, reading the rank from LuckPerms like the website's supporter badge, and only sends changes. Unlinking takes the role away. Roles that don't exist on the server are skipped, so it does nothing until you make them (below the bot's own role, so it can give them).
 - **Rank sync:** Guard, Helper, Moderator, Admin and Creator follow the player's LuckPerms groups, both ways, within seconds (PostgreSQL `LISTEN/NOTIFY`, no polling).
 - **DMs:** ticket replies and application decisions, with a link to the page. If a player's DMs are closed, they still get it on the site and in game.
 - **`/support` and `/apply`:** Discord forms that create the ticket or application on the website, for people who'd rather not open a browser.

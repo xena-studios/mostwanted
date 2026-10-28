@@ -115,7 +115,7 @@ public final class Stats {
      * Their highest store rank, from LuckPerms' own table (it shares our database in
      * production). Null without one, or when LuckPerms isn't there, as in development.
      */
-    String supporter(UUID uuid) {
+    public String supporter(UUID uuid) {
         List<String> groups;
         try {
             groups = sql.select(DSL.field("permission", String.class))
