@@ -11,7 +11,6 @@ import co.xenastudios.mostwanted.zone.ZoneKind;
 import co.xenastudios.mostwanted.zone.ZoneStore;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import java.io.File;
-import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -28,7 +27,6 @@ import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -58,8 +56,7 @@ public final class Walls implements Listener {
     private final GameLog gameLog;
     private final EscapeSettings settings;
     private final Clock clock;
-    private final File saved;
-    private final Logger log;
+    private final BlockBackup backup;
     private final Map<Location, Damage> damage = new HashMap<>();
     private final Map<Location, Broken> broken = new HashMap<>();
     /** Alerts once per wall until it has fully grown back. */
@@ -73,8 +70,7 @@ public final class Walls implements Listener {
         this.gameLog = gameLog;
         this.settings = settings;
         this.clock = clock;
-        this.saved = saved;
-        this.log = log;
+        this.backup = new BlockBackup(saved, "wall", log);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -86,6 +82,11 @@ public final class Walls implements Listener {
         PlayerState state = players.get(player.getUniqueId()).orElse(null);
         Instant now = clock.instant();
         if (state == null || state.jailed(now) || state.role() == Role.GUARD) {
+            return;
+        }
+        // Most swings are nowhere near a wall: skip the ray trace for those.
+        Location feet = player.getLocation();
+        if (!zones.index().near(feet.getWorld().getName(), feet.getBlockX(), feet.getBlockZ(), 5, ZoneKind.WALL)) {
             return;
         }
         Block block = player.getTargetBlockExact(4);
@@ -134,10 +135,8 @@ public final class Walls implements Listener {
         }
         alerted.put(wall.name(), now);
         gameLog.record("escape.wall", breaker.getUniqueId(), null, Map.of("wall", wall.name()));
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (players.get(player.getUniqueId()).map(state -> state.role() == Role.GUARD).orElse(false)) {
-                messages.send(player, "escape.wall-alert", Messages.value("wall", wall.name()));
-            }
+        for (Player guard : players.online(Role.GUARD)) {
+            messages.send(guard, "escape.wall-alert", Messages.value("wall", wall.name()));
         }
     }
 
@@ -159,6 +158,7 @@ public final class Walls implements Listener {
         if (changed) {
             save();
         }
+        backup.flush(this::was);
     }
 
     /** Puts every broken block back now: on shutdown, so the map is never left with holes. */
@@ -166,45 +166,22 @@ public final class Walls implements Listener {
         broken.forEach((at, was) -> at.getBlock().setBlockData(was.was, false));
         broken.clear();
         save();
+        backup.flush(Map::of);
     }
 
     /** At startup: puts back anything a crash left broken. */
     public void restoreSaved() {
-        if (!saved.exists()) {
-            return;
-        }
-        YamlConfiguration file = YamlConfiguration.loadConfiguration(saved);
-        int restored = 0;
-        for (Map<?, ?> entry : file.getMapList("broken")) {
-            World world = Bukkit.getWorld(String.valueOf(entry.get("world")));
-            if (world == null) {
-                continue;
-            }
-            Block block = world.getBlockAt(((Number) entry.get("x")).intValue(), ((Number) entry.get("y")).intValue(),
-                    ((Number) entry.get("z")).intValue());
-            block.setBlockData(Bukkit.createBlockData(String.valueOf(entry.get("block"))), false);
-            restored++;
-        }
-        if (restored > 0) {
-            log.info("Put back " + restored + " wall blocks left broken by the last shutdown");
-        }
-        saved.delete();
+        backup.restore();
     }
 
     private void save() {
-        if (broken.isEmpty()) {
-            saved.delete();
-            return;
-        }
-        YamlConfiguration file = new YamlConfiguration();
-        file.set("broken", broken.entrySet().stream().map(e -> Map.of(
-                "world", e.getKey().getWorld().getName(), "x", e.getKey().getBlockX(), "y", e.getKey().getBlockY(),
-                "z", e.getKey().getBlockZ(), "block", e.getValue().was.getAsString())).toList());
-        try {
-            file.save(saved);
-        } catch (IOException e) {
-            log.warning("Couldn't save broken walls: " + e.getMessage());
-        }
+        backup.changed();
+    }
+
+    private Map<Location, BlockData> was() {
+        Map<Location, BlockData> was = new HashMap<>();
+        broken.forEach((at, each) -> was.put(at, each.was));
+        return was;
     }
 
     /** The count after a punch: one more, or back to one if they paused too long. */

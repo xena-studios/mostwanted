@@ -83,7 +83,7 @@ Each stat is a counter or a record in PostgreSQL, keyed by **UUID** (the player'
 
 - `/player/<name>`: their head (skin), current role, rank, all stats, records, and where they place on each board.
 - **Skins:** from a public skin service by UUID. Bedrock players coming through Minehut may not have a Java skin; show a default head for them.
-- **Opt-out:** a `/stats private` command hides a player's page and removes them from the website boards (not from in-game ones).
+- **Opt-out:** a `/stats private` command hides a player's page and removes them from every board, on the website and in game.
 - Staff in vanish, and banned players, don't appear.
 
 ## Accounts and the API

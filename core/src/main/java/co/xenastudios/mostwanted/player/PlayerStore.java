@@ -24,6 +24,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import org.jooq.DSLContext;
+import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
 import org.jooq.Query;
 import org.jooq.impl.DSL;
 
@@ -119,6 +121,29 @@ public final class PlayerStore {
         return online.values();
     }
 
+    /** How many are playing this role. */
+    public int count(Role role) {
+        int count = 0;
+        for (PlayerState state : online.values()) {
+            if (state.role() == role) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /** Everyone online playing this role: who gets an alarm, say. */
+    public List<Player> online(Role role) {
+        List<Player> found = new ArrayList<>();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            PlayerState state = online.get(player.getUniqueId());
+            if (state != null && state.role() == role) {
+                found.add(player);
+            }
+        }
+        return found;
+    }
+
     /** Writes every changed player, on the main thread's schedule. */
     public void saveChanged() {
         List<PlayerState> changed = online.values().stream().filter(PlayerState::dirty).toList();
@@ -128,7 +153,15 @@ public final class PlayerStore {
         List<PlayerState.Snapshot> snapshots = changed.stream().map(PlayerState::snapshot).toList();
         write(snapshots).exceptionally(e -> {
             // Put the changes back so the next save tries again.
-            mainThread.execute(() -> snapshots.forEach(s -> get(s.uuid()).ifPresent(state -> state.restore(s))));
+            mainThread.execute(() -> snapshots.forEach(s -> {
+                PlayerState state = online.get(s.uuid());
+                if (state != null) {
+                    state.restore(s);
+                } else if (!s.stats().isEmpty()) {
+                    // They quit since, and their quit save didn't have these: save the stats on their own.
+                    writeStatsWithRetries(s.uuid(), s.stats(), 3);
+                }
+            }));
             return null;
         });
     }
@@ -164,6 +197,39 @@ public final class PlayerStore {
         });
     }
 
+    /** Stats only: the rest of the row may already have a newer save. */
+    private void writeStatsWithRetries(UUID uuid, Map<Stat, Long> stats, int attempts) {
+        List<String> periods = Periods.of(clock.instant(), zone);
+        storage.write("stats of " + uuid, sql -> {
+            List<Query> queries = new ArrayList<>();
+            addStats(sql, queries, uuid, stats, periods);
+            sql.batch(queries).execute();
+        }).exceptionally(e -> {
+            if (attempts > 1) {
+                writeStatsWithRetries(uuid, stats, attempts - 1);
+            } else {
+                log.severe("Gave up saving the stats of " + uuid + ": " + stats);
+            }
+            return null;
+        });
+    }
+
+    private static void addStats(DSLContext sql, List<Query> queries, UUID uuid, Map<Stat, Long> stats,
+            List<String> periods) {
+        stats.forEach((stat, amount) -> {
+            for (String period : periods) {
+                queries.add(sql.insertInto(STATS)
+                        .set(STATS.UUID, uuid)
+                        .set(STATS.STAT, stat.key())
+                        .set(STATS.PERIOD, period)
+                        .set(STATS.VALUE, amount)
+                        .onConflict(STATS.UUID, STATS.STAT, STATS.PERIOD)
+                        .doUpdate()
+                        .set(STATS.VALUE, STATS.VALUE.plus(amount)));
+            }
+        });
+    }
+
     private CompletableFuture<Void> write(List<PlayerState.Snapshot> snapshots) {
         List<String> periods = Periods.of(clock.instant(), zone);
         return storage.write(snapshots.size() + " player(s)", sql -> {
@@ -181,18 +247,7 @@ public final class PlayerStore {
                         .set(PLAYERS.STATS_PRIVATE, s.statsPrivate())
                         .set(PLAYERS.LAST_SEEN, DSL.currentOffsetDateTime())
                         .where(PLAYERS.UUID.eq(s.uuid())));
-                s.stats().forEach((stat, amount) -> {
-                    for (String period : periods) {
-                        queries.add(sql.insertInto(STATS)
-                                .set(STATS.UUID, s.uuid())
-                                .set(STATS.STAT, stat.key())
-                                .set(STATS.PERIOD, period)
-                                .set(STATS.VALUE, amount)
-                                .onConflict(STATS.UUID, STATS.STAT, STATS.PERIOD)
-                                .doUpdate()
-                                .set(STATS.VALUE, STATS.VALUE.plus(amount)));
-                    }
-                });
+                addStats(sql, queries, s.uuid(), s.stats(), periods);
             }
             sql.batch(queries).execute();
         });

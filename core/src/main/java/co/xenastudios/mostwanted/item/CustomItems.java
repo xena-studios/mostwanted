@@ -61,10 +61,11 @@ public final class CustomItems {
 
     /** The item's id, or null if it isn't one of ours. */
     public String id(ItemStack item) {
-        if (item == null || item.isEmpty() || !item.hasItemMeta()) {
+        if (item == null || item.isEmpty()) {
             return null;
         }
-        return item.getItemMeta().getPersistentDataContainer().get(key, PersistentDataType.STRING);
+        // The read-only view: no copy of the item's meta, which this is called too often for.
+        return item.getPersistentDataContainer().get(key, PersistentDataType.STRING);
     }
 
     public boolean is(ItemStack item, String id) {

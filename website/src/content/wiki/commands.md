@@ -12,7 +12,7 @@ Most of the game needs no commands: you walk, punch, right-click and run. These 
 | `/shop` | Criminals and guards | Opens the shop where you're standing: the hideout shop for criminals in a hideout, the armory for guards at the police station. See [Money and shops](/wiki/money-and-shops). |
 | `/duty` | Guards | Goes on duty as a guard, or off duty back to being an inmate. See [Being a guard](/wiki/guards). |
 | `/stats` | Everyone | Tells you whether your stats are public or private. |
-| `/stats private` | Everyone | Hides you from the website and Discord. Players in game still see you. |
+| `/stats private` | Everyone | Hides you from the website, Discord and the leaderboards. Players in game still see you play. |
 | `/stats public` | Everyone | Shows your stats on the website and in Discord again. |
 | `/website` | Everyone | Gives you a one-time code to sign in on [mostwantedmc.com](/login), or to link your Minecraft account there. |
 

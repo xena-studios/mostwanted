@@ -5,11 +5,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,6 +33,9 @@ import org.bukkit.scheduler.BukkitTask;
  *
  * <p>Only commands {@link StoreSettings#allows} are run. The rest stay queued (Tebex
  * shows them as not delivered) and are logged once each.
+ *
+ * <p>A command that ran is written down until Tebex has been told, so a failed call or
+ * a restart in between can't run it twice (a second boost, say).
  */
 public final class TebexQueue {
 
@@ -44,12 +49,16 @@ public final class TebexQueue {
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
     /** Commands run or turned down this session, so neither happens twice if Tebex is slow to forget them. */
     private final Set<Integer> handled = new HashSet<>();
-    private BukkitTask next;
-    private boolean stopped;
+    /** Ran, but Tebex hasn't been told yet; kept in {@link #delivered} across restarts. */
+    private final Set<Integer> unacknowledged = new HashSet<>();
+    private final File delivered;
+    private volatile BukkitTask next;
+    private volatile boolean stopped;
 
-    public TebexQueue(Plugin plugin, StoreSettings settings, Logger log) {
+    public TebexQueue(Plugin plugin, StoreSettings settings, File delivered, Logger log) {
         this.plugin = plugin;
         this.settings = settings;
+        this.delivered = delivered;
         this.log = log;
     }
 
@@ -59,6 +68,18 @@ public final class TebexQueue {
             return;
         }
         log.info("Store delivery is on");
+        if (delivered.exists()) {
+            try {
+                for (String line : Files.readAllLines(delivered.toPath())) {
+                    if (!line.isBlank()) {
+                        unacknowledged.add(Integer.parseInt(line.strip()));
+                    }
+                }
+            } catch (IOException | NumberFormatException e) {
+                log.warning("Couldn't read " + delivered.getName() + ": " + e.getMessage());
+            }
+            handled.addAll(unacknowledged);
+        }
         schedule(5);
     }
 
@@ -70,7 +91,7 @@ public final class TebexQueue {
     }
 
     private void schedule(int seconds) {
-        if (!stopped) {
+        if (!stopped && plugin.isEnabled()) {
             next = Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, this::check, seconds * 20L);
         }
     }
@@ -79,6 +100,7 @@ public final class TebexQueue {
     private void check() {
         int wait = DEFAULT_WAIT;
         try {
+            acknowledge();
             JsonObject queue = get("queue");
             JsonObject meta = queue.getAsJsonObject("meta");
             if (meta != null && meta.has("next_check")) {
@@ -128,7 +150,6 @@ public final class TebexQueue {
         if (todo.isEmpty()) {
             return;
         }
-        List<Integer> done = new ArrayList<>();
         List<CompletableFuture<Void>> runs = new ArrayList<>();
         for (Command command : todo) {
             CompletableFuture<Void> ran = new CompletableFuture<>();
@@ -137,8 +158,9 @@ public final class TebexQueue {
                 try {
                     log.info("Store: " + command.line());
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.line());
-                    synchronized (done) {
-                        done.add(command.id());
+                    synchronized (unacknowledged) {
+                        unacknowledged.add(command.id());
+                        writeDelivered();
                     }
                 } finally {
                     ran.complete(null);
@@ -147,13 +169,43 @@ public final class TebexQueue {
         }
         CompletableFuture.allOf(runs.toArray(CompletableFuture[]::new)).thenRunAsync(() -> {
             try {
-                delete(done);
+                acknowledge();
             } catch (IOException | RuntimeException e) {
-                log.log(Level.WARNING, "Ran store commands " + done + " but couldn't tell Tebex: " + e.getMessage());
+                log.log(Level.WARNING, "Ran store commands but couldn't tell Tebex yet (will try again): "
+                        + e.getMessage());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         });
+    }
+
+    /** Tells Tebex about every command that ran, and forgets them once it knows. */
+    private void acknowledge() throws IOException, InterruptedException {
+        List<Integer> ids;
+        synchronized (unacknowledged) {
+            ids = List.copyOf(unacknowledged);
+        }
+        if (ids.isEmpty()) {
+            return;
+        }
+        delete(ids);
+        synchronized (unacknowledged) {
+            ids.forEach(unacknowledged::remove);
+            writeDelivered();
+        }
+    }
+
+    /** Holding the lock on {@link #unacknowledged}. Small, and only after a purchase. */
+    private void writeDelivered() {
+        try {
+            if (unacknowledged.isEmpty()) {
+                Files.deleteIfExists(delivered.toPath());
+            } else {
+                Files.write(delivered.toPath(), unacknowledged.stream().map(String::valueOf).toList());
+            }
+        } catch (IOException e) {
+            log.warning("Couldn't write " + delivered.getName() + ": " + e.getMessage());
+        }
     }
 
     private boolean online(UUID uuid) {

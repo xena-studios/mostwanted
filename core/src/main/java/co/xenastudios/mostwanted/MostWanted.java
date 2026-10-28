@@ -59,6 +59,7 @@ public final class MostWanted extends JavaPlugin {
     private PlayerStore players;
     private Walls walls;
     private Gates gates;
+    private Robberies robberies;
     private TebexQueue store;
 
     @Override
@@ -122,7 +123,9 @@ public final class MostWanted extends JavaPlugin {
         walls = new Walls(zones, players, messages, gameLog, settings.escapes(), clock,
                 new File(getDataFolder(), "broken-walls.yml"), getLogger());
         walls.restoreSaved();
-        gates = new Gates(zones, players, keycards, messages, gameLog, settings.escapes(), clock);
+        gates = new Gates(zones, players, keycards, messages, gameLog, settings.escapes(), clock,
+                new File(getDataFolder(), "open-gates.yml"), getLogger());
+        gates.restoreSaved();
         CosmeticStore cosmeticStore = new CosmeticStore(storage);
         Cosmetics cosmetics = new Cosmetics(this, cosmeticStore, players, messages, gameLog, items);
         cosmetics.guns(guns);
@@ -148,7 +151,7 @@ public final class MostWanted extends JavaPlugin {
         getServer().getScheduler().runTaskTimer(this, gates::tick, 20, 20);
 
         tracker.listen(new Banking(messages));
-        Robberies robberies = new Robberies(zones, tracker, players, messages, gameLog, settings.robberies(), clock);
+        robberies = new Robberies(zones, tracker, players, messages, gameLog, settings.robberies(), clock);
         Riots riots = new Riots(settings.riots(), players, tracker, messages, gameLog, clock);
         combat.riot(riots::active);
         getServer().getPluginManager().registerEvents(riots, this);
@@ -164,7 +167,7 @@ public final class MostWanted extends JavaPlugin {
         ResourcePack pack = new ResourcePack(settings.pack(), messages, getLogger());
         getServer().getPluginManager().registerEvents(pack, this);
         getServer().getScheduler().runTaskTimerAsynchronously(this, pack::refresh, 0, 20 * 60 * 5);
-        store = new TebexQueue(this, settings.store(), getLogger());
+        store = new TebexQueue(this, settings.store(), new File(getDataFolder(), "store-delivered.txt"), getLogger());
         store.start();
         Leaderboards boards = new Leaderboards(this, storage, messages, settings.zone(), clock,
                 new File(getDataFolder(), "boards.yml"), getLogger());
@@ -202,6 +205,9 @@ public final class MostWanted extends JavaPlugin {
         }
         if (gates != null) {
             gates.closeAll();
+        }
+        if (robberies != null) {
+            robberies.hideBars();
         }
         if (players != null) {
             players.saveAll();

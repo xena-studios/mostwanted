@@ -56,6 +56,8 @@ public final class WebsiteCommand {
             messages.send(player, "website.wait");
             return;
         }
+        // Cooldowns that are over are dropped here, so the map never outgrows the busy few.
+        lastCode.values().removeIf(at -> now - at >= COOLDOWN_MILLIS);
         lastCode.put(player.getUniqueId(), now);
         UUID uuid = player.getUniqueId();
         String code = LoginCode.generate();

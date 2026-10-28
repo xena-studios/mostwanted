@@ -150,7 +150,8 @@ public final class Cosmetics implements Listener {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (player.isOnline()) {
                     announce(player, rank);
-                } else {
+                } else if (Bukkit.getPlayer(uuid) == null) {
+                    // Gone, and not back already: a quick rejoin has loaded them again.
                     store.forget(uuid);
                 }
             });

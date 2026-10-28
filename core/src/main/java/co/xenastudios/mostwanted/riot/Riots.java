@@ -78,7 +78,7 @@ public final class Riots implements Listener {
         }
         event.setCancelled(true);
         switch (state.press(player.getUniqueId(), now, settings.inmates(), settings.window(), settings.length(),
-                guardsOnDuty() >= settings.minGuards())) {
+                players.count(Role.GUARD) >= settings.minGuards())) {
             case COUNTED -> messages.send(player, "riot.pressed", Messages.value("needed", settings.inmates()));
             case STARTED -> started();
             case COOLDOWN -> messages.send(player, "riot.cooldown");
@@ -94,11 +94,9 @@ public final class Riots implements Listener {
         }
         gameLog.record("riot.start", null, null, Map.of("rioters", rioters.size()));
         messages.send(Bukkit.getServer(), "riot.started");
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (players.get(player.getUniqueId()).map(s -> s.role() == Role.GUARD).orElse(false)) {
-                messages.send(player, "riot.alarm");
-                player.playSound(HORN, Sound.Emitter.self());
-            }
+        for (Player guard : players.online(Role.GUARD)) {
+            messages.send(guard, "riot.alarm");
+            guard.playSound(HORN, Sound.Emitter.self());
         }
     }
 
@@ -145,20 +143,11 @@ public final class Riots implements Listener {
                 messages.get("hud.riot"),
                 messages.get("hud.riot-rioters", Messages.value("count", state.rioters().size())),
                 messages.get("hud.heist-time", Messages.value("time", Hud.clockTime(state.left(clock.instant())))),
-                messages.get("hud.heist-guards", Messages.value("count", guardsOnDuty())));
+                messages.get("hud.heist-guards", Messages.value("count", players.count(Role.GUARD))));
     }
 
     private Role role(Player player) {
         return players.get(player.getUniqueId()).map(PlayerState::role).orElse(null);
     }
 
-    private int guardsOnDuty() {
-        int guards = 0;
-        for (PlayerState player : players.all()) {
-            if (player.role() == Role.GUARD) {
-                guards++;
-            }
-        }
-        return guards;
-    }
 }

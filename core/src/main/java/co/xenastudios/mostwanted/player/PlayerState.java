@@ -24,7 +24,7 @@ public final class PlayerState {
     /** The other side's money while on or off duty: see {@link #swapStash}. */
     private long stashedCash;
     private long stashedBank;
-    /** Hidden from the website and Discord (/stats private); in-game boards still show them. */
+    /** Hidden from the website, Discord and every leaderboard (/stats private). */
     private boolean statsPrivate;
     /** All-time totals, for the scoreboard. */
     private final Map<Stat, Long> totals;

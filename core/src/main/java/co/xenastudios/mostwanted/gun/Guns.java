@@ -289,7 +289,7 @@ public final class Guns implements Listener {
         if (item == null || !item.hasItemMeta()) {
             return 0;
         }
-        Integer loaded = item.getItemMeta().getPersistentDataContainer().get(loadedKey, PersistentDataType.INTEGER);
+        Integer loaded = item.getPersistentDataContainer().get(loadedKey, PersistentDataType.INTEGER);
         return loaded == null ? 0 : loaded;
     }
 

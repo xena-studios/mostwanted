@@ -152,10 +152,10 @@ bank:
   deposited: "<success>✔</success> banked <money><amount></money>. you have <money><total></money> safe in the bank."
 
 stats:
-  is-public: "<info>ⓘ</info> your stats show on the website and in discord. <value>/stats private</value> hides them."
-  is-private: "<info>ⓘ</info> your stats are hidden from the website and discord. <value>/stats public</value> shows them."
-  now-private: "<success>✔</success> your stats are hidden from the website and discord. players in game still see you."
-  now-public: "<success>✔</success> your stats show on the website and in discord again."
+  is-public: "<info>ⓘ</info> your stats show on the website, in discord and on leaderboards. <value>/stats private</value> hides them."
+  is-private: "<info>ⓘ</info> your stats are hidden from the website, discord and leaderboards. <value>/stats public</value> shows them."
+  now-private: "<success>✔</success> your stats are hidden from the website, discord and leaderboards. players in game still see you play."
+  now-public: "<success>✔</success> your stats show on the website, in discord and on leaderboards again."
 
 website:
   code: "<info>ⓘ</info> your code is <b><value><code></value></b>. enter it at <value>mostwantedmc.com/login</value> within <value><minutes></value> minutes. never share it: it signs in as you."
