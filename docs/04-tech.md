@@ -221,6 +221,8 @@ Decided 2026-10-26. **Java, like `core`**, so the game, the API and the bot shar
 
 ## Build order
 
+Steps 2 to 6 are built (2026-10-28); next is the map, then step 1 and step 7 for launch ([12-launch.md](12-launch.md)).
+
 1. **Foundation:** confirm Minehut External; set up the VPS with Raptor; Leaf + the must-have plugins from [server stack](07-server-stack.md) + PostgreSQL; Minehut External settings; join from Java **and** Bedrock through Minehut.
 2. **Core loop:** player state, combat rules, arrests, bounty, economy, one robbery. Playable on a test map.
 3. **Custom items + guns + resource pack** (Java first, then Bedrock if Minehut supports custom Bedrock packs).

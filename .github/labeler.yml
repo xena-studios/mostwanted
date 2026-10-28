@@ -7,7 +7,7 @@ website:
       - any-glob-to-any-file: website/**
 resource-pack:
   - changed-files:
-      - any-glob-to-any-file: resource-pack/**
+      - any-glob-to-any-file: pack/**
 server:
   - changed-files:
       - any-glob-to-any-file: server/**
@@ -22,7 +22,7 @@ brand:
       - any-glob-to-any-file: [brand/**, scripts/brand-assets.py]
 build:
   - changed-files:
-      - any-glob-to-any-file: [build-logic/**, gradle/**, "*.gradle.kts", scripts/**, .github/workflows/**]
+      - any-glob-to-any-file: [build-logic/**, gradle/**, "*.gradle.kts", scripts/**, tools/**, .github/workflows/**]
 documentation:
   - changed-files:
       - any-glob-to-any-file: [docs/**, "**/*.md"]

@@ -14,14 +14,14 @@ This repo holds everything the server needs: the game plugin, its build and CI, 
 core/          MostWanted, the game plugin: every system the server runs
 common/        the database tables and message style, shared by core and backend
 website/       the website, with the store built in (Astro, Tebex)
-resource-pack/ source art and models for the custom items
+pack/          the resource pack: item textures, built and published by CI
 server/        the game server: pinned plugins, install and start scripts, configs (no secrets)
 backend/       the website API and the Discord bot in one Java app, and the Discord server's setup script
 brand/         the logo, key art and icons
 build-logic/   the Gradle conventions every module applies
 docs/          the design: gameplay, tech, server stack, decisions
-ideas/         raw ideas and name candidates
 scripts/       boot tests, changelogs and the new-Minecraft check
+tools/         playtest bots, and a test map to walk around
 ```
 
 | Doc | What's in it |
@@ -38,7 +38,6 @@ scripts/       boot tests, changelogs and the new-Minecraft check
 | [`docs/10-discord-bot.md`](docs/10-discord-bot.md) | Discord: the server's layout, the app, and what the bot does |
 | [`docs/11-store.md`](docs/11-store.md) | The store: what's sold, how checkout works, setting up Tebex |
 | [`docs/12-launch.md`](docs/12-launch.md) | Launch day: from a new VPS to players joining, step by step, with backups and rollback |
-| [`ideas/names.md`](ideas/names.md) | Server name candidates |
 
 ## Building
 
@@ -53,7 +52,7 @@ Needs a JDK 25.
 
 ## Status
 
-Planning done, plugin skeleton building. Next: the server foundation and the core game loop ([build order](docs/04-tech.md#build-order)).
+The game is built: escapes, robberies, arrests, riots, guns, shops, menus, cosmetics and leaderboards, with the website, store, API and Discord bot. Next: a map, then launch on Raptor ([launch steps](docs/12-launch.md)).
 
 ## Help
 

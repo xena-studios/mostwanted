@@ -31,7 +31,7 @@ Approved 2026-10-26. The rule: **get a plugin where it's a hard, solved problem;
 | **xUtilities** | 2.0.0 | Ours: everyday commands. |
 | **zChat** | 3.0.0 | Ours: chat format and filter. |
 | **FancyNpcs** | 2.12.1 | NPCs (shopkeepers, armory): packet-based, skins, in-game editor. |
-| **FancyHolograms** | 2.12.0 | Static floating text. Live boards come from `core` through its API. |
+| **FancyHolograms** | 2.12.0 | Static floating text. Live leaderboards are `core`'s own (`/mw board`, vanilla text displays). |
 | **FastAsyncWorldEdit** | 2.16.1 | Building the map. Can come off the live server once it's built. |
 
 **Later:** the **Tebex** plugin when the store opens; **NuVotifier** only if we list on vote sites.
