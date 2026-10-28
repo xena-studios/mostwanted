@@ -40,7 +40,7 @@ class ApiTest {
         db.player("Ada", "criminal", 2_500, false);
         BackendConfig config = new BackendConfig(null, "127.0.0.1", 0, List.of("https://mostwantedmc.com"),
                 true, 30, ZoneId.of("America/New_York"), "https://mostwantedmc.com", null,
-                "https://api.mostwantedmc.com", "1", null, null, true);
+                "https://api.mostwantedmc.com", "1", null, null, true, null);
         api = Api.start(config, new Stats(db.database.sql(), config.zone(), Clock.systemUTC()),
                 Api.accounts(config, new Accounts(db.database.sql()), new Sessions(db.database.sql(), Clock.systemUTC()),
                         null, LinkedRole.NONE), null);

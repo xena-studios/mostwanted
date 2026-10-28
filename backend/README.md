@@ -41,7 +41,21 @@ Errors are `{"error": "..."}` with a reason. Each visitor gets 120 requests a mi
 
 ## Settings
 
-Environment variables, from `.env` (copy [`.env.example`](.env.example)). Secrets (the database password, the bot's token, the OAuth client secret) never go in this repo.
+Environment variables, from `.env` (copy [`.env.example`](.env.example)). Secrets (the database password, the bot's token, the OAuth client secret, the TLS key) never go in this repo.
+
+### HTTPS and Authenticated Origin Pulls
+
+On the VPS the API serves HTTPS itself (Jetty, no nginx), and only to Cloudflare ([docs/08-website.md](../docs/08-website.md#the-api)):
+
+| Setting | What it is |
+| --- | --- |
+| `TLS_CERT` | The Cloudflare **Origin CA** certificate, PEM (Cloudflare → SSL/TLS → Origin Server). Cloudflare's SSL mode is **Full (strict)**, so it checks this. |
+| `TLS_KEY` | Its private key, PEM (`BEGIN PRIVATE KEY`, as Cloudflare gives it). `chmod 600`. An old `BEGIN RSA PRIVATE KEY` file is refused with the `openssl` line that converts it. |
+| `TLS_CLIENT_CA` | Cloudflare's **Authenticated Origin Pulls** CA, PEM. With it, a connection without a client certificate signed by it is refused during the TLS handshake, before any request is read: other Cloudflare customers and scanners get nothing. |
+
+Paths are relative to the folder the backend runs in (`tls/origin.pem`). `TLS_CERT` and `TLS_KEY` switch HTTPS on, on `API_PORT`, instead of HTTP: there's no plain HTTP port alongside. Both or neither; `TLS_CLIENT_CA` only with them. Without `TLS_CLIENT_CA` anyone may connect (fine for a first test, not for launch). Leave all three out locally for plain HTTP. The files are read and checked at start (the key must match the certificate), so a mistake stops the start with the reason. `OriginTlsTest` checks the handshake with throwaway certificates made by `keytool`: Cloudflare's gets through; none, or one from another CA, is refused.
+
+Setting it up step by step, with the Cloudflare clicks: [docs/12-launch.md](../docs/12-launch.md).
 
 ## Building and running
 
@@ -56,4 +70,4 @@ DB_PASSWORD=boot-test API_PORT=8081 java -jar backend/build/libs/backend.jar
 curl localhost:8081/v1/leaderboards/escapes
 ```
 
-Add `DISCORD_TOKEN` to run the bot too. On the VPS it's its own Raptor server: `backend.jar`, `start.sh` and `.env` in one folder, started with `./start.sh`.
+Add `DISCORD_TOKEN` to run the bot too. On the VPS it's its own Raptor server: `backend.jar`, `start.sh`, `.env` and `tls/` in one folder, started with `./start.sh` ([docs/12-launch.md](../docs/12-launch.md)).

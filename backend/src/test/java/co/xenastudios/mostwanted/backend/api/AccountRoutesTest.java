@@ -60,7 +60,7 @@ class AccountRoutesTest {
         String discordApi = "http://127.0.0.1:" + fakeDiscord.getAddress().getPort();
 
         BackendConfig config = new BackendConfig(null, "127.0.0.1", 0, List.of(SITE), false, 1000,
-                ZoneId.of("America/New_York"), SITE, null, "https://api.mostwantedmc.com", "1", "secret", null, false);
+                ZoneId.of("America/New_York"), SITE, null, "https://api.mostwantedmc.com", "1", "secret", null, false, null);
         DiscordOAuth discord = new DiscordOAuth("1", "secret", "https://api.mostwantedmc.com/v1/auth/discord/callback",
                 discordApi);
         api = Api.start(config, new Stats(db.database.sql(), config.zone(), Clock.systemUTC()),

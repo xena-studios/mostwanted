@@ -86,6 +86,7 @@ fi
     dest="$dir/${rel%.tmpl}"
     mkdir -p "$(dirname "$dest")"
     # Every ${NAME} in the template must be set: a half-rendered config is worse than none.
+    # shellcheck disable=SC2016 # the ${...} is the literal text being searched for
     for name in $(grep -o '\${[A-Z0-9_]*}' "$src" | tr -d '${}' | sort -u); do
       [[ -n ${!name:-} ]] || { echo "$rel needs $name: set it in $dir/.env (see server/.env.example)" >&2; exit 1; }
     done

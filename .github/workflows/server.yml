@@ -60,10 +60,21 @@ jobs:
           name: server-log
           path: build/server/test-console.log
 
-  # The check main can require: passes when the boot passed or was skipped
-  # because server/ didn't change.
+  # Every shell script in the repo, including the VPS setup scripts that can't be
+  # run here (provision.sh, firewall.sh, backup-db.sh). A few seconds, so always.
+  shellcheck:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      - run: |
+          command -v shellcheck >/dev/null || { sudo apt-get update -q && sudo apt-get install -y -q shellcheck; }
+          shellcheck --version | head -2
+          git ls-files -z '*.sh' | xargs -0 shellcheck
+
+  # The check main can require: passes when the boot and shellcheck passed, or the
+  # boot was skipped because server/ didn't change.
   server-ok:
-    needs: [changes, boot]
+    needs: [changes, boot, shellcheck]
     if: always()
     runs-on: ubuntu-26.04
     steps:

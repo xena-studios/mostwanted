@@ -28,7 +28,7 @@ One Discord application, **MostWanted** (client id `1564123260562440303`), is bo
 
 - Private (only we can add it), server install only, no install link.
 - Intents: Server Members on (role sync); Presence and Message Content off (Message Content only if we add the chat bridge).
-- OAuth2: scope `identify` only (no email), redirects `https://api.mostwantedmc.com/auth/discord/callback` and `http://localhost:8080/auth/discord/callback` for development.
+- OAuth2: scope `identify` only (no email), redirects `https://api.mostwantedmc.com/v1/auth/discord/callback` and `http://localhost:8080/v1/auth/discord/callback` for development.
 - The bot token and the OAuth client secret go only in the backend's `.env` on the VPS. Terms of Service and Privacy Policy URLs get added once those website pages exist.
 
 ## What the bot does

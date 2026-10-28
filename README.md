@@ -36,6 +36,8 @@ scripts/       boot tests, changelogs and the new-Minecraft check
 | [`docs/08-website.md`](docs/08-website.md) | The website and store: Astro, Cloudflare, Tebex, what we sell |
 | [`docs/09-brand.md`](docs/09-brand.md) | The look: orange `#ff9933`, desert theme, palette and logo style |
 | [`docs/10-discord-bot.md`](docs/10-discord-bot.md) | Discord: the server's layout, the app, and what the bot does |
+| [`docs/11-store.md`](docs/11-store.md) | The store: what's sold, how checkout works, setting up Tebex |
+| [`docs/12-launch.md`](docs/12-launch.md) | Launch day: from a new VPS to players joining, step by step, with backups and rollback |
 | [`ideas/names.md`](ideas/names.md) | Server name candidates |
 
 ## Building
