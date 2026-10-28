@@ -14,6 +14,7 @@ import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerListener;
 import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.player.StatsCommand;
+import co.xenastudios.mostwanted.player.WebsiteCommand;
 import co.xenastudios.mostwanted.privacy.Cleanup;
 import co.xenastudios.mostwanted.robbery.Robberies;
 import co.xenastudios.mostwanted.storage.GameLog;
@@ -106,6 +107,7 @@ public final class MostWanted extends JavaPlugin {
                 settings.retention(), clock, getLogger());
         getServer().getScheduler().runTaskTimerAsynchronously(this, cleanup::run, 20 * 60, 20 * 60 * 60 * 24);
         StatsCommand stats = new StatsCommand(players, messages);
+        WebsiteCommand website = new WebsiteCommand(storage, messages, this::onMainThread, clock);
 
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             event.registrar().register(
@@ -115,6 +117,7 @@ public final class MostWanted extends JavaPlugin {
                     List.of("mw"));
             event.registrar().register(duty.command(), "Go on or off duty as a guard.");
             event.registrar().register(stats.command(), "Show or hide your stats on the website and Discord.");
+            event.registrar().register(website.command(), "A code to sign in on mostwantedmc.com.");
         });
     }
 

@@ -1,10 +1,13 @@
 package co.xenastudios.mostwanted.backend;
 
+import static co.xenastudios.mostwanted.common.db.Tables.LOGIN_CODES;
 import static co.xenastudios.mostwanted.common.db.Tables.PLAYERS;
 import static co.xenastudios.mostwanted.common.db.Tables.STATS;
 
 import co.xenastudios.mostwanted.common.Database;
 import co.xenastudios.mostwanted.common.DatabaseConfig;
+import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
@@ -33,6 +36,14 @@ public final class TestDatabase {
     public void stat(UUID uuid, String stat, String period, long value) {
         database.sql().insertInto(STATS)
                 .set(STATS.UUID, uuid).set(STATS.STAT, stat).set(STATS.PERIOD, period).set(STATS.VALUE, value)
+                .execute();
+    }
+
+    /** A /website code, as core makes it; {@code life} negative for one that's run out. */
+    public void code(UUID uuid, String code, Duration life) {
+        database.sql().insertInto(LOGIN_CODES)
+                .set(LOGIN_CODES.CODE, code).set(LOGIN_CODES.UUID, uuid)
+                .set(LOGIN_CODES.EXPIRES_AT, OffsetDateTime.now().plus(life))
                 .execute();
     }
 }

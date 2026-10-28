@@ -1,6 +1,10 @@
 package co.xenastudios.mostwanted.backend.api;
 
 import co.xenastudios.mostwanted.backend.BackendConfig;
+import co.xenastudios.mostwanted.backend.accounts.Accounts;
+import co.xenastudios.mostwanted.backend.accounts.DiscordOAuth;
+import co.xenastudios.mostwanted.backend.accounts.LinkedRole;
+import co.xenastudios.mostwanted.backend.accounts.Sessions;
 import co.xenastudios.mostwanted.backend.stats.Board;
 import co.xenastudios.mostwanted.backend.stats.Stats;
 import io.javalin.Javalin;
@@ -37,8 +41,16 @@ public final class Api {
         this.app = app;
     }
 
+    /**
+     * Builds the account routes; {@code discord} null when Discord sign-in isn't set up.
+     */
+    public static AccountRoutes accounts(BackendConfig config, Accounts accounts, Sessions sessions,
+            DiscordOAuth discord, LinkedRole linkedRole) {
+        return new AccountRoutes(config, accounts, sessions, discord, linkedRole);
+    }
+
     /** {@code discordUp} is for /health: whether the bot is connected, or null if it's switched off. */
-    public static Api start(BackendConfig config, Stats stats, BooleanSupplier discordUp) {
+    public static Api start(BackendConfig config, Stats stats, AccountRoutes accounts, BooleanSupplier discordUp) {
         RateLimits limits = new RateLimits(config.requestsPerMinute());
         Javalin app = Javalin.create(javalin -> {
             javalin.concurrency.useVirtualThreads = true;
@@ -48,6 +60,8 @@ public final class Api {
                 for (String origin : config.origins()) {
                     rule.allowHost(origin);
                 }
+                // The session cookie goes with the site's requests.
+                rule.allowCredentials = true;
             }));
 
             javalin.routes.before(ctx -> {
@@ -96,6 +110,8 @@ public final class Api {
                 body.put("entries", stats.board(board, period, limit));
                 ctx.header("Cache-Control", CACHE_STATS).json(body);
             });
+
+            accounts.register(javalin);
 
             javalin.routes.exception(Failure.class, (e, ctx) ->
                     ctx.status(e.status).json(Map.of("error", e.getMessage())));

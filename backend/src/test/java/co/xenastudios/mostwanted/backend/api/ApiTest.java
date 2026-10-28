@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import co.xenastudios.mostwanted.backend.BackendConfig;
 import co.xenastudios.mostwanted.backend.TestDatabase;
+import co.xenastudios.mostwanted.backend.accounts.Accounts;
+import co.xenastudios.mostwanted.backend.accounts.LinkedRole;
+import co.xenastudios.mostwanted.backend.accounts.Sessions;
 import co.xenastudios.mostwanted.backend.stats.Stats;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -36,8 +39,11 @@ class ApiTest {
         db = new TestDatabase(POSTGRES);
         db.player("Ada", "criminal", 2_500, false);
         BackendConfig config = new BackendConfig(null, "127.0.0.1", 0, List.of("https://mostwantedmc.com"),
-                true, 30, ZoneId.of("America/New_York"), "https://mostwantedmc.com", null);
-        api = Api.start(config, new Stats(db.database.sql(), config.zone(), Clock.systemUTC()), null);
+                true, 30, ZoneId.of("America/New_York"), "https://mostwantedmc.com", null,
+                "https://api.mostwantedmc.com", "1", null, null, true);
+        api = Api.start(config, new Stats(db.database.sql(), config.zone(), Clock.systemUTC()),
+                Api.accounts(config, new Accounts(db.database.sql()), new Sessions(db.database.sql(), Clock.systemUTC()),
+                        null, LinkedRole.NONE), null);
     }
 
     @AfterAll

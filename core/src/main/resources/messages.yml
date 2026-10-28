@@ -138,3 +138,8 @@ stats:
   is-private: "<info>ⓘ</info> your stats are hidden from the website and discord. <value>/stats public</value> shows them."
   now-private: "<success>✔</success> your stats are hidden from the website and discord. players in game still see you."
   now-public: "<success>✔</success> your stats show on the website and in discord again."
+
+website:
+  code: "<info>ⓘ</info> your code is <b><value><code></value></b>. enter it at <value>mostwantedmc.com/login</value> within <value><minutes></value> minutes. never share it: it signs in as you."
+  wait: "<error>✖</error> wait a few seconds before asking for another code."
+  failed: "<error>✖</error> couldn't make a code. try again."

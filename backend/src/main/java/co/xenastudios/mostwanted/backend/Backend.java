@@ -1,10 +1,15 @@
 package co.xenastudios.mostwanted.backend;
 
+import co.xenastudios.mostwanted.backend.accounts.Accounts;
+import co.xenastudios.mostwanted.backend.accounts.DiscordOAuth;
+import co.xenastudios.mostwanted.backend.accounts.LinkedRole;
+import co.xenastudios.mostwanted.backend.accounts.Sessions;
 import co.xenastudios.mostwanted.backend.api.Api;
 import co.xenastudios.mostwanted.backend.discord.Bot;
 import co.xenastudios.mostwanted.backend.stats.Stats;
 import co.xenastudios.mostwanted.common.Database;
 import java.time.Clock;
+import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +39,17 @@ public final class Backend {
         if (bot == null) {
             LOG.info("No DISCORD_TOKEN: the bot is off");
         }
-        Api api = Api.start(config, stats, bot == null ? null : bot::connected);
+        Accounts accounts = new Accounts(database.sql());
+        Sessions sessions = new Sessions(database.sql(), Clock.systemUTC());
+        DiscordOAuth discord = config.discordClientSecret() == null ? null : new DiscordOAuth(config.discordClientId(),
+                config.discordClientSecret(), config.apiUrl() + "/v1/auth/discord/callback", "https://discord.com/api/v10");
+        if (discord == null) {
+            LOG.info("No DISCORD_CLIENT_SECRET: signing in with Discord is off");
+        }
+        Api api = Api.start(config, stats,
+                Api.accounts(config, accounts, sessions, discord, bot == null ? LinkedRole.NONE : bot),
+                bot == null ? null : bot::connected);
+        Thread.ofVirtual().name("daily-cleanup").start(() -> daily(sessions));
         LOG.info("API listening on {}:{}", config.host(), api.port());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -45,5 +60,24 @@ public final class Backend {
             }
             database.close();
         }, "shutdown"));
+    }
+
+    /** Expired sessions and codes go once a day: the privacy page promises 30-day sessions. */
+    private static void daily(Sessions sessions) {
+        while (true) {
+            try {
+                int deleted = sessions.cleanup();
+                if (deleted > 0) {
+                    LOG.info("Deleted {} expired sessions and codes", deleted);
+                }
+            } catch (RuntimeException e) {
+                LOG.warn("Cleanup failed: {}", e.getMessage());
+            }
+            try {
+                Thread.sleep(Duration.ofDays(1));
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
     }
 }

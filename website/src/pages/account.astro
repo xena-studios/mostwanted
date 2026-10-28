@@ -1,0 +1,223 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import { site } from "../site";
+---
+<Base title="Your account" description="Your MostWanted account: linked Minecraft and Discord accounts." noindex>
+  <PageHero title="Your account" lead="Your Minecraft and Discord accounts, linked in one place." />
+  <section class="section">
+    <div class="wrap account" data-account data-api={site.api}>
+      <p class="error" role="alert" data-error hidden></p>
+      <p class="loading" data-loading>Loading…</p>
+
+      <div class="grid" data-ready hidden>
+        <section class="panel side" aria-labelledby="mc-title">
+          <h2 id="mc-title">Minecraft</h2>
+          <div data-mc-linked hidden>
+            <p class="who"><img data-mc-head alt="" width="48" height="48" /> <strong data-mc-name></strong></p>
+            <a class="button" data-mc-stats>See your stats</a>
+          </div>
+          <form data-mc-form hidden>
+            <label for="link-code">Type <code>/website</code> in game, then enter the code to link your Minecraft account.</label>
+            <div class="field">
+              <input id="link-code" class="input pixel" name="code" placeholder="ABC234" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" maxlength="7" required />
+              <button class="button primary" type="submit">Link</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel side" aria-labelledby="discord-title">
+          <h2 id="discord-title">Discord</h2>
+          <p class="who" data-discord-linked hidden><strong data-discord-name></strong></p>
+          <div data-discord-link hidden>
+            <p>Link Discord to get the Linked role and replies to your tickets as DMs.</p>
+            <a class="button primary" href={`${site.api}/v1/auth/discord`}>Link Discord</a>
+          </div>
+        </section>
+      </div>
+
+      <p class="linked" data-linked hidden>Both linked: you have the <strong>Linked</strong> role on our Discord.</p>
+
+      <section class="panel danger" data-ready hidden aria-labelledby="manage-title">
+        <h2 id="manage-title">Manage</h2>
+        <div class="actions">
+          <button class="button" type="button" data-logout>Sign out</button>
+          <button class="button" type="button" data-delete>Delete account</button>
+          <button class="button really" type="button" data-really hidden>Yes, delete it</button>
+        </div>
+        <p class="small">Deleting removes your website account and its links. Your in-game progress stays; to delete that too, email <a href={`mailto:${site.email}`}>{site.email}</a> (see <a href="/privacy">Privacy</a>).</p>
+      </section>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { ApiError, call, type Me } from "../scripts/api";
+
+  const root = document.querySelector<HTMLElement>("[data-account]")!;
+  const api = root.dataset.api!;
+  const $ = <T extends HTMLElement>(name: string) => root.querySelector<T>(`[data-${name}]`)!;
+  const error = $("error");
+
+  function show(message: string) {
+    error.textContent = message;
+    error.hidden = false;
+  }
+
+  const linkErrors: Record<string, string> = {
+    "already-linked": "This account already has a Discord account linked.",
+    "taken": "That Discord account is linked to someone else's Minecraft account.",
+  };
+  const fromDiscord = new URLSearchParams(location.search).get("error");
+  if (fromDiscord) show(linkErrors[fromDiscord] ?? "Couldn't link Discord. Try again.");
+
+  function render(me: Me) {
+    $("loading").hidden = true;
+    root.querySelectorAll<HTMLElement>("[data-ready]").forEach((el) => (el.hidden = false));
+    $("mc-linked").hidden = !me.minecraft;
+    $("mc-form").hidden = !!me.minecraft;
+    if (me.minecraft) {
+      $("mc-name").textContent = me.minecraft.name;
+      $<HTMLImageElement>("mc-head").src = `https://mc-heads.net/avatar/${me.minecraft.uuid}/48`;
+      $<HTMLAnchorElement>("mc-stats").href = `/player?name=${encodeURIComponent(me.minecraft.name)}`;
+    }
+    $("discord-linked").hidden = !me.discord;
+    $("discord-link").hidden = !!me.discord;
+    if (me.discord) $("discord-name").textContent = me.discord.name;
+    $("linked").hidden = !me.linked;
+  }
+
+  call<Me>(api, "GET", "/v1/me").then(
+    (me) => render(me!),
+    (e) => {
+      if (e instanceof ApiError && e.status === 401) location.replace("/login");
+      else {
+        $("loading").hidden = true;
+        show((e as Error).message);
+      }
+    },
+  );
+
+  const form = $<HTMLFormElement>("mc-form");
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = form.querySelector("button")!;
+    button.disabled = true;
+    try {
+      render((await call<Me>(api, "POST", "/v1/me/minecraft", { code: new FormData(form).get("code") }))!);
+      error.hidden = true;
+    } catch (e) {
+      show((e as Error).message);
+    }
+    button.disabled = false;
+  });
+
+  $("logout").addEventListener("click", async () => {
+    await call(api, "POST", "/v1/auth/logout").catch(() => {});
+    location.assign("/");
+  });
+
+  // Two steps, so one slip doesn't delete it.
+  $("delete").addEventListener("click", () => {
+    $("delete").hidden = true;
+    $("really").hidden = false;
+    $("really").focus();
+  });
+  $("really").addEventListener("click", async () => {
+    try {
+      await call(api, "DELETE", "/v1/me");
+      location.assign("/");
+    } catch (e) {
+      show((e as Error).message);
+    }
+  });
+</script>
+
+<style>
+  /* Layout rules below set display, which would otherwise beat the hidden attribute. */
+  [hidden] {
+    display: none !important;
+  }
+
+  .account {
+    display: grid;
+    gap: var(--s-5);
+    max-width: 52rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    gap: var(--s-4);
+  }
+
+  .side,
+  .danger {
+    display: grid;
+    align-content: start;
+    gap: var(--s-4);
+    padding: var(--s-6);
+  }
+
+  .side > div,
+  form {
+    display: grid;
+    gap: var(--s-3);
+  }
+
+  h2 {
+    font-size: 1.75rem;
+    color: var(--orange);
+  }
+
+  p,
+  label {
+    color: var(--muted);
+  }
+
+  .who {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    font-size: 1.25rem;
+  }
+
+  .who img {
+    border-radius: 8px;
+    image-rendering: pixelated;
+  }
+
+  .who strong,
+  .linked strong {
+    color: var(--text);
+  }
+
+  .field .input {
+    font-size: 1.25rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+  }
+
+  .really {
+    background: linear-gradient(to bottom, #ff5c5c, #ff3333);
+    border-color: #a51c1c;
+    color: white;
+  }
+
+  .error {
+    padding: var(--s-3) var(--s-4);
+    border-radius: 10px;
+    background: color-mix(in srgb, #ff3333 15%, transparent);
+    color: var(--text);
+  }
+
+  .small {
+    font-size: 0.875rem;
+  }
+</style>
