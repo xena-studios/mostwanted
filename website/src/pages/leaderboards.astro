@@ -2,11 +2,14 @@
 import { Search, Trophy } from "@lucide/astro";
 import Base from "../layouts/Base.astro";
 import PageHero from "../components/PageHero.astro";
-import { boards, site } from "../site";
+import { boards, periods, site, statsOpen } from "../site";
 import sun from "../brand/scene-sun.png";
+
+// Static boards; once stats are open (statsOpen in site.ts) the script below fills
+// each one from the stats API, top 10, with all-time, monthly and weekly tabs.
 ---
-<Base title="Leaderboards" description="Most Wanted, top escapers, top guards and biggest heists on MostWanted. All-time, monthly and weekly.">
-  <PageHero title="Leaderboards" lead="The most wanted, the fastest out, and the guards who bring them in." image={sun}>
+<Base title="Leaderboards" description="Most Wanted, top escapers, top guards and top robbers on MostWanted. All-time, monthly and weekly.">
+  <PageHero title="Leaderboards" lead="The most wanted, the best escapers, and the guards who bring them in." image={sun}>
     <form class="search" action="/player" method="get" role="search">
       <label class="visually-hidden" for="lb-search">Minecraft username</label>
       <div class="field">
@@ -17,40 +20,128 @@ import sun from "../brand/scene-sun.png";
   </PageHero>
 
   <section class="section">
-    <div class="wrap">
-      <p class="periods" aria-label="Period"><span class="badge on">All time</span><span class="badge">Monthly</span><span class="badge">Weekly</span></p>
+    <div class="wrap" data-boards data-open={String(statsOpen)} data-api={site.api}>
+      {!statsOpen && <p class="periods" aria-label="Period"><span class="badge on">All time</span><span class="badge">Monthly</span><span class="badge">Weekly</span></p>}
       <ul class="boards">
         {
           boards.map((b) => (
-            <li class="panel board" id={b.id}>
+            <li class="panel board" id={b.id} data-board={b.id} data-money={String(b.money)}>
               <div class="board-head">
                 <h2>{b.name}</h2>
                 <span class="label">{b.stat}</span>
               </div>
               <p class="blurb">{b.blurb}</p>
-              <ol class="rows">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <li class="row">
-                    <span class:list={["rank", "pixel", { top: n <= 3 }]}>#{n}</span>
-                    <span class="who">—</span>
-                    <span class="val pixel">—</span>
-                  </li>
-                ))}
-              </ol>
-              {!site.open && (
-                <p class="wait">
-                  <Trophy aria-hidden="true" /> Fills up when the server opens.
-                </p>
+              {statsOpen && (
+                b.periods ? (
+                  <div class="tabs" role="group" aria-label={`${b.name}: period`}>
+                    {periods.map((p, i) => (
+                      <button class="badge period" type="button" data-period={p.id} aria-pressed={String(i === 0)}>{p.label}</button>
+                    ))}
+                  </div>
+                ) : (
+                  <div class="tabs"><span class="badge live"><span class="dot" aria-hidden="true" /> Right now</span></div>
+                )
+              )}
+              {statsOpen ? (
+                <>
+                  <ol class="rows" data-rows aria-live="polite" />
+                  <p class="status" data-status>Loading…</p>
+                </>
+              ) : (
+                <>
+                  <ol class="rows">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <li class="row">
+                        <span class:list={["rank", "pixel", { top: n <= 3 }]}>#{n}</span>
+                        <span class="who">—</span>
+                        <span class="val pixel">—</span>
+                      </li>
+                    ))}
+                  </ol>
+                  <p class="wait">
+                    <Trophy aria-hidden="true" /> Fills up when the server opens.
+                  </p>
+                </>
               )}
             </li>
           ))
         }
       </ul>
+      <template data-row>
+        <li class="row">
+          <span class="rank pixel"></span>
+          <a class="who"><img alt="" width="24" height="24" loading="lazy" /><span class="name"></span></a>
+          <span class="val pixel"></span>
+        </li>
+      </template>
     </div>
   </section>
 </Base>
 
+<script>
+  import { board, format, head, playerHref, type Entry, type Period } from "../scripts/stats";
+
+  const root = document.querySelector<HTMLElement>("[data-boards]")!;
+  const api = root.dataset.api!;
+  const template = root.querySelector<HTMLTemplateElement>("template[data-row]")!;
+
+  function row(entry: Entry, money: boolean) {
+    const li = template.content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+    const rank = li.querySelector<HTMLElement>(".rank")!;
+    rank.textContent = `#${entry.rank}`;
+    rank.classList.toggle("top", entry.rank <= 3);
+    const link = li.querySelector<HTMLAnchorElement>(".who")!;
+    link.href = playerHref(entry.name);
+    link.querySelector("img")!.src = head(entry.uuid, 24);
+    link.querySelector(".name")!.textContent = entry.name;
+    li.querySelector(".val")!.textContent = format(entry.value, money);
+    return li;
+  }
+
+  function wire(el: HTMLElement) {
+    const id = el.dataset.board!;
+    const money = el.dataset.money === "true";
+    const rows = el.querySelector<HTMLOListElement>("[data-rows]")!;
+    const status = el.querySelector<HTMLElement>("[data-status]")!;
+    const tabs = el.querySelectorAll<HTMLButtonElement>("[data-period]");
+    const cache = new Map<Period, Promise<Entry[]>>();
+    let showing: Period = "all";
+
+    const say = (text: string) => {
+      status.textContent = text;
+      status.hidden = false;
+    };
+
+    async function show(period: Period) {
+      showing = period;
+      tabs.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.period === period)));
+      rows.replaceChildren();
+      say("Loading…");
+      if (!cache.has(period)) cache.set(period, board(api, id, period).then((b) => b.entries));
+      try {
+        const entries = await cache.get(period)!;
+        if (showing !== period) return;
+        rows.replaceChildren(...entries.map((e) => row(e, money)));
+        if (entries.length) status.hidden = true;
+        else say("No one yet. Be the first.");
+      } catch (e) {
+        cache.delete(period);
+        if (showing === period) say((e as Error).message);
+      }
+    }
+
+    tabs.forEach((b) => b.addEventListener("click", () => show(b.dataset.period as Period)));
+    show("all");
+  }
+
+  if (root.dataset.open === "true") root.querySelectorAll<HTMLElement>("[data-board]").forEach(wire);
+</script>
+
 <style>
+  [hidden] {
+    display: none !important;
+  }
+
   .search {
     max-width: 34rem;
     margin-top: var(--s-5);
@@ -121,6 +212,77 @@ import sun from "../brand/scene-sun.png";
 
   .rank.top {
     color: var(--sand);
+  }
+
+  .val {
+    font-size: 1.375rem;
+  }
+
+  a.who {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-width: 0;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  a.who:hover .name {
+    color: var(--orange);
+    text-decoration: underline;
+  }
+
+  a.who img {
+    flex: none;
+    border-radius: 4px;
+    image-rendering: pixelated;
+  }
+
+  .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .row:has(a.who) .val {
+    color: var(--text);
+  }
+
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin-top: var(--s-4);
+  }
+
+  .period {
+    cursor: pointer;
+  }
+
+  .period:hover {
+    border-color: var(--orange-dark);
+  }
+
+  .period[aria-pressed="true"] {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  .live {
+    color: var(--muted);
+  }
+
+  .status {
+    margin-top: var(--s-4);
+    padding: var(--s-3);
+    border-radius: 8px;
+    background: var(--night);
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .rows:empty {
+    display: none;
   }
 
   .wait {

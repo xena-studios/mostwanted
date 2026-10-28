@@ -2,12 +2,11 @@
 import { Search, UserSearch } from "@lucide/astro";
 import Base from "../layouts/Base.astro";
 import PageHero from "../components/PageHero.astro";
-import { site } from "../site";
+import { periods, site, statLabels, statsOpen } from "../site";
 import sun from "../brand/scene-sun.png";
 
-// /player?name=<username>. The page is static; the script below reads the name.
-// Once the stats feed exists (docs/08-website.md#player-stats), it fetches the
-// player from the stats API here.
+// /player?name=<username>. The page is static; the script below reads the name and,
+// once stats are open (statsOpen in site.ts), fetches the player from the stats API.
 ---
 <Base title="Player lookup" description="Look up any MostWanted player's escapes, arrests, bounties and records." noindex>
   <PageHero title="Player lookup" lead="Escapes, arrests, bounties and records for anyone who's played." image={sun}>
@@ -21,32 +20,137 @@ import sun from "../brand/scene-sun.png";
   </PageHero>
 
   <section class="section">
-    <div class="wrap">
-      <div class="panel empty" data-result data-open={String(site.open)}>
+    <div class="wrap" data-player data-open={String(statsOpen)} data-api={site.api}>
+      <div class="panel empty" data-result aria-live="polite">
         <UserSearch aria-hidden="true" />
         <h2 data-title>Search for a player</h2>
         <p data-body>Type a Minecraft username above. Bedrock players are listed by the name they play under.</p>
       </div>
+
+      {
+        statsOpen && (
+          <article class="profile" data-profile hidden>
+            <header class="panel card">
+              <img class="head" data-head alt="" width="96" height="96" />
+              <div class="who">
+                <h2 data-name></h2>
+                <p class="tags">
+                  <span class="badge role" data-role></span>
+                  <span class="badge bounty" data-bounty hidden></span>
+                </p>
+                <p class="seen"><span data-first></span> · <span data-last></span></p>
+              </div>
+            </header>
+
+            <div class="stats-head">
+              <h3 class="label">Stats</h3>
+              <div class="periods" role="group" aria-label="Period">
+                {periods.map((p, i) => (
+                  <button class="badge period" type="button" data-period={p.id} aria-pressed={String(i === 0)}>{p.label}</button>
+                ))}
+              </div>
+            </div>
+            <ul class="stats">
+              {statLabels.map((s) => (
+                <li class="panel stat">
+                  <span class="value pixel" data-stat={s.key} data-money={String(s.money)}>0</span>
+                  <span class="label">{s.label}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+        )
+      }
     </div>
   </section>
 </Base>
 
 <script>
+  import { ApiError } from "../scripts/api";
+  import { format, head, player, validName, type Period, type Profile } from "../scripts/stats";
+
+  const root = document.querySelector<HTMLElement>("[data-player]")!;
+  const $ = <T extends HTMLElement>(name: string) => root.querySelector<T>(`[data-${name}]`)!;
   const name = new URLSearchParams(location.search).get("name")?.trim().slice(0, 32);
-  const box = document.querySelector<HTMLElement>("[data-result]");
   const input = document.querySelector<HTMLInputElement>("#player-search");
-  if (name && box && input) {
+  const box = $("result");
+
+  function message(title: string, body: string) {
+    $("title").textContent = title;
+    $("body").textContent = body;
+    box.hidden = false;
+  }
+
+  const roles: Record<string, string> = { inmate: "Inmate", criminal: "Criminal", guard: "Guard" };
+  const day = new Intl.DateTimeFormat("en-US", { dateStyle: "medium" });
+  const ago = new Intl.RelativeTimeFormat("en-US", { numeric: "auto" });
+
+  function since(iso: string) {
+    const seconds = (new Date(iso).getTime() - Date.now()) / 1000;
+    const steps: [Intl.RelativeTimeFormatUnit, number][] = [["year", 31536000], ["month", 2592000], ["week", 604800], ["day", 86400], ["hour", 3600], ["minute", 60]];
+    for (const [unit, size] of steps) {
+      if (Math.abs(seconds) >= size) return ago.format(Math.round(seconds / size), unit);
+    }
+    return "just now";
+  }
+
+  function render(profile: Profile) {
+    const card = $("profile");
+    $<HTMLImageElement>("head").src = head(profile.uuid, 96, profile.bedrock);
+    $("name").textContent = profile.name;
+    const role = $("role");
+    role.textContent = roles[profile.role] ?? profile.role;
+    role.dataset.role = profile.role;
+    const bounty = $("bounty");
+    bounty.hidden = profile.bounty <= 0;
+    bounty.textContent = `Bounty ${format(profile.bounty, true)}`;
+    $("first").textContent = `Joined ${day.format(new Date(profile.firstJoined))}`;
+    $("last").textContent = `Last seen ${since(profile.lastSeen)}`;
+    document.title = `${profile.name} · MostWanted`;
+
+    const show = (period: Period) => {
+      card.querySelectorAll<HTMLElement>("[data-stat]").forEach((el) => {
+        el.textContent = format(profile.stats[period]?.[el.dataset.stat!] ?? 0, el.dataset.money === "true");
+      });
+      card.querySelectorAll<HTMLButtonElement>("[data-period]").forEach((b) => {
+        b.setAttribute("aria-pressed", String(b.dataset.period === period));
+      });
+    };
+    card.querySelectorAll<HTMLButtonElement>("[data-period]").forEach((b) => {
+      b.addEventListener("click", () => show(b.dataset.period as Period));
+    });
+    show("all");
+    box.hidden = true;
+    card.hidden = false;
+  }
+
+  if (name && input) {
     input.value = name;
-    const title = box.querySelector("[data-title]");
-    const body = box.querySelector("[data-body]");
-    if (box.dataset.open !== "true") {
-      if (title) title.textContent = `No stats for ${name} yet`;
-      if (body) body.textContent = "Stats start when the server opens. Every escape, arrest and heist will show up here.";
+    if (root.dataset.open !== "true") {
+      message(`No stats for ${name} yet`, "Stats start when the server opens. Every escape, arrest and heist will show up here.");
+    } else if (!validName(name)) {
+      message("That isn't a Minecraft name", "Names are up to 16 letters, numbers and underscores (Bedrock names can have spaces, dots and stars).");
+    } else {
+      message(`Looking up ${name}…`, "Fetching their record.");
+      player(root.dataset.api!, name).then(render, (e) => {
+        if (e instanceof ApiError && e.status === 404) {
+          message(`No player called ${name}`, "Check the spelling. They may not have joined yet, or they've made their stats private with /stats private.");
+        } else if (e instanceof ApiError && e.status === 400) {
+          message("That isn't a Minecraft name", (e as Error).message);
+        } else {
+          message("Couldn't load stats", (e as Error).message);
+        }
+      });
     }
   }
 </script>
 
 <style>
+  /* Layout rules below set display, which would otherwise beat the hidden attribute. */
+  [hidden] {
+    display: none !important;
+  }
+
   .search {
     max-width: 34rem;
     margin-top: var(--s-5);
@@ -54,5 +158,115 @@ import sun from "../brand/scene-sun.png";
 
   .empty h2 {
     font-size: var(--t-h3);
+  }
+
+  .profile {
+    display: grid;
+    gap: var(--s-5);
+  }
+
+  .card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-5);
+    padding: var(--s-6);
+  }
+
+  .head {
+    border-radius: 12px;
+    image-rendering: pixelated;
+    background: var(--night);
+  }
+
+  .who {
+    display: grid;
+    gap: var(--s-2);
+    min-width: 0;
+  }
+
+  .who h2 {
+    font-size: clamp(2rem, 1.5rem + 2vw, 3rem);
+    overflow-wrap: anywhere;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+
+  /* The game's role colours: inmate orange, criminal red, guard blue. */
+  .role {
+    border-color: currentColor;
+    color: var(--orange);
+  }
+
+  .role[data-role="criminal"] {
+    color: var(--red);
+  }
+
+  .role[data-role="guard"] {
+    color: #3399ff;
+  }
+
+  .bounty {
+    border-color: var(--sand);
+    color: var(--sand);
+  }
+
+  .seen {
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  .stats-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+  }
+
+  .periods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+
+  .period {
+    cursor: pointer;
+  }
+
+  .period:hover {
+    border-color: var(--orange-dark);
+  }
+
+  .period[aria-pressed="true"] {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    gap: var(--s-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  .stat {
+    display: grid;
+    gap: var(--s-2);
+    padding: var(--s-4) var(--s-5);
+  }
+
+  .value {
+    font-size: 2.5rem;
+    color: var(--text);
+  }
+
+  .stat .label {
+    font-size: 1.125rem;
   }
 </style>
