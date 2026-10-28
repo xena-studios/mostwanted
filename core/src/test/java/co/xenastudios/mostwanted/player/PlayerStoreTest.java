@@ -135,4 +135,17 @@ class PlayerStoreTest {
         assertEquals(5_000, again.stashedCash());
         store.quit(uuid);
     }
+
+    @Test
+    void choosingPrivateStatsIsSaved() throws Exception {
+        UUID uuid = UUID.randomUUID();
+        store.load(uuid, "Shy");
+        store.get(uuid).orElseThrow().statsPrivate(true);
+        store.quit(uuid);
+        store.load(uuid, "Shy");
+        assertEquals(true, store.get(uuid).orElseThrow().statsPrivate());
+        store.quit(uuid);
+        storage.write("nothing", sql -> { }).get();
+        assertEquals(true, storage.sql().fetchValue(PLAYERS.STATS_PRIVATE, PLAYERS.UUID.eq(uuid)));
+    }
 }

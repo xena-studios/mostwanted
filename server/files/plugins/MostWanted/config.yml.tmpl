@@ -1,62 +1,9 @@
-# MostWanted (core): the full config, rendered by install.sh with the database
-# settings from .env. Keep it in step with core/src/main/resources/config.yml.
-# Changes need a restart.
 
-# PostgreSQL, shared with LuckPerms, LibertyBans and the backend. MostWanted
-# won't start without it: playing on a blank state would overwrite real ones.
-database:
-  host: ${DB_HOST}
-  port: ${DB_PORT}
-  name: ${DB_NAME}
-  user: ${DB_USER}
-  password: '${DB_PASSWORD}'
-  # Connections kept open. Few are needed: every write goes through one thread.
-  pool-size: 4
 
-# How often changed players are written to the database. A crash loses at most
-# this much; quitting and stopping the server always save.
-save-every-seconds: 5
-
-# The clock on the scoreboard. One zone for everyone, so screenshots match the logs.
-clock:
-  timezone: America/New_York
-  label: ET
-
-# The gameplay numbers. Leave a line out to use the default shown.
-rules:
-  # Arrested players serve base + seconds-per-step for every bounty-per-step of
-  # bounty, up to max: 1 minute, plus 1 per $2,500, up to 5.
-  sentence:
-    base-seconds: 60
-    seconds-per-step: 60
-    bounty-per-step: 2500
-    max-seconds: 300
-  # A guard who kills a criminal gets this share of the bounty; cuffing pays it all.
-  kill-share-percent: 50
-  # Added to a criminal's bounty for killing an on-duty guard.
-  guard-kill-bounty: 500
-  # How close a guard must be to cuff someone, in blocks.
-  cuff-range: 3
-  # A guard can't go off duty this soon after a fight.
-  combat-tag-seconds: 15
-
-# Robberies. Every robbery zone (/mw zone create <name> robbery) is a spot: it
-# opens, a criminal walking in starts it and the alarm goes off for guards, and
-# the robbers must stay inside until the time is up. The payout is split between
-# them; each gets the bounty. A spot without its own section uses the defaults.
-robberies:
-  defaults:
-    seconds: 60
-    payout: 2500
-    bounty: 1500
-    closed-minutes: 10
-  # A spot's section is its zone name. name is what players see.
-  bank:
-    name: Bank
-    seconds: 120
-    payout: 10000
-    bounty: 5000
-    closed-minutes: 15
-  # More guards on duty, more risk, more reward: +10% each, up to +100%.
-  payout-per-guard-percent: 10
-  max-guard-bonus-percent: 100
+# How long logs are kept. The privacy page (mostwantedmc.com/privacy) promises
+# these numbers: change it too if you change them.
+retention:
+  # The server's log files: chat, commands and IP addresses.
+  server-log-days: 90
+  # The game log: arrests, robberies and staff actions.
+  game-log-months: 12

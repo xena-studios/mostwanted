@@ -13,6 +13,8 @@ import co.xenastudios.mostwanted.hud.Hud;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerListener;
 import co.xenastudios.mostwanted.player.PlayerStore;
+import co.xenastudios.mostwanted.player.StatsCommand;
+import co.xenastudios.mostwanted.privacy.Cleanup;
 import co.xenastudios.mostwanted.robbery.Robberies;
 import co.xenastudios.mostwanted.storage.GameLog;
 import co.xenastudios.mostwanted.storage.Storage;
@@ -23,6 +25,7 @@ import co.xenastudios.mostwanted.zone.ZoneStore;
 import co.xenastudios.mostwanted.zone.ZoneTracker;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.util.List;
 import java.util.logging.Level;
@@ -98,6 +101,12 @@ public final class MostWanted extends JavaPlugin {
         hud.live(robberies::hudLines);
         getServer().getScheduler().runTaskTimer(this, robberies::tick, 20, 20);
 
+        // Log4j writes the server's logs to logs/ in the folder the server runs from.
+        Cleanup cleanup = new Cleanup(Path.of("logs").toAbsolutePath(), storage,
+                settings.retention(), clock, getLogger());
+        getServer().getScheduler().runTaskTimerAsynchronously(this, cleanup::run, 20 * 60, 20 * 60 * 60 * 24);
+        StatsCommand stats = new StatsCommand(players, messages);
+
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             event.registrar().register(
                     MostWantedCommand.create(this, players, messages, gameLog,
@@ -105,6 +114,7 @@ public final class MostWanted extends JavaPlugin {
                     "The prison break game's admin command.",
                     List.of("mw"));
             event.registrar().register(duty.command(), "Go on or off duty as a guard.");
+            event.registrar().register(stats.command(), "Show or hide your stats on the website and Discord.");
         });
     }
 

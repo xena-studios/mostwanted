@@ -27,6 +27,7 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
 - **Banking:** a criminal's cash is banked the moment they walk into a `hideout`. Unbanked cash is lost on arrest.
 - **Robberies:** every `robbery` zone is a place to rob. A criminal walking into an open one starts it, and the alarm goes off for guards on duty. The robbers must stay inside until the time is up (a red bar fills); if they all leave or are caught, it fails. The payout is split between the robbers and grows with the guards on duty; each robber gets bounty. Then it closes for a while and reopens with an announcement. While one is on, everyone's scoreboard has a red HEIST section. Times and payouts per spot are in `config.yml` under `robberies`.
 - **Duty:** `/duty` swaps between guard and inmate, each with their own cash and bank. Guards respawn at the `police` spawn, inmates at the `prison` spawn.
+- **Privacy:** `/stats private` hides a player from the website and Discord. Server log files older than 90 days and game log entries older than 12 months are deleted at startup and daily, as the [privacy page](https://mostwantedmc.com/privacy) promises (`retention` in `config.yml`).
 - **Admin commands** for testing, each written to the game log.
 
 ## Commands
@@ -37,6 +38,7 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
 | `/mw player <name>` | `mostwanted.admin` | An online player's role, cash, bank and bounty |
 | `/mw set <name> role <inmate\|criminal\|guard>` | `mostwanted.admin` | Changes their role |
 | `/mw set <name> cash\|bank\|bounty <amount>` | `mostwanted.admin` | Sets an amount |
+| `/stats private` · `public` | everyone | Hides your stats from the website and Discord, or shows them again. In-game boards still show you. |
 | `/duty` | `mostwanted.guard` | Goes on duty as a guard (from the prison, as an inmate) or off duty |
 | `/mw zone create <name> <kind>` | `mostwanted.admin` | Makes a zone from your FAWE selection (`//wand`, then click two corners). Any shape becomes the box around it. |
 | `/mw zone redefine <name>` | `mostwanted.admin` | Moves a zone to your current selection, keeping its kind and spawn |

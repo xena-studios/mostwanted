@@ -24,6 +24,8 @@ public final class PlayerState {
     /** The other side's money while on or off duty: see {@link #swapStash}. */
     private long stashedCash;
     private long stashedBank;
+    /** Hidden from the website and Discord (/stats private); in-game boards still show them. */
+    private boolean statsPrivate;
     /** All-time totals, for the scoreboard. */
     private final Map<Stat, Long> totals;
     /** Added since the last save, for every period. */
@@ -32,7 +34,7 @@ public final class PlayerState {
     private boolean hudDirty = true;
 
     PlayerState(UUID uuid, String name, Role role, long cash, long bank, long bounty, Instant jailedUntil,
-            long stashedCash, long stashedBank, Map<Stat, Long> totals) {
+            long stashedCash, long stashedBank, boolean statsPrivate, Map<Stat, Long> totals) {
         this.uuid = uuid;
         this.name = name;
         this.role = role;
@@ -42,13 +44,14 @@ public final class PlayerState {
         this.jailedUntil = jailedUntil;
         this.stashedCash = stashedCash;
         this.stashedBank = stashedBank;
+        this.statsPrivate = statsPrivate;
         this.totals = new EnumMap<>(Stat.class);
         this.totals.putAll(totals);
     }
 
     /** A new player: an inmate with nothing. */
     static PlayerState fresh(UUID uuid, String name) {
-        return new PlayerState(uuid, name, Role.INMATE, 0, 0, 0, null, 0, 0, Map.of());
+        return new PlayerState(uuid, name, Role.INMATE, 0, 0, 0, null, 0, 0, false, Map.of());
     }
 
     public UUID uuid() { return uuid; }
@@ -60,6 +63,12 @@ public final class PlayerState {
     public Instant jailedUntil() { return jailedUntil; }
     public long stashedCash() { return stashedCash; }
     public long stashedBank() { return stashedBank; }
+    public boolean statsPrivate() { return statsPrivate; }
+
+    public void statsPrivate(boolean statsPrivate) {
+        this.statsPrivate = statsPrivate;
+        changed();
+    }
 
     /** Whether they're serving a sentence at this moment. */
     public boolean jailed(Instant now) {
@@ -143,7 +152,7 @@ public final class PlayerState {
     /** What to save, taken on the main thread; clears the dirty flag and the unsaved stats. */
     Snapshot snapshot() {
         Snapshot snapshot = new Snapshot(uuid, name, role, cash, bank, bounty, jailedUntil, stashedCash, stashedBank,
-                Map.copyOf(unsaved));
+                statsPrivate, Map.copyOf(unsaved));
         unsaved.clear();
         dirty = false;
         return snapshot;
@@ -164,5 +173,5 @@ public final class PlayerState {
 
     /** An immutable copy of the state to write, safe to hand to another thread. */
     record Snapshot(UUID uuid, String name, Role role, long cash, long bank, long bounty, Instant jailedUntil,
-            long stashedCash, long stashedBank, Map<Stat, Long> stats) {}
+            long stashedCash, long stashedBank, boolean statsPrivate, Map<Stat, Long> stats) {}
 }

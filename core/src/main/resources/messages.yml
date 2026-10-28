@@ -132,3 +132,9 @@ robbery:
 
 bank:
   deposited: "<success>✔</success> banked <money><amount></money>. you have <money><total></money> safe in the bank."
+
+stats:
+  is-public: "<info>ⓘ</info> your stats show on the website and in discord. <value>/stats private</value> hides them."
+  is-private: "<info>ⓘ</info> your stats are hidden from the website and discord. <value>/stats public</value> shows them."
+  now-private: "<success>✔</success> your stats are hidden from the website and discord. players in game still see you."
+  now-public: "<success>✔</success> your stats show on the website and in discord again."
