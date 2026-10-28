@@ -669,56 +669,56 @@ async function main() {
       process.stdin.on("data", (d) => server.cmd(d.toString().trim()));
       server.proc.stdout.on("data", (d) => process.stdout.write(d));
       await new Promise((r) => process.once("SIGINT", r));
-      return;
-    }
-    for (const name of BOTS) {
-      bots[name] = await joinBot(name);
-      await sleep(400);
-    }
-    server.cmd("op Guard1");
-    await sleep(500);
-    bots.Guard1.chat("/duty");
-    await heard(bots.Guard1, "you're on duty");
+    } else {
+      for (const name of BOTS) {
+        bots[name] = await joinBot(name);
+        await sleep(400);
+      }
+      server.cmd("op Guard1");
+      await sleep(500);
+      bots.Guard1.chat("/duty");
+      await heard(bots.Guard1, "you're on duty");
 
-    const tp = async (name, x, y, z) => {
-      server.cmd(`tp ${name} ${x} ${y} ${z}`);
-      await until(`${name} to arrive`, () => near(bots[name], x, z, 1.5), 4000);
-    };
-    const heal = async (name) => {
-      server.cmd(`effect give ${name} minecraft:instant_health 1 5`);
-      await until(`${name} to heal`, () => bots[name].health >= 20, 3000);
-    };
+      const tp = async (name, x, y, z) => {
+        server.cmd(`tp ${name} ${x} ${y} ${z}`);
+        await until(`${name} to arrive`, () => near(bots[name], x, z, 1.5), 4000);
+      };
+      const heal = async (name) => {
+        server.cmd(`effect give ${name} minecraft:instant_health 1 5`);
+        await until(`${name} to heal`, () => bots[name].health >= 20, 3000);
+      };
 
-    for (const [name, run] of Object.entries(scenarios)) {
-      if (only.length && !only.includes(name)) continue;
-      const start = Date.now();
-      for (const bot of Object.values(bots)) bot.since = bot.chatLog.length;
-      try {
-        await run({ server, bots, tp, heal });
-        console.log(`  ✔ ${name} (${((Date.now() - start) / 1000).toFixed(1)} s)`);
-      } catch (e) {
-        if (e instanceof Skip) {
-          console.log(`  - ${name}: skipped, ${e.message}`);
-          continue;
-        }
-        failed++;
-        console.log(`  ✖ ${name}: ${e.message}`);
-        if (process.env.PLAYTEST_DEBUG) {
-          // Where the server's main thread is, in case it's stuck.
-          const before = server.lines.length;
-          process.kill(server.proc.pid, "SIGQUIT");
-          await sleep(2000);
-          const dump = server.lines.slice(before);
-          const at = dump.findIndex((l) => l.startsWith('"Server thread"'));
-          console.log(at < 0 ? `no thread dump (${dump.length} lines after SIGQUIT)` : dump.slice(at, at + 25).join("\n"));
+      for (const [name, run] of Object.entries(scenarios)) {
+        if (only.length && !only.includes(name)) continue;
+        const start = Date.now();
+        for (const bot of Object.values(bots)) bot.since = bot.chatLog.length;
+        try {
+          await run({ server, bots, tp, heal });
+          console.log(`  ✔ ${name} (${((Date.now() - start) / 1000).toFixed(1)} s)`);
+        } catch (e) {
+          if (e instanceof Skip) {
+            console.log(`  - ${name}: skipped, ${e.message}`);
+            continue;
+          }
+          failed++;
+          console.log(`  ✖ ${name}: ${e.message}`);
+          if (process.env.PLAYTEST_DEBUG) {
+            // Where the server's main thread is, in case it's stuck.
+            const before = server.lines.length;
+            process.kill(server.proc.pid, "SIGQUIT");
+            await sleep(2000);
+            const dump = server.lines.slice(before);
+            const at = dump.findIndex((l) => l.startsWith('"Server thread"'));
+            console.log(at < 0 ? `no thread dump (${dump.length} lines after SIGQUIT)` : dump.slice(at, at + 25).join("\n"));
+          }
         }
       }
-    }
 
-    const problems = server.problems();
-    if (problems.length) {
-      failed++;
-      console.log("  ✖ the plugin logged problems:\n    " + problems.join("\n    "));
+      const problems = server.problems();
+      if (problems.length) {
+        failed++;
+        console.log("  ✖ the plugin logged problems:\n    " + problems.join("\n    "));
+      }
     }
   } catch (e) {
     failed++;
