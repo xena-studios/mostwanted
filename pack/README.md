@@ -22,6 +22,8 @@ Each of our items is a vanilla item underneath (`guns.yml` says which), carrying
 - **A new item** needs a texture here named after it: `pistol`, `ammo_pistol`, `handcuffs`. `build.py` fails without one, and so does core's `CustomItemsTest`.
 - **Changing an item's base** in `guns.yml` is picked up by `build.py`; nothing else to change.
 
+**Gun skins** from the store (`pistol_gilded`, `shotgun_copper`, `rifle_midnight`, `taser_diamond`) are listed in `SKINS` in `build.py`, with the gun each is for. They use the gun's vanilla base, and core swaps a gun's model string to the skin for players who chose it (`/cosmetics`); the gun itself doesn't change. They're the same drawings as the store's icons.
+
 Guns, the taser and handcuffs are held like tools (`item/handheld`); ammo and the keycard like flat items (`item/generated`).
 
 ## Style: it should look like it came with the game

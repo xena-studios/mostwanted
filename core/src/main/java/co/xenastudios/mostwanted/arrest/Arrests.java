@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
@@ -62,6 +63,7 @@ public final class Arrests implements Listener, ZoneListener {
     private boolean warnedNoCells;
     /** Told about each arrest, after the state changes: Guns confiscates. */
     private final List<Consumer<Player>> onArrest = new ArrayList<>();
+    private final List<BiConsumer<Player, Player>> onArrestBy = new ArrayList<>();
 
     public Arrests(Plugin plugin, PlayerStore players, ZoneStore zones, ZoneTracker tracker, Spawns spawns,
             Messages messages, GameLog gameLog, Rules rules, Clock clock) {
@@ -79,6 +81,11 @@ public final class Arrests implements Listener, ZoneListener {
 
     public void onArrest(Consumer<Player> hook) {
         onArrest.add(hook);
+    }
+
+    /** Runs after an arrest a guard made, with the criminal and the guard. */
+    public void onArrestBy(BiConsumer<Player, Player> hook) {
+        onArrestBy.add(hook);
     }
 
     /**
@@ -120,6 +127,9 @@ public final class Arrests implements Listener, ZoneListener {
                     Messages.value("officer", guard.getName()));
         }
         onArrest.forEach(hook -> hook.accept(criminal));
+        if (guard != null) {
+            onArrestBy.forEach(hook -> hook.accept(criminal, guard));
+        }
         if (!criminal.isDead()) {
             cell(criminal).ifPresent(criminal::teleportAsync);
         }

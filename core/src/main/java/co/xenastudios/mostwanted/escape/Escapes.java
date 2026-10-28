@@ -9,7 +9,10 @@ import co.xenastudios.mostwanted.zone.Zone;
 import co.xenastudios.mostwanted.zone.ZoneKind;
 import co.xenastudios.mostwanted.zone.ZoneListener;
 import co.xenastudios.mostwanted.zone.ZoneTracker;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -19,11 +22,17 @@ public final class Escapes implements ZoneListener {
     private final ZoneTracker tracker;
     private final Messages messages;
     private final GameLog gameLog;
+    private final List<Consumer<Player>> onEscape = new ArrayList<>();
 
     public Escapes(ZoneTracker tracker, Messages messages, GameLog gameLog) {
         this.tracker = tracker;
         this.messages = messages;
         this.gameLog = gameLog;
+    }
+
+    /** Runs after each escape, with the player who got out. */
+    public void onEscape(Consumer<Player> hook) {
+        onEscape.add(hook);
     }
 
     @Override
@@ -38,5 +47,6 @@ public final class Escapes implements ZoneListener {
         gameLog.record("escape", player.getUniqueId(), null, Map.of("prison", zone.name()));
         messages.send(player, "escape.you");
         messages.send(Bukkit.getServer(), "escape.everyone", Messages.value("player", player.getName()));
+        onEscape.forEach(hook -> hook.accept(player));
     }
 }

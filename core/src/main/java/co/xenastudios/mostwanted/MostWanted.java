@@ -5,6 +5,9 @@ import co.xenastudios.mostwanted.arrest.Cuffing;
 import co.xenastudios.mostwanted.combat.Combat;
 import co.xenastudios.mostwanted.common.Database;
 import co.xenastudios.mostwanted.config.Settings;
+import co.xenastudios.mostwanted.cosmetic.CosmeticMenu;
+import co.xenastudios.mostwanted.cosmetic.CosmeticStore;
+import co.xenastudios.mostwanted.cosmetic.Cosmetics;
 import co.xenastudios.mostwanted.duty.Duty;
 import co.xenastudios.mostwanted.economy.Banking;
 import co.xenastudios.mostwanted.escape.Escapes;
@@ -95,7 +98,8 @@ public final class MostWanted extends JavaPlugin {
         ZoneTracker tracker = new ZoneTracker(zones, players);
         zones.onChange(tracker::refreshAll);
         tracker.listen(new ZoneNotices(messages));
-        tracker.listen(new Escapes(tracker, messages, gameLog));
+        Escapes escapes = new Escapes(tracker, messages, gameLog);
+        tracker.listen(escapes);
         getServer().getPluginManager().registerEvents(tracker, this);
         getLogger().info("Loaded " + zones.all().size() + " zones");
 
@@ -115,8 +119,18 @@ public final class MostWanted extends JavaPlugin {
                 new File(getDataFolder(), "broken-walls.yml"), getLogger());
         walls.restoreSaved();
         gates = new Gates(zones, players, keycards, messages, gameLog, settings.escapes(), clock);
+        CosmeticStore cosmeticStore = new CosmeticStore(storage);
+        Cosmetics cosmetics = new Cosmetics(this, cosmeticStore, players, messages, gameLog, items);
+        cosmetics.guns(guns);
+        CosmeticMenu cosmeticMenu = new CosmeticMenu(cosmetics, items, messages);
+        cosmeticMenu.guns(guns);
+        escapes.onEscape(cosmetics::escaped);
+        arrests.onArrestBy(cosmetics::arrested);
+        hud.tags(cosmetics::tag);
+        getServer().getScheduler().runTaskTimer(this, cosmetics::refreshRanks, 20 * 30, 20 * 30);
+        getServer().getScheduler().runTaskTimer(this, cosmetics::applySkins, 40, 40);
         Shops shops = new Shops(shopSettings, guns, players, tracker, messages, gameLog, clock);
-        for (var each : List.of(arrests, combat, duty, guns, shops, keycards, walls, gates,
+        for (var each : List.of(arrests, combat, duty, guns, shops, keycards, walls, gates, cosmetics, cosmeticMenu,
                 new Cuffing(players, combat, arrests, handcuffs, messages, settings.rules()))) {
             getServer().getPluginManager().registerEvents(each, this);
         }
@@ -153,13 +167,15 @@ public final class MostWanted extends JavaPlugin {
             event.registrar().register(
                     MostWantedCommand.create(this, players, messages, gameLog,
                             new ZoneCommand(zones, tracker, messages, gameLog),
-                            new GiveCommand(guns, messages, gameLog)),
+                            new GiveCommand(guns, messages, gameLog), cosmetics),
                     "The prison break game's admin command.",
                     List.of("mw"));
             event.registrar().register(duty.command(), "Go on or off duty as a guard.");
             event.registrar().register(stats.command(), "Show or hide your stats on the website and Discord.");
             event.registrar().register(website.command(), "A code to sign in on mostwantedmc.com.");
             event.registrar().register(shops.command(), "Open the shop where you stand.");
+            event.registrar().register(cosmeticMenu.command(), "Choose your trail, effects, gun skins and chat colour.");
+            event.registrar().register(cosmeticMenu.joinMessageCommand(), "Set the message shown when you join.");
         });
     }
 

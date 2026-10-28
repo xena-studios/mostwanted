@@ -34,6 +34,15 @@ FIXED = {
     "keycard": ("trial_key", False),
 }
 
+# Gun skins from the store (core's Cosmetic): skin -> the gun it's for. A skin shows on
+# the gun's own vanilla base, so it falls back to that like the gun does.
+SKINS = {
+    "pistol_gilded": "pistol",
+    "shotgun_copper": "shotgun",
+    "rifle_midnight": "rifle",
+    "taser_diamond": "taser",
+}
+
 # A fixed date for every file, so the same sources always make the same zip (and SHA-1).
 ZIP_DATE = (2026, 1, 1, 0, 0, 0)
 
@@ -62,6 +71,10 @@ def read_guns():
 
 def build():
     items = {**read_guns(), **FIXED}
+    for skin, gun in SKINS.items():
+        if gun not in items:
+            sys.exit(f"skin {skin} is for {gun}, which isn't in {GUNS}")
+        items[skin] = items[gun]
     missing = [name for name in items if not (ROOT / "textures" / f"{name}.png").exists()]
     if missing:
         sys.exit("no texture for: " + ", ".join(missing) + " (add pack/textures/<name>.png, 16x16)")
