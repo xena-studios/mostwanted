@@ -1,0 +1,21 @@
+<!-- The console (Raptor shows it) and a file per day, kept for two weeks. -->
+<configuration>
+  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder><pattern>%d{HH:mm:ss} %-5level [%logger{0}] %msg%n</pattern></encoder>
+  </appender>
+  <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>logs/backend.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>logs/backend.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+      <maxHistory>14</maxHistory>
+    </rollingPolicy>
+    <encoder><pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%logger{0}] %msg%n</pattern></encoder>
+  </appender>
+  <logger name="org.eclipse.jetty" level="WARN"/>
+  <logger name="com.zaxxer.hikari" level="WARN"/>
+  <logger name="net.dv8tion" level="INFO"/>
+  <root level="INFO">
+    <appender-ref ref="console"/>
+    <appender-ref ref="file"/>
+  </root>
+</configuration>

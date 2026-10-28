@@ -16,7 +16,7 @@ common/        the database tables and message style, shared by core and backend
 website/       the website, with the store built in (Astro, Tebex)
 resource-pack/ source art and models for the custom items
 server/        the game server: pinned plugins, install and start scripts, configs (no secrets)
-backend/       the website API and the Discord bot in one Java app (planned), and the Discord server's setup script
+backend/       the website API and the Discord bot in one Java app, and the Discord server's setup script
 brand/         the logo, key art and icons
 build-logic/   the Gradle conventions every module applies
 docs/          the design: gameplay, tech, server stack, decisions

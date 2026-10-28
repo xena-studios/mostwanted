@@ -1,4 +1,4 @@
-package co.xenastudios.mostwanted.player;
+package co.xenastudios.mostwanted.common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

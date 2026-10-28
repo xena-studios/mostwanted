@@ -1,6 +1,7 @@
 package co.xenastudios.mostwanted.combat;
 
 import co.xenastudios.mostwanted.arrest.Arrests;
+import co.xenastudios.mostwanted.common.Stat;
 import co.xenastudios.mostwanted.common.style.Money;
 import co.xenastudios.mostwanted.config.Rules;
 import co.xenastudios.mostwanted.item.Handcuffs;
@@ -8,7 +9,6 @@ import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerState;
 import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.player.Role;
-import co.xenastudios.mostwanted.player.Stat;
 import co.xenastudios.mostwanted.storage.GameLog;
 import co.xenastudios.mostwanted.zone.Zone;
 import co.xenastudios.mostwanted.zone.ZoneKind;

@@ -15,6 +15,13 @@ jooq = "3.21.9"
 postgresql = "42.7.14"
 slf4j = "2.0.20"
 testcontainers = "2.0.5"
+# The backend: the website's API and the Discord bot (docs/04-tech.md#the-backend-and-common).
+bucket4j = "8.21.0"
+jackson = "3.2.4"
+javalin = "7.2.4"
+jda = "6.7.0"
+logback = "1.6.6"
+shadow = "9.6.1"
 
 [libraries]
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
@@ -30,6 +37,11 @@ jooq-meta-extensions = { module = "org.jooq:jooq-meta-extensions", version.ref =
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+bucket4j = { module = "com.bucket4j:bucket4j_jdk17-core", version.ref = "bucket4j" }
+jackson-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson" }
+javalin = { module = "io.javalin:javalin", version.ref = "javalin" }
+jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
+logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version.ref = "testcontainers" }
 testcontainers-junit = { module = "org.testcontainers:testcontainers-junit-jupiter" }
 testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
@@ -40,4 +52,5 @@ fawe-bukkit = { module = "com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit", ver
 [plugins]
 jooq-codegen = { id = "org.jooq.jooq-codegen-gradle", version.ref = "jooq" }
 resource-factory = { id = "xyz.jpenilla.resource-factory-paper-convention", version.ref = "resource-factory" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "run-paper" }

@@ -1,5 +1,6 @@
 package co.xenastudios.mostwanted.player;
 
+import co.xenastudios.mostwanted.common.Stat;
 import java.time.Instant;
 import java.util.EnumMap;
 import java.util.Map;

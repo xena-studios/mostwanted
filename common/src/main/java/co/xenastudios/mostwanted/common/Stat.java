@@ -1,4 +1,4 @@
-package co.xenastudios.mostwanted.player;
+package co.xenastudios.mostwanted.common;
 
 /** The counters in the stats table. Each is kept all-time, per month and per week. */
 public enum Stat {

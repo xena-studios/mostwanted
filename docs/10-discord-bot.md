@@ -1,6 +1,6 @@
 # Discord
 
-Decided 2026-10-26: **our own bot instead of DiscordSRV.** DiscordSRV is large, does a lot we don't use, and adds its own messages and commands to the server. Our bot does exactly what MostWanted needs, in the [message style](09-brand.md#messages). It's part of the [`backend`](../backend/) app with the website's API. Not built yet.
+Decided 2026-10-26: **our own bot instead of DiscordSRV.** DiscordSRV is large, does a lot we don't use, and adds its own messages and commands to the server. Our bot does exactly what MostWanted needs, in the [message style](09-brand.md#messages). It's part of the [`backend`](../backend/) app with the website's API. Built so far: `/profile`.
 
 ## The server
 
