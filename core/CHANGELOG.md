@@ -26,3 +26,4 @@
 - Fixed: `config.yml` (and its server template) had lost every section but the last one added, so the shipped default couldn't start the plugin. `/duty` messages showed their keys, because YAML reads a key named `on` or `off` as true or false.
 - Store ranks and cosmetics: rank tags in the tab list, trails, escape and arrest effects, gun skins, chat colours, coloured names, joins announced, `/joinmessage`, all from LuckPerms permissions. `/cosmetics` to choose them. `/mw boost <player>` for the Server Boost.
 - Store delivery without the Tebex plugin: core runs the commands Tebex queues (`store` in `config.yml`, key from `TEBEX_SECRET`), only those matching `allowed-commands`.
+- Leaderboards in the world: `/mw board add <board> [all|month|week]` puts up floating text (a vanilla text display) where you stand, listing the top 10 from the website's boards, refreshed every minute. `/mw board remove` and `/mw board list`. Kept in `boards.yml`.

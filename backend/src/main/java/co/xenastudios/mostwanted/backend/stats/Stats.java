@@ -3,6 +3,7 @@ package co.xenastudios.mostwanted.backend.stats;
 import static co.xenastudios.mostwanted.common.db.Tables.PLAYERS;
 import static co.xenastudios.mostwanted.common.db.Tables.STATS;
 
+import co.xenastudios.mostwanted.common.Board;
 import co.xenastudios.mostwanted.common.Periods;
 import co.xenastudios.mostwanted.common.Stat;
 import co.xenastudios.mostwanted.common.db.tables.records.PlayersRecord;

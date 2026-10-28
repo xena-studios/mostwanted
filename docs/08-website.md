@@ -55,6 +55,8 @@ The site shows each player's stats (escapes, arrests, robberies and so on) and l
 
 `core` writes stats to **PostgreSQL** on the VPS as they happen (in batches, off the main thread). The website reads them through the **API** at `api.mostwantedmc.com` ([below](#accounts-and-the-api)), the same database the game uses: no copy, no sync. Leaderboards and player pages are cached at Cloudflare for a minute or two, so most visits never reach the VPS. If the VPS is down, the site stays up and these pages say so.
 
+**In game too:** staff put the same leaderboards up around the map with `/mw board add <board> [all|month|week]` (floating text, refreshed every minute, kept in `boards.yml`). Board ids are the website's: `most-wanted`, `escapes`, `guards`, `robberies`, `bounty-earned`, `most-arrested`. Players with private stats are left off them too.
+
 ### What we track
 
 | Stat | Who |

@@ -27,6 +27,7 @@ Needs Java 25, Node 24 and Docker. It builds `core`, starts PostgreSQL in Docker
 | riot | Inmates pressing the alarm start a riot; inmates can then hurt guards |
 | duty | `/duty` swaps guard and inmate money |
 | cosmetics | `/cosmetics` refuses what you don't own, saves a trail and chat colour you do; `/mw boost` reaches everyone |
+| boards | `/mw board add escapes` puts up a board that lists a player who escaped |
 
 ## How the bots connect
 
@@ -38,3 +39,11 @@ Mineflayer speaks up to 26.1, and the server runs 26.3, so the test server (only
 - Lines like `Chunk size is 24 but only 20 was read ; partial packet : player_info…` are Mineflayer not knowing a field 26.x added to the tab list. Harmless.
 
 `PLAYTEST_VERBOSE=1` prints the server's log; `PLAYTEST_DEBUG=1` also takes a thread dump of the server when a scenario fails.
+
+## A test map to walk around in
+
+```sh
+npm run world
+```
+
+Starts the same throwaway server with a small map instead of the bots: a prison with four cells, a cracked wall to break, a keycard gate and the riot alarm (the bell), the police station, a hideout, the bank (robbable, 30 seconds) and a safe town square with leaderboards. Everything is zoned. Join `127.0.0.1:25580` with any name; type server commands into the terminal (`op <name>` first). Ctrl+C stops it and throws it all away. The map is in `world.mjs`.
