@@ -48,3 +48,38 @@ lp group owner setweight 100
 lp group owner parent add admin
 lp group owner meta setprefix 100 "<#ff33ff>ᴏᴡɴᴇʀ</#ff33ff> "
 lp group owner permission set * true
+
+# Store ranks (website/src/store/catalog.ts, docs/11-store.md). Tebex adds them
+# with `lp user {username} parent add <rank>`. Their tag is a suffix, after the
+# name, so the role tag in front (inmate, guard, staff) always shows. Each rank
+# includes the one before it. Cosmetics are mostwanted.cosmetic.<id> permissions,
+# the same ones Tebex sets when a cosmetic is bought on its own.
+lp creategroup vip
+lp group vip parent add default
+lp group vip meta setsuffix 20 " <#99ff33>ᴠɪᴘ</#99ff33>"
+lp group vip permission set mostwanted.cosmetic.escape-confetti true
+
+lp creategroup vip_plus
+lp group vip_plus parent add vip
+lp group vip_plus meta setsuffix 21 " <#33ffcc>ᴠɪᴘ+</#33ffcc>"
+lp group vip_plus permission set mostwanted.cosmetic.trail-smoke true
+lp group vip_plus permission set mostwanted.cosmetic.chat-colours true
+
+lp creategroup mvp
+lp group mvp parent add vip_plus
+lp group mvp meta setsuffix 22 " <#6633ff>ᴍᴠᴘ</#6633ff>"
+lp group mvp permission set mostwanted.cosmetic.trail-cash true
+lp group mvp permission set mostwanted.cosmetic.trail-ember true
+lp group mvp permission set mostwanted.cosmetic.trail-siren true
+lp group mvp permission set mostwanted.cosmetic.escape-fireworks true
+lp group mvp permission set mostwanted.cosmetic.escape-thunder true
+lp group mvp permission set mostwanted.cosmetic.arrest-spotlight true
+lp group mvp permission set mostwanted.cosmetic.arrest-siren true
+lp group mvp permission set mostwanted.name-colour true
+lp group mvp permission set mostwanted.join-announce true
+
+lp creategroup legend
+lp group legend parent add mvp
+lp group legend meta setsuffix 23 " <#ff3366>ʟᴇɢᴇɴᴅ</#ff3366>"
+lp group legend permission set mostwanted.cosmetic.* true
+lp group legend permission set mostwanted.join-message true
