@@ -1,9 +1,13 @@
 
 
-# How long logs are kept. The privacy page (mostwantedmc.com/privacy) promises
-# these numbers: change it too if you change them.
-retention:
-  # The server's log files: chat, commands and IP addresses.
-  server-log-days: 90
-  # The game log: arrests, robberies and staff actions.
-  game-log-months: 12
+# Escape routes. Mark weak walls with /mw zone create <name> wall: inmates (and
+# criminals breaking in) punch a block wall-hits times, no more than hit-gap-ms
+# apart, to break it; it grows back. Gates (/mw zone create <name> gate) open for a
+# guard, or for anyone holding a keycard. Guards carry one on duty.
+escapes:
+  wall-hits: 20
+  hit-gap-ms: 1500
+  wall-regrow-seconds: 120
+  gate-open-seconds: 5
+  # The chance a guard's keycard drops when they die.
+  keycard-drop-percent: 50

@@ -53,8 +53,12 @@ zone:
     hideout: "<criminal>⌂</criminal> hideout · <criminal>safe for criminals</criminal>"
     robbery: "<money>⛃</money> <value><zone></value>"
     safe: "<success>✔</success> safe zone"
+    alarm: "<error>⚠</error> riot alarm · <value>right-click</value> it with other inmates to start a riot"
 
 escape:
+  wall-alert: "<error>⚠</error> the prison wall at <value><wall></value> has been broken!"
+  keycard-alert: "<error>⚠</error> <inmate><player></inmate> used a keycard on <value><gate></value>!"
+  gate-locked: "<error>✖</error> locked. a guard's keycard opens it."
   you: "<success>✔</success> you escaped! you're a <criminal>criminal</criminal> now: rob, stay free, and bank your cash at a hideout."
   everyone: "<criminal>⚠</criminal> <criminal><player></criminal> escaped from the prison!"
 
@@ -129,6 +133,9 @@ item:
     taser-lore: "slows a criminal so you can cuff them · right-click"
   ammo:
     name: "<white><name></white>"
+  keycard:
+    name: "<guard>keycard</guard>"
+    lore: "right-click a gate to open it"
 
 robbery:
   open: "<money>⛃</money> <value><place></value> is open. criminals, it's yours if you can hold it."
