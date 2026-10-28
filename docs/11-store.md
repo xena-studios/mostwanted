@@ -92,7 +92,7 @@ The page is laid out to make buying easy and to show real value, without the tri
    Categories are up to you (Ranks, Cosmetics, Support): only the package names matter to the site.
 3. **Add the rank groups** to LuckPerms: the "Store ranks" block in [`server/setup/luckperms.txt`](../server/setup/luckperms.txt).
 4. **Connect the website:** copy the **Public Token** from Tebex (Developers → API keys) into the repo's **Settings → Secrets and variables → Actions → Variables** as `TEBEX_PUBLIC_TOKEN`, then run the website workflow (or push anything). It's a variable, not a secret, because it's public by design.
-5. **Delivery:** Tebex runs the commands through its **Tebex plugin** on the game server, which needs the store's **secret key** in its config, kept in the server's `.env`, never in this repo. The plugin isn't on the approved list yet; it needs your OK (alternative: the backend receives Tebex's webhooks and core runs the commands, more work).
+5. **Delivery:** core delivers purchases itself, no Tebex plugin needed. In Tebex, add a game server (Integrations → Game servers, type **Offline/Geyser**) and copy its **secret key** into the server's `.env` as `TEBEX_SECRET` (never this repo), then rerun `install.sh` and restart. Core asks Tebex's [command queue](https://docs.tebex.io/plugin/endpoints/command-queue) as often as Tebex says (about every 2 minutes), runs each command from the console and marks it done. It runs a command only if it matches `store.allowed-commands` in `config.yml`: exactly the commands above. Anything else stays undelivered in Tebex and shows in the server log, so a leaked key can't run other commands. A new kind of package needs a new pattern there.
 
 ## In game
 

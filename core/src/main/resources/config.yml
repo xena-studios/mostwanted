@@ -101,3 +101,15 @@ resource-pack:
   url: https://github.com/xena-studios/mostwanted/releases/download/pack/mostwanted-pack.zip
   sha1-url: https://github.com/xena-studios/mostwanted/releases/download/pack/mostwanted-pack.sha1
   required: true
+
+# Store purchases (docs/11-store.md): MostWanted runs the commands Tebex queues, in
+# place of the Tebex plugin. The webstore's secret key (Tebex: Integrations → Game
+# servers); empty or none switches it off. A command runs only if it matches one of
+# allowed-commands in full (regular expressions), so a leaked key can't run anything
+# else. These are exactly the store's packages; add one for a new kind of package.
+store:
+  tebex-secret: ""
+  allowed-commands:
+    - 'lp user [A-Za-z0-9_.*]{1,32} parent add (vip|vip_plus|mvp|legend)'
+    - 'lp user [A-Za-z0-9_.*]{1,32} permission set mostwanted\.cosmetic\.[a-z-]+ true'
+    - 'mostwanted boost [A-Za-z0-9_.*]{1,32}'

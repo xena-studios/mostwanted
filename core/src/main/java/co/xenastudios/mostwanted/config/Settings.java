@@ -19,9 +19,11 @@ import org.bukkit.configuration.file.FileConfiguration;
  * @param escapes walls, gates and keycards
  * @param riots how riots start and end
  * @param pack the resource pack sent to Java players
+ * @param store delivering store purchases from Tebex
  */
 public record Settings(DatabaseConfig database, Duration saveEvery, ZoneId zone, String zoneLabel, Rules rules,
-        RobberySettings robberies, Retention retention, EscapeSettings escapes, RiotSettings riots, PackSettings pack) {
+        RobberySettings robberies, Retention retention, EscapeSettings escapes, RiotSettings riots, PackSettings pack,
+        StoreSettings store) {
 
     public static Settings read(FileConfiguration config) {
         ConfigurationSection db = config.getConfigurationSection("database");
@@ -51,6 +53,7 @@ public record Settings(DatabaseConfig database, Duration saveEvery, ZoneId zone,
                 Retention.read(config.getConfigurationSection("retention")),
                 EscapeSettings.read(config.getConfigurationSection("escapes")),
                 RiotSettings.read(config.getConfigurationSection("riots")),
-                PackSettings.read(config.getConfigurationSection("resource-pack")));
+                PackSettings.read(config.getConfigurationSection("resource-pack")),
+                StoreSettings.read(config.getConfigurationSection("store")));
     }
 }
