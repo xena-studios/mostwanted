@@ -74,6 +74,7 @@ Each stat is a counter or a record in PostgreSQL, keyed by **UUID** (the player'
 
 - **All-time, monthly and weekly.** `core` keeps a counter per stat per period, so weekly boards reset cleanly without recounting.
 - Boards: **Most Wanted** (highest bounty right now), **Top Escapers**, **Fastest Escapes**, **Top Guards** (arrests), **Biggest Heists**, **Richest** (cash earned), **Most Time Served**.
+- On the website now: **Most Wanted**, **Top Escapers**, **Top Guards**, **Top Robbers**, **Bounty Hunters** (bounty collected) and **Most Arrested**, the boards the API serves (`backend/.../stats/Board.java`). Fastest Escapes, Biggest Heists, Richest and Most Time Served join when core records them.
 - In-game holograms (FancyHolograms) show the same boards, read from PostgreSQL.
 
 ### Player pages

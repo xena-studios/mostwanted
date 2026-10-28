@@ -21,6 +21,10 @@ export const site = {
 // Sign-in works once the server opens; `astro dev` turns it on to try locally.
 export const signInOpen = site.open || import.meta.env.DEV;
 
+// Player pages and leaderboards read the stats API once the server opens; `astro dev`
+// turns them on too, against PUBLIC_API_URL.
+export const statsOpen = site.open || import.meta.env.DEV;
+
 export const nav = [
   { href: "/news", label: "News" },
   { href: "/leaderboards", label: "Leaderboards" },
@@ -32,12 +36,31 @@ export const nav = [
   { href: "/support", label: "Support" },
 ];
 
-// The boards the API fills (docs/08-website.md#leaderboards).
+// The boards the API serves (backend/.../stats/Board.java; docs/08-website.md#leaderboards).
+// `periods: false` is a board with no all-time/monthly/weekly split; `money` shows values as $.
 export const boards = [
-  { id: "most-wanted", name: "Most Wanted", stat: "Bounty", blurb: "The highest bounties on the server right now." },
-  { id: "escapes", name: "Top Escapers", stat: "Escapes", blurb: "Most times over the wall." },
-  { id: "fastest", name: "Fastest Escapes", stat: "Time", blurb: "Cell to freedom, quickest first." },
-  { id: "guards", name: "Top Guards", stat: "Arrests", blurb: "Most criminals brought in." },
-  { id: "heists", name: "Biggest Heists", stat: "Cash", blurb: "The largest single robberies." },
-  { id: "richest", name: "Richest", stat: "Earned", blurb: "Most cash earned, all time." },
+  { id: "most-wanted", name: "Most Wanted", stat: "Bounty", blurb: "The highest bounties on the server right now.", periods: false, money: true },
+  { id: "escapes", name: "Top Escapers", stat: "Escapes", blurb: "Most times over the wall.", periods: true, money: false },
+  { id: "guards", name: "Top Guards", stat: "Arrests", blurb: "Most criminals brought in.", periods: true, money: false },
+  { id: "robberies", name: "Top Robbers", stat: "Robberies", blurb: "Most banks, jewelers and gas stations hit.", periods: true, money: false },
+  { id: "bounty-earned", name: "Bounty Hunters", stat: "Earned", blurb: "Most bounty collected from arrests.", periods: true, money: true },
+  { id: "most-arrested", name: "Most Arrested", stat: "Arrests", blurb: "Caught the most times. Back to the cell.", periods: true, money: false },
+];
+
+// What a player's page shows, in order, from the API's stat keys.
+export const statLabels = [
+  { key: "escapes", label: "Escapes", money: false },
+  { key: "robberies", label: "Robberies", money: false },
+  { key: "cash_stolen", label: "Cash stolen", money: true },
+  { key: "times_arrested", label: "Times arrested", money: false },
+  { key: "arrests", label: "Arrests made", money: false },
+  { key: "bounty_earned", label: "Bounty earned", money: true },
+  { key: "guards_killed", label: "Guards killed", money: false },
+  { key: "riots", label: "Riots", money: false },
+];
+
+export const periods = [
+  { id: "all", label: "All time" },
+  { id: "month", label: "Monthly" },
+  { id: "week", label: "Weekly" },
 ];

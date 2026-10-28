@@ -29,8 +29,8 @@ src/
     index.astro        home: hero, explore cards, player search, how it plays, news
     news/              news list and posts (from src/content/news/)
     wiki/              wiki index and articles (from src/content/wiki/)
-    leaderboards.astro the boards (filled by the stats feed once it exists)
-    player.astro       player lookup (/player?name=…)
+    leaderboards.astro the boards, top 10 from the stats API (all time, monthly, weekly)
+    player.astro       player pages (/player?name=…), from the stats API
     store.astro        the store: ranks, comparison, cosmetics, cart and Tebex checkout
     rules, staff, creators, apply, support, login, account, terms, privacy, 404, sitemap.xml
   store/               the catalogue (catalog.ts), the cart and the Tebex client
@@ -49,7 +49,7 @@ Add a Markdown file to `src/content/news/` (`title`, `date`, `summary`) or `src/
 
 ## Before launch
 
-Player search, the leaderboards and sign-in show a "starts when the server opens" state until the backend exists: the stats feed into Cloudflare D1 ([docs/08-website.md](../docs/08-website.md#player-stats)) and Discord sign-in. At launch, set `open`, `discord` and `store` in `src/site.ts`.
+Player search, the leaderboards and sign-in show a "starts when the server opens" state until `open` is set in `src/site.ts`; then they read the backend's API at `api.mostwantedmc.com` ([docs/08-website.md](../docs/08-website.md#player-stats)). `npm run dev` turns them on (`statsOpen`, `signInOpen`); point it at a local backend with `PUBLIC_API_URL=http://localhost:8080`. At launch, set `open`, `discord` and `store` in `src/site.ts`.
 
 ## Look
 
