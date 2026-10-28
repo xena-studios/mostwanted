@@ -1,0 +1,77 @@
+---
+import LegalPage from "../components/LegalPage.astro";
+import { site } from "../site";
+
+const updated = "October 27, 2026";
+---
+<LegalPage
+  title="Terms"
+  description="The terms for playing on MostWanted, using its website and Discord, and buying from its store."
+  lead="The deal for playing on MostWanted, using the website and Discord, and buying from the store."
+  updated={updated}
+>
+  <div class="summary">
+    <p><strong>The short version</strong></p>
+    <ul>
+      <li>You must be 13 or older, and follow the <a href="/rules">rules</a>.</li>
+      <li>In-game cash and items aren't real money and can't be sold for it.</li>
+      <li>The store sells cosmetics through Tebex. Breaking the rules can lose you access to them.</li>
+      <li>We run MostWanted for fun and can change it, reset it or stop it.</li>
+    </ul>
+  </div>
+
+  <h2>Who we are, and agreeing</h2>
+  <p>MostWanted (the Minecraft server at <code>{site.address}</code>, the website at mostwantedmc.com, and the MostWanted Discord server and bot) is run by an individual in the United States under the name <strong>Xena Studios</strong> ("we"). By playing, signing in, joining the Discord or buying from the store, you agree to these terms, the <a href="/rules">rules</a> and our <a href="/privacy">privacy policy</a>. If you don't agree, please don't use MostWanted.</p>
+
+  <h2>Who can play</h2>
+  <p>You must be <strong>13 or older</strong>. If you're under 18, a parent or guardian should read these terms with you, and must agree to any purchase.</p>
+
+  <h2>Minecraft, Minehut and Discord</h2>
+  <p>MostWanted is not an official Minecraft product, and is not approved by or associated with Mojang or Microsoft. You need your own Minecraft account, and Minecraft's <a href="https://www.minecraft.net/eula">terms and usage guidelines</a> still apply to you. Players connect through Minehut, so <a href="https://minehut.com">Minehut's terms</a> apply too, and Discord's terms apply on our Discord server.</p>
+
+  <h2>Your account</h2>
+  <p>Your progress belongs to your Minecraft account. On the website you sign in with Discord or with a code from <code>/website</code> in game. Never share a code, and keep your Minecraft and Discord accounts secure: what happens on them is your responsibility. One person, one account: alts used to get around a ban or to help yourself are against the rules.</p>
+
+  <h2>The rules</h2>
+  <p>Follow the <a href="/rules">rules</a> in game, on the website and on Discord. Staff can warn, mute, kick or ban anyone who breaks them, or who otherwise ruins the game for others, and decide which fits. Think a punishment was a mistake? Appeal through <a href="/support">Support</a>.</p>
+
+  <h2>In-game cash and items</h2>
+  <p>Cash, bounties, items, ranks and stats in MostWanted have <strong>no real-world value</strong>. They aren't yours to own: you have a personal permission to use them in the game while you play. They can't be sold, bought or traded for real money or anything outside the game. We may change, rebalance or reset them, for example to fix a bug or start a new season.</p>
+
+  <h2>The store</h2>
+  <ul>
+    <li>Purchases are sold by <strong>Tebex</strong>, which takes payment and handles tax, refunds and chargebacks under <a href="https://checkout.tebex.io/terms">its own terms</a>.</li>
+    <li>The store sells <strong>cosmetics only</strong>. Nothing that helps you win: no guns, armor, cash, shorter sentences or the guard rank.</li>
+    <li>Items go to the Minecraft username you enter at checkout. Check it before you pay.</li>
+    <li>What you buy is a permission to use the item on MostWanted, under the same terms as other in-game items.</li>
+    <li>If you're banned for breaking the rules, you lose access to purchases, and you aren't owed a refund.</li>
+    <li>If you reverse a payment with your bank (a chargeback), we may remove the purchase and ban the account it went to.</li>
+    <li>If a purchase doesn't arrive, contact <a href="/support">Support</a> with your transaction ID.</li>
+  </ul>
+  <p>Nothing here takes away refund rights the law gives you.</p>
+
+  <h2>What you post</h2>
+  <p>You're responsible for what you post in chat, tickets, applications and on Discord. You keep any rights you have in it, and let us store, show and moderate it to run MostWanted. Don't post anything illegal, anything you don't have the right to share, or anyone's personal information.</p>
+  <p>You're welcome to record, stream and post videos and screenshots of MostWanted. See <a href="/creators">Creators</a>.</p>
+
+  <h2>Changes and availability</h2>
+  <p>MostWanted is a game we run for fun. We can change any part of it, reset progress, take it offline for maintenance, or close it, and we can't promise it'll always be online or free of bugs.</p>
+
+  <h2>Ending things</h2>
+  <p>You can stop playing at any time, and ask us to delete your data as the <a href="/privacy">privacy policy</a> explains. We can suspend or end your access if you break these terms or the rules.</p>
+
+  <h2>No warranties</h2>
+  <p>MostWanted is provided "as is" and "as available", without warranties of any kind, as far as the law allows.</p>
+
+  <h2>Limits on liability</h2>
+  <p>As far as the law allows, we aren't liable for indirect or consequential losses, or for lost progress, items or in-game cash. Our total liability to you for anything to do with MostWanted is limited to what you paid in the store in the 12 months before the claim, or $50 if that's more. Some places don't allow these limits, so they may not all apply to you.</p>
+
+  <h2>Disputes</h2>
+  <p>If you have a problem, email <a href={`mailto:${site.email}`}>{site.email}</a> first: most things can be sorted out quickly. These terms are governed by the laws of the United States and of the state where Xena Studios' operator lives, without regard to conflict-of-law rules.</p>
+
+  <h2>Changes to these terms</h2>
+  <p>We may update these terms. We'll change the date at the top, and for important changes post in the announcements on Discord or in game before they apply. Continuing to play after that means you accept them.</p>
+
+  <h2>Contact</h2>
+  <p><a href={`mailto:${site.email}`}>{site.email}</a></p>
+</LegalPage>
