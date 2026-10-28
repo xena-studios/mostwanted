@@ -22,6 +22,8 @@ command:
   cash-set: "<success>✔</success> <value><player></value>'s cash is now <money><amount></money>."
   bank-set: "<success>✔</success> <value><player></value>'s bank is now <money><amount></money>."
   bounty-set: "<success>✔</success> <value><player></value>'s bounty is now <money><amount></money>."
+  given: "<success>✔</success> gave <value><player></value> <value><amount></value>× <value><item></value>."
+  give-unknown: "<error>✖</error> there's no <kind> called <value><id></value>."
   zone:
     players-only: "<error>✖</error> only players can do that."
     needs-fawe: "<error>✖</error> zones are marked with a fawe selection, and fawe isn't installed."
@@ -120,6 +122,13 @@ item:
   handcuffs:
     name: "<guard>handcuffs</guard>"
     lore: "right-click a criminal to arrest them"
+  gun:
+    name: "<white><name></white>"
+    guard-name: "<guard><name></guard>"
+    lore: "<value><damage></value> damage · <value><magazine></value> rounds · right-click to shoot"
+    taser-lore: "slows a criminal so you can cuff them · right-click"
+  ammo:
+    name: "<white><name></white>"
 
 robbery:
   open: "<money>⛃</money> <value><place></value> is open. criminals, it's yours if you can hold it."
@@ -143,3 +152,10 @@ website:
   code: "<info>ⓘ</info> your code is <b><value><code></value></b>. enter it at <value>mostwantedmc.com/login</value> within <value><minutes></value> minutes. never share it: it signs in as you."
   wait: "<error>✖</error> wait a few seconds before asking for another code."
   failed: "<error>✖</error> couldn't make a code. try again."
+
+gun:
+  hud: "<white><name></white> <value><loaded></value><dim>/<magazine></dim> · <value><spare></value> spare"
+  reloading: "<white><name></white> reloading…"
+  no-ammo: "<error>✖</error> no <value><ammo></value> left. buy more at a hideout."
+  tased: "<success>✔</success> you tased <criminal><player></criminal>. cuff them!"
+  tased-you: "<error>⚡</error> <guard><player></guard> tased you!"

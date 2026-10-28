@@ -1,0 +1,68 @@
+# Guns and ammo. Edit and restart to apply.
+#
+# Guns are hitscan: a shot lands along where you look, the moment you fire, so it
+# feels the same on Java and Bedrock (docs/02-gameplay.md#guns). Right-click to
+# shoot; a gun reloads by itself when it's empty and you have its ammo.
+#
+# Each is a vanilla item underneath (item:), marked as ours so a renamed one can't
+# pass for it. Damage is in health points: a player has 20, and armor reduces it.
+
+# A hit on the head does this much more damage.
+headshot-multiplier: 1.5
+# An arrest takes the criminal's guns and ammo.
+confiscate-on-arrest: true
+# Turn on once the resource pack has models for these items.
+pack-models: false
+
+guns:
+  pistol:
+    name: Pistol
+    item: iron_hoe
+    ammo: pistol
+    damage: 5
+    range: 40
+    fire-ticks: 8
+    magazine: 12
+    reload-seconds: 2
+  shotgun:
+    name: Shotgun
+    item: diamond_hoe
+    ammo: shells
+    # Per pellet: deadly up close, weak far away as pellets miss.
+    damage: 3
+    pellets: 6
+    spread: 0.08
+    range: 15
+    fire-ticks: 20
+    magazine: 6
+    reload-seconds: 3
+  rifle:
+    name: Rifle
+    item: netherite_hoe
+    ammo: rifle
+    damage: 8
+    range: 80
+    fire-ticks: 25
+    magazine: 5
+    reload-seconds: 3
+  # Guards' taser: no damage, slows a criminal hard so they can be cuffed. Given on
+  # duty, never sold or dropped. Recharges by itself (no ammo).
+  taser:
+    name: Taser
+    item: breeze_rod
+    damage: 0
+    range: 10
+    fire-ticks: 200
+    stun-seconds: 3
+    guard-only: true
+
+ammo:
+  pistol:
+    name: Pistol ammo
+    item: iron_nugget
+  shells:
+    name: Shotgun shells
+    item: gold_nugget
+  rifle:
+    name: Rifle rounds
+    item: copper_nugget

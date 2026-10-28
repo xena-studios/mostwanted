@@ -2,11 +2,8 @@ package co.xenastudios.mostwanted.item;
 
 import co.xenastudios.mostwanted.message.Messages;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
 
 /**
  * Guards' handcuffs: a tripwire hook marked as ours, so a renamed hook can't pass for
@@ -14,11 +11,11 @@ import org.bukkit.plugin.Plugin;
  */
 public final class Handcuffs {
 
-    private final NamespacedKey key;
+    private final CustomItems items;
     private final Messages messages;
 
-    public Handcuffs(Plugin plugin, Messages messages) {
-        this.key = new NamespacedKey(plugin, "item");
+    public Handcuffs(CustomItems items, Messages messages) {
+        this.items = items;
         this.messages = messages;
     }
 
@@ -27,14 +24,13 @@ public final class Handcuffs {
         item.editMeta(meta -> {
             meta.itemName(messages.get("item.handcuffs.name"));
             meta.lore(java.util.List.of(messages.get("item.handcuffs.lore")));
-            meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, "handcuffs");
+            items.mark(meta, "handcuffs");
         });
         return item;
     }
 
     public boolean is(ItemStack item) {
-        return item != null && item.getType() == Material.TRIPWIRE_HOOK && item.hasItemMeta()
-                && "handcuffs".equals(item.getItemMeta().getPersistentDataContainer().get(key, PersistentDataType.STRING));
+        return item != null && item.getType() == Material.TRIPWIRE_HOOK && items.is(item, "handcuffs");
     }
 
     /** Gives a pair unless they already have one. */

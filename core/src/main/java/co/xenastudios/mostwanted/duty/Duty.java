@@ -1,6 +1,7 @@
 package co.xenastudios.mostwanted.duty;
 
 import co.xenastudios.mostwanted.combat.Combat;
+import co.xenastudios.mostwanted.gun.Guns;
 import co.xenastudios.mostwanted.item.Handcuffs;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerState;
@@ -34,16 +35,18 @@ public final class Duty implements Listener {
     private final PlayerStore players;
     private final Combat combat;
     private final Handcuffs handcuffs;
+    private final Guns guns;
     private final Spawns spawns;
     private final Messages messages;
     private final GameLog gameLog;
     private final Clock clock;
 
-    public Duty(PlayerStore players, Combat combat, Handcuffs handcuffs, Spawns spawns, Messages messages,
+    public Duty(PlayerStore players, Combat combat, Handcuffs handcuffs, Guns guns, Spawns spawns, Messages messages,
             GameLog gameLog, Clock clock) {
         this.players = players;
         this.combat = combat;
         this.handcuffs = handcuffs;
+        this.guns = guns;
         this.spawns = spawns;
         this.messages = messages;
         this.gameLog = gameLog;
@@ -80,6 +83,7 @@ public final class Duty implements Listener {
                 state.swapStash();
                 state.role(Role.GUARD);
                 handcuffs.give(player);
+                guns.giveGuardGuns(player);
                 spawns.of(ZoneKind.POLICE).ifPresent(player::teleportAsync);
                 gameLog.record("duty", player.getUniqueId(), null, Map.of("on", "true"));
                 messages.send(player, "duty.on");
@@ -92,6 +96,7 @@ public final class Duty implements Listener {
         state.swapStash();
         state.role(Role.INMATE);
         handcuffs.take(player);
+        guns.takeGuardGuns(player);
         spawns.of(ZoneKind.PRISON).ifPresent(player::teleportAsync);
         gameLog.record("duty", player.getUniqueId(), null, Map.of("on", "false"));
     }

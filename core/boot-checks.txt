@@ -9,3 +9,5 @@ run: mw player Nobody
 expect: ɪѕɴ'ᴛ ᴏɴʟɪɴᴇ
 run: mw zone list
 expect: ɴᴏ ᴢᴏɴᴇѕ ʏᴇᴛ
+run: mw give Nobody gun pistol
+expect: ɪѕɴ'ᴛ ᴏɴʟɪɴᴇ

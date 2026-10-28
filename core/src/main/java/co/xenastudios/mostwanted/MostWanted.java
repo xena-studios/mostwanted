@@ -8,6 +8,10 @@ import co.xenastudios.mostwanted.config.Settings;
 import co.xenastudios.mostwanted.duty.Duty;
 import co.xenastudios.mostwanted.economy.Banking;
 import co.xenastudios.mostwanted.escape.Escapes;
+import co.xenastudios.mostwanted.gun.GiveCommand;
+import co.xenastudios.mostwanted.gun.GunSettings;
+import co.xenastudios.mostwanted.gun.Guns;
+import co.xenastudios.mostwanted.item.CustomItems;
 import co.xenastudios.mostwanted.item.Handcuffs;
 import co.xenastudios.mostwanted.hud.Hud;
 import co.xenastudios.mostwanted.message.Messages;
@@ -25,11 +29,13 @@ import co.xenastudios.mostwanted.zone.ZoneNotices;
 import co.xenastudios.mostwanted.zone.ZoneStore;
 import co.xenastudios.mostwanted.zone.ZoneTracker;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.List;
 import java.util.logging.Level;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -44,11 +50,13 @@ public final class MostWanted extends JavaPlugin {
         saveDefaultConfig();
         Settings settings;
         Messages messages;
+        GunSettings gunSettings;
         try {
             settings = Settings.read(getConfig());
             messages = Messages.load(this);
+            gunSettings = GunSettings.read(file("guns.yml"));
         } catch (IllegalArgumentException | IOException e) {
-            stop("Fix config.yml or messages.yml and restart: " + e.getMessage(), null);
+            stop("Fix config.yml, messages.yml or guns.yml and restart: " + e.getMessage(), null);
             return;
         }
         Database database;
@@ -81,12 +89,15 @@ public final class MostWanted extends JavaPlugin {
         getLogger().info("Loaded " + zones.all().size() + " zones");
 
         Spawns spawns = new Spawns(zones);
-        Handcuffs handcuffs = new Handcuffs(this, messages);
+        CustomItems items = new CustomItems(this);
+        Handcuffs handcuffs = new Handcuffs(items, messages);
         Arrests arrests = new Arrests(this, players, zones, tracker, spawns, messages, gameLog, settings.rules(), clock);
         tracker.listen(arrests);
         Combat combat = new Combat(players, tracker, arrests, handcuffs, messages, gameLog, settings.rules(), clock);
-        Duty duty = new Duty(players, combat, handcuffs, spawns, messages, gameLog, clock);
-        for (var each : List.of(arrests, combat, duty,
+        Guns guns = new Guns(this, gunSettings, items, players, combat, messages);
+        arrests.onArrest(guns::confiscate);
+        Duty duty = new Duty(players, combat, handcuffs, guns, spawns, messages, gameLog, clock);
+        for (var each : List.of(arrests, combat, duty, guns,
                 new Cuffing(players, combat, arrests, handcuffs, messages, settings.rules()))) {
             getServer().getPluginManager().registerEvents(each, this);
         }
@@ -112,7 +123,8 @@ public final class MostWanted extends JavaPlugin {
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             event.registrar().register(
                     MostWantedCommand.create(this, players, messages, gameLog,
-                            new ZoneCommand(zones, tracker, messages, gameLog)),
+                            new ZoneCommand(zones, tracker, messages, gameLog),
+                            new GiveCommand(guns, messages, gameLog)),
                     "The prison break game's admin command.",
                     List.of("mw"));
             event.registrar().register(duty.command(), "Go on or off duty as a guard.");
@@ -142,6 +154,14 @@ public final class MostWanted extends JavaPlugin {
         } catch (IllegalPluginAccessException e) {
             // Shutting down: saveAll covers it.
         }
+    }
+
+    /** A file in the plugin folder, written from the jar's copy the first time. */
+    private YamlConfiguration file(String name) {
+        if (!new File(getDataFolder(), name).exists()) {
+            saveResource(name, false);
+        }
+        return YamlConfiguration.loadConfiguration(new File(getDataFolder(), name));
     }
 
     private void stop(String why, Exception cause) {

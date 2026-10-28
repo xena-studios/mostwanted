@@ -17,10 +17,13 @@ import co.xenastudios.mostwanted.zone.ZoneTracker;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -57,6 +60,8 @@ public final class Arrests implements Listener, ZoneListener {
     /** Each prisoner's cell, while they serve their sentence. */
     private final Map<UUID, String> cells = new HashMap<>();
     private boolean warnedNoCells;
+    /** Told about each arrest, after the state changes: Guns confiscates. */
+    private final List<Consumer<Player>> onArrest = new ArrayList<>();
 
     public Arrests(Plugin plugin, PlayerStore players, ZoneStore zones, ZoneTracker tracker, Spawns spawns,
             Messages messages, GameLog gameLog, Rules rules, Clock clock) {
@@ -70,6 +75,10 @@ public final class Arrests implements Listener, ZoneListener {
         this.rules = rules;
         this.clock = clock;
         this.log = plugin.getLogger();
+    }
+
+    public void onArrest(Consumer<Player> hook) {
+        onArrest.add(hook);
     }
 
     /**
@@ -110,6 +119,7 @@ public final class Arrests implements Listener, ZoneListener {
             messages.send(Bukkit.getServer(), "arrest.everyone", Messages.value("player", criminal.getName()),
                     Messages.value("officer", guard.getName()));
         }
+        onArrest.forEach(hook -> hook.accept(criminal));
         if (!criminal.isDead()) {
             cell(criminal).ifPresent(criminal::teleportAsync);
         }

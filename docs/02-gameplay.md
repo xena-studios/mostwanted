@@ -103,7 +103,7 @@ Inmates **can start a riot** (decided).
 - Custom guns (pistol, shotgun, rifle, guard taser) bought with cash at the criminal base / police armory.
 - **Crossplay first:** guns have to feel fair between Java and Bedrock, including touch controls on phones. Simple "point and shoot" (instant hit along where you're looking) works the same on both. Fancy features like aim-down-sights scopes, recoil patterns and reload animations are where Bedrock breaks.
 - Ammo as an item so guns cost money to use.
-- Options: an existing gun plugin (test it on Bedrock first) or our own simple gun system. Leaning toward our own, so we control how it behaves on Bedrock.
+- **Built (2026-10-27): our own system** in `core`, numbers in `guns.yml`. Right-click to shoot; hitscan; magazines that reload by themselves from ammo in your inventory; headshots 1.5×. Pistol (12 rounds), shotgun (6 pellets, close range), rifle (long range, slow). The guards' **taser** does no damage, slows a criminal for 3 seconds with a 10-second recharge, and comes with going on duty. An arrest confiscates a criminal's guns and ammo.
 
 ### Getting arrested
 
