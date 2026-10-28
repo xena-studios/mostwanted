@@ -17,12 +17,20 @@ import java.util.Map;
  * @param zone the server's timezone, for the month and week boards; the same as core's clock.timezone
  * @param site the website, for links in Discord
  * @param discordToken the bot's token; null switches the bot off
+ * @param apiUrl where the API is reached from outside, for Discord to send people back to
+ * @param discordClientId the Discord app's ID (public)
+ * @param discordClientSecret its OAuth secret; null switches Discord sign-in off
+ * @param cookieDomain such as .mostwantedmc.com, so the site and the API share the session; null for this host only
+ * @param cookieSecure HTTPS-only cookies: off only for local testing over plain HTTP
  */
 public record BackendConfig(DatabaseConfig database, String host, int port, List<String> origins,
-        boolean behindCloudflare, long requestsPerMinute, ZoneId zone, String site, String discordToken) {
+        boolean behindCloudflare, long requestsPerMinute, ZoneId zone, String site, String discordToken,
+        String apiUrl, String discordClientId, String discordClientSecret, String cookieDomain, boolean cookieSecure) {
 
     public static BackendConfig fromEnv(Map<String, String> env) {
         String token = env.getOrDefault("DISCORD_TOKEN", "");
+        String secret = env.getOrDefault("DISCORD_CLIENT_SECRET", "");
+        String domain = env.getOrDefault("COOKIE_DOMAIN", "");
         return new BackendConfig(
                 DatabaseConfig.fromEnv(env, Integer.parseInt(env.getOrDefault("DB_POOL_SIZE", "4"))),
                 env.getOrDefault("API_HOST", "0.0.0.0"),
@@ -33,13 +41,19 @@ public record BackendConfig(DatabaseConfig database, String host, int port, List
                 Long.parseLong(env.getOrDefault("API_REQUESTS_PER_MINUTE", "120")),
                 ZoneId.of(env.getOrDefault("TIMEZONE", "America/New_York")),
                 env.getOrDefault("SITE_URL", "https://mostwantedmc.com"),
-                token.isBlank() ? null : token);
+                token.isBlank() ? null : token,
+                env.getOrDefault("API_URL", "https://api.mostwantedmc.com"),
+                env.getOrDefault("DISCORD_CLIENT_ID", "1564123260562440303"),
+                secret.isBlank() ? null : secret,
+                domain.isBlank() ? null : domain,
+                Boolean.parseBoolean(env.getOrDefault("COOKIE_SECURE", "true")));
     }
 
-    /** Never shows the token or the password. */
+    /** Never shows the token, the client secret or the password. */
     @Override
     public String toString() {
         return "BackendConfig[" + database + ", api " + host + ":" + port + ", origins " + origins
-                + ", cloudflare " + behindCloudflare + ", discord " + (discordToken == null ? "off" : "on") + "]";
+                + ", cloudflare " + behindCloudflare + ", bot " + (discordToken == null ? "off" : "on")
+                + ", discord sign-in " + (discordClientSecret == null ? "off" : "on") + "]";
     }
 }
