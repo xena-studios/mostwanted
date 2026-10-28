@@ -16,7 +16,7 @@ join:
   first: "<success>✔</success> welcome to <brand>mostwanted</brand>, <value><player></value>. you're an <inmate>inmate</inmate>: find a way out."
 
 command:
-  info: "<info>ⓘ</info> <value><version></value> · database <value><database></value>"
+  info: "<info>ⓘ</info> <value><version></value> · <value>database <database></value>"
   bad-role: "<error>✖</error> roles: <value>inmate, criminal, guard</value>."
   player-not-found: "<error>✖</error> <value><player></value> isn't online."
   player: "<info>ⓘ</info> <value><player></value>: <role>, cash <money><cash></money>, bank <money><bank></money>, bounty <money><bounty></money>."
