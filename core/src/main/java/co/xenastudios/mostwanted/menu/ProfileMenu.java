@@ -90,7 +90,7 @@ public final class ProfileMenu {
                         .executes(context -> {
                             Player player = (Player) context.getSource().getExecutor();
                             String name = StringArgumentType.getString(context, "player");
-                            profiles.byName(name, profile -> show(player, profile, name, home));
+                            profiles.byName(name, profile -> show(player, profile, name, home), () -> failed(player));
                             return Command.SINGLE_SUCCESS;
                         }))
                 .build();
@@ -98,7 +98,13 @@ public final class ProfileMenu {
 
     /** Opens a player's profile once it's read; {@code back} is where Back goes. */
     public void open(Player viewer, UUID who, Consumer<Player> back) {
-        profiles.byUuid(who, profile -> show(viewer, profile, "?", back));
+        profiles.byUuid(who, profile -> show(viewer, profile, "?", back), () -> failed(viewer));
+    }
+
+    private void failed(Player viewer) {
+        if (viewer.isOnline()) {
+            messages.send(viewer, "profile.failed");
+        }
     }
 
     private void show(Player viewer, Profile profile, String asked, Consumer<Player> back) {

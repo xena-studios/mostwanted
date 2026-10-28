@@ -381,7 +381,6 @@ store-menu:
   perk: "<success>✔</success> <gray><perk></gray>"
   price: "<value><price></value> on the website"
   owned: "<success>✔ you have this</success>"
-  included: "<success>✔ included in your rank</success>"
   website:
     name: "<white>The whole store</white>"
     lore: "with your cart and checkout,\nat <value>mostwantedmc.com/store</value>"

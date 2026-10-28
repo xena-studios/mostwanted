@@ -53,30 +53,33 @@ public final class Profiles {
         this.clock = clock;
     }
 
-    /** By name (any case; the latest to use it). {@code then} runs on the main thread, with null if there's nobody. */
-    public void byName(String name, Consumer<Profile> then) {
-        read(DSL.lower(PLAYERS.NAME).eq(name.toLowerCase(Locale.ROOT)), then);
+    /**
+     * By name (any case; the latest to use it). {@code then} runs on the main thread,
+     * with null if there's nobody; {@code failed} instead if the database couldn't be read.
+     */
+    public void byName(String name, Consumer<Profile> then, Runnable failed) {
+        read(DSL.lower(PLAYERS.NAME).eq(name.toLowerCase(Locale.ROOT)), then, failed);
     }
 
-    public void byUuid(UUID uuid, Consumer<Profile> then) {
-        read(PLAYERS.UUID.eq(uuid), then);
+    public void byUuid(UUID uuid, Consumer<Profile> then, Runnable failed) {
+        read(PLAYERS.UUID.eq(uuid), then, failed);
     }
 
-    private void read(Condition who, Consumer<Profile> then) {
+    private void read(Condition who, Consumer<Profile> then, Runnable failed) {
         Instant now = clock.instant();
         Map<String, Period> periods = new LinkedHashMap<>();
         periods.put(Periods.ALL, Period.ALL);
         periods.put(Periods.month(now, zone), Period.MONTH);
         periods.put(Periods.week(now, zone), Period.WEEK);
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            Profile found;
+            Profile profile;
             try {
-                found = load(who, periods);
+                profile = load(who, periods);
             } catch (RuntimeException e) {
                 plugin.getLogger().warning("Couldn't read a profile: " + e.getMessage());
-                found = null;
+                Bukkit.getScheduler().runTask(plugin, failed);
+                return;
             }
-            Profile profile = found;
             Bukkit.getScheduler().runTask(plugin, () -> then.accept(profile == null ? null : live(profile)));
         });
     }

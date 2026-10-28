@@ -31,12 +31,13 @@ build-logic/   the Gradle conventions: xena.java for every Java module, xena.plu
 core/          the game plugin (MostWanted): every system the server runs
 common/        the database tables (migrations), pool and message style, shared by core and backend
 website/       the website and store
-resource-pack/ source art and models for the custom items
+pack/          the resource pack: item textures (pack/build.py), published by CI
 server/        the game server: pinned plugins, install/start/test scripts, configs (never secrets)
 backend/       the website API and Discord bot, and backend/discord-setup/ for the Discord server
 brand/         the logo, key art and icons (scripts/brand-assets.py builds brand/out/)
 docs/          the design: gameplay, tech, server stack, decisions
 scripts/       boot-test.sh, changelog.sh, new-minecraft.sh
+tools/         playtest bots (tools/playtest), run in CI
 ```
 
 What the server runs, and why, is in [docs/04-tech.md](docs/04-tech.md) and [docs/07-server-stack.md](docs/07-server-stack.md). Decisions are logged in [docs/05-open-questions.md](docs/05-open-questions.md); read the parts your change touches.
