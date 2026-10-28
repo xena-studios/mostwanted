@@ -23,6 +23,7 @@ import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.player.StatsCommand;
 import co.xenastudios.mostwanted.player.WebsiteCommand;
 import co.xenastudios.mostwanted.privacy.Cleanup;
+import co.xenastudios.mostwanted.riot.Riots;
 import co.xenastudios.mostwanted.robbery.Robberies;
 import co.xenastudios.mostwanted.shop.ShopSettings;
 import co.xenastudios.mostwanted.shop.Shops;
@@ -129,7 +130,12 @@ public final class MostWanted extends JavaPlugin {
 
         tracker.listen(new Banking(messages));
         Robberies robberies = new Robberies(zones, tracker, players, messages, gameLog, settings.robberies(), clock);
-        hud.live(robberies::hudLines);
+        Riots riots = new Riots(settings.riots(), players, tracker, messages, gameLog, clock);
+        combat.riot(riots::active);
+        getServer().getPluginManager().registerEvents(riots, this);
+        getServer().getScheduler().runTaskTimer(this, riots::tick, 20, 20);
+        // One live section fits the scoreboard: a riot comes before a robbery.
+        hud.live(() -> riots.active() ? riots.hudLines() : robberies.hudLines());
         getServer().getScheduler().runTaskTimer(this, robberies::tick, 20, 20);
 
         // Log4j writes the server's logs to logs/ in the folder the server runs from.

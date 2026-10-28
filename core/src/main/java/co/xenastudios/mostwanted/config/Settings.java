@@ -17,9 +17,10 @@ import org.bukkit.configuration.file.FileConfiguration;
  * @param robberies how each robbery spot plays
  * @param retention how long logs are kept, as the privacy page promises
  * @param escapes walls, gates and keycards
+ * @param riots how riots start and end
  */
 public record Settings(DatabaseConfig database, Duration saveEvery, ZoneId zone, String zoneLabel, Rules rules,
-        RobberySettings robberies, Retention retention, EscapeSettings escapes) {
+        RobberySettings robberies, Retention retention, EscapeSettings escapes, RiotSettings riots) {
 
     public static Settings read(FileConfiguration config) {
         ConfigurationSection db = config.getConfigurationSection("database");
@@ -47,6 +48,7 @@ public record Settings(DatabaseConfig database, Duration saveEvery, ZoneId zone,
                 Rules.read(config.getConfigurationSection("rules")),
                 RobberySettings.read(config.getConfigurationSection("robberies")),
                 Retention.read(config.getConfigurationSection("retention")),
-                EscapeSettings.read(config.getConfigurationSection("escapes")));
+                EscapeSettings.read(config.getConfigurationSection("escapes")),
+                RiotSettings.read(config.getConfigurationSection("riots")));
     }
 }
