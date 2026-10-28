@@ -6,6 +6,7 @@ import co.xenastudios.mostwanted.player.PlayerState;
 import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.player.Role;
 import co.xenastudios.mostwanted.storage.GameLog;
+import co.xenastudios.mostwanted.zone.ZoneCommand;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -29,7 +30,7 @@ final class MostWantedCommand {
     private MostWantedCommand() {}
 
     static LiteralCommandNode<CommandSourceStack> create(MostWanted plugin, PlayerStore players, Messages messages,
-            GameLog gameLog) {
+            GameLog gameLog, ZoneCommand zones) {
         var set = Commands.literal("set").then(Commands.argument("player", StringArgumentType.word())
                 .then(Commands.literal("role").then(Commands.argument("role", StringArgumentType.word())
                         .suggests((context, builder) -> {
@@ -65,6 +66,7 @@ final class MostWantedCommand {
                             return Command.SINGLE_SUCCESS;
                         })))
                 .then(set)
+                .then(zones.create())
                 .build();
     }
 

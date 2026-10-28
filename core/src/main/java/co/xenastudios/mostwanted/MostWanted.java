@@ -2,12 +2,17 @@ package co.xenastudios.mostwanted;
 
 import co.xenastudios.mostwanted.common.Database;
 import co.xenastudios.mostwanted.config.Settings;
+import co.xenastudios.mostwanted.escape.Escapes;
 import co.xenastudios.mostwanted.hud.Hud;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerListener;
 import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.storage.GameLog;
 import co.xenastudios.mostwanted.storage.Storage;
+import co.xenastudios.mostwanted.zone.ZoneCommand;
+import co.xenastudios.mostwanted.zone.ZoneNotices;
+import co.xenastudios.mostwanted.zone.ZoneStore;
+import co.xenastudios.mostwanted.zone.ZoneTracker;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import java.io.IOException;
 import java.time.Clock;
@@ -49,13 +54,28 @@ public final class MostWanted extends JavaPlugin {
         PlayerListener listener = new PlayerListener(players, messages, hud, getLogger());
         getServer().getPluginManager().registerEvents(listener, this);
 
+        ZoneStore zones = new ZoneStore(storage);
+        try {
+            zones.load();
+        } catch (RuntimeException e) {
+            stop("Couldn't load the zones", e);
+            return;
+        }
+        ZoneTracker tracker = new ZoneTracker(zones, players);
+        zones.onChange(tracker::refreshAll);
+        tracker.listen(new ZoneNotices(messages));
+        tracker.listen(new Escapes(tracker, messages, gameLog));
+        getServer().getPluginManager().registerEvents(tracker, this);
+        getLogger().info("Loaded " + zones.all().size() + " zones");
+
         long saveTicks = settings.saveEvery().toSeconds() * 20;
         getServer().getScheduler().runTaskTimer(this, players::saveChanged, saveTicks, saveTicks);
         getServer().getScheduler().runTaskTimer(this, hud::tick, 10, 10);
         getServer().getScheduler().runTaskTimer(this, listener::sweep, 600, 600);
 
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> event.registrar().register(
-                MostWantedCommand.create(this, players, messages, gameLog),
+                MostWantedCommand.create(this, players, messages, gameLog,
+                        new ZoneCommand(zones, tracker, messages, gameLog)),
                 "The prison break game's admin command.",
                 List.of("mw")));
     }

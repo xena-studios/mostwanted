@@ -62,12 +62,20 @@ public final class Messages {
         if (!file.exists()) {
             plugin.saveResource("messages.yml", false);
         }
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        YamlConfiguration defaults = new YamlConfiguration();
         try (InputStream in = plugin.getResource("messages.yml")) {
             if (in != null) {
-                config.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8)));
+                defaults = YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
             }
         }
+        return from(YamlConfiguration.loadConfiguration(file), defaults);
+    }
+
+    /** The server's messages, with the jar's for any key it doesn't have, even inside a section it does. */
+    static Messages from(YamlConfiguration config, YamlConfiguration defaults) {
+        config.setDefaults(defaults);
+        // Without this, getKeys leaves out default keys under a section the file already has.
+        config.options().copyDefaults(true);
         Map<String, String> texts = new HashMap<>();
         for (String key : config.getKeys(true)) {
             if (config.isString(key)) {
