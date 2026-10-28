@@ -15,6 +15,9 @@ public final class ZoneNotices implements ZoneListener {
 
     @Override
     public void entered(Player player, PlayerState state, Zone zone) {
+        if (zone.kind().quiet()) {
+            return;
+        }
         player.sendActionBar(messages.get("zone.entered." + zone.kind().key(), Messages.value("zone", zone.name())));
     }
 }

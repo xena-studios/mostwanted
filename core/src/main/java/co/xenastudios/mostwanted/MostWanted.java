@@ -8,6 +8,9 @@ import co.xenastudios.mostwanted.config.Settings;
 import co.xenastudios.mostwanted.duty.Duty;
 import co.xenastudios.mostwanted.economy.Banking;
 import co.xenastudios.mostwanted.escape.Escapes;
+import co.xenastudios.mostwanted.escape.Gates;
+import co.xenastudios.mostwanted.escape.Keycards;
+import co.xenastudios.mostwanted.escape.Walls;
 import co.xenastudios.mostwanted.gun.GiveCommand;
 import co.xenastudios.mostwanted.gun.GunSettings;
 import co.xenastudios.mostwanted.gun.Guns;
@@ -46,6 +49,8 @@ public final class MostWanted extends JavaPlugin {
 
     private Storage storage;
     private PlayerStore players;
+    private Walls walls;
+    private Gates gates;
 
     @Override
     public void onEnable() {
@@ -100,9 +105,16 @@ public final class MostWanted extends JavaPlugin {
         Combat combat = new Combat(players, tracker, arrests, handcuffs, messages, gameLog, settings.rules(), clock);
         Guns guns = new Guns(this, gunSettings, items, players, combat, messages);
         arrests.onArrest(guns::confiscate);
-        Duty duty = new Duty(players, combat, handcuffs, guns, spawns, messages, gameLog, clock);
+        Keycards keycards = new Keycards(items, players, messages, settings.escapes());
+        arrests.onArrest(keycards::take);
+        Duty duty = new Duty(players, combat, List.of(handcuffs, guns.guardKit(), keycards), spawns, messages,
+                gameLog, clock);
+        walls = new Walls(zones, players, messages, gameLog, settings.escapes(), clock,
+                new File(getDataFolder(), "broken-walls.yml"), getLogger());
+        walls.restoreSaved();
+        gates = new Gates(zones, players, keycards, messages, gameLog, settings.escapes(), clock);
         Shops shops = new Shops(shopSettings, guns, players, tracker, messages, gameLog, clock);
-        for (var each : List.of(arrests, combat, duty, guns, shops,
+        for (var each : List.of(arrests, combat, duty, guns, shops, keycards, walls, gates,
                 new Cuffing(players, combat, arrests, handcuffs, messages, settings.rules()))) {
             getServer().getPluginManager().registerEvents(each, this);
         }
@@ -112,6 +124,8 @@ public final class MostWanted extends JavaPlugin {
         getServer().getScheduler().runTaskTimer(this, hud::tick, 10, 10);
         getServer().getScheduler().runTaskTimer(this, listener::sweep, 600, 600);
         getServer().getScheduler().runTaskTimer(this, arrests::tick, 20, 20);
+        getServer().getScheduler().runTaskTimer(this, walls::tick, 20, 20);
+        getServer().getScheduler().runTaskTimer(this, gates::tick, 20, 20);
 
         tracker.listen(new Banking(messages));
         Robberies robberies = new Robberies(zones, tracker, players, messages, gameLog, settings.robberies(), clock);
@@ -141,6 +155,13 @@ public final class MostWanted extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Leave the map as it was built: no holes in walls, no gates open.
+        if (walls != null) {
+            walls.restoreAll();
+        }
+        if (gates != null) {
+            gates.closeAll();
+        }
         if (players != null) {
             players.saveAll();
         }

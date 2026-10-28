@@ -3,6 +3,7 @@ package co.xenastudios.mostwanted.gun;
 import co.xenastudios.mostwanted.combat.Combat;
 import co.xenastudios.mostwanted.combat.CombatRules;
 import co.xenastudios.mostwanted.item.CustomItems;
+import co.xenastudios.mostwanted.item.GuardKit;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerState;
 import co.xenastudios.mostwanted.player.PlayerStore;
@@ -328,6 +329,21 @@ public final class Guns implements Listener {
     }
 
     // ---------------------------------------------------------------- guard kit and arrests
+
+    /** The guard-only guns as a piece of guard gear. */
+    public GuardKit guardKit() {
+        return new GuardKit() {
+            @Override
+            public void give(Player player) {
+                giveGuardGuns(player);
+            }
+
+            @Override
+            public void take(Player player) {
+                takeGuardGuns(player);
+            }
+        };
+    }
 
     /** The guard-only guns (the taser), unless they already have them. */
     public void giveGuardGuns(Player player) {

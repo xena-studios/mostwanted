@@ -37,9 +37,9 @@ There are two teams. The prisoner team has two states.
 
 There should be several ways out so escapes don't get stale:
 
-- Punch / cut through a weak wall or fence (needs a tool or a timer)
+- Punch through a weak wall (built 2026-10-27: 20 punches in a row, no tool; it grows back after 2 minutes, and guards are alerted)
 - Sewers / vents
-- Grab a keycard (dropped by guards or found) to open gates
+- Grab a keycard to open gates (built: guards carry one on duty, and it drops half the time when one dies; using it alerts the guards)
 - Go over the wall with a ladder or grapple
 - A friend breaks in from outside to help (opens a gate, drops a keycard)
 

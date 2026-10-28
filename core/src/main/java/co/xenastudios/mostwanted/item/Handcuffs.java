@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
  * Guards' handcuffs: a tripwire hook marked as ours, so a renamed hook can't pass for
  * them. Given on duty, taken off duty, never dropped. The resource pack can model it later.
  */
-public final class Handcuffs {
+public final class Handcuffs implements GuardKit {
 
     private final CustomItems items;
     private final Messages messages;
@@ -34,6 +34,7 @@ public final class Handcuffs {
     }
 
     /** Gives a pair unless they already have one. */
+    @Override
     public void give(Player player) {
         for (ItemStack item : player.getInventory().getContents()) {
             if (is(item)) {
@@ -43,6 +44,7 @@ public final class Handcuffs {
         player.getInventory().addItem(create());
     }
 
+    @Override
     public void take(Player player) {
         ItemStack[] contents = player.getInventory().getContents();
         for (int i = 0; i < contents.length; i++) {

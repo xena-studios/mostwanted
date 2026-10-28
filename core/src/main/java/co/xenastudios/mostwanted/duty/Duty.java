@@ -1,8 +1,7 @@
 package co.xenastudios.mostwanted.duty;
 
 import co.xenastudios.mostwanted.combat.Combat;
-import co.xenastudios.mostwanted.gun.Guns;
-import co.xenastudios.mostwanted.item.Handcuffs;
+import co.xenastudios.mostwanted.item.GuardKit;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerState;
 import co.xenastudios.mostwanted.player.PlayerStore;
@@ -16,6 +15,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import java.time.Clock;
+import java.util.List;
 import java.util.Map;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -34,19 +34,18 @@ public final class Duty implements Listener {
 
     private final PlayerStore players;
     private final Combat combat;
-    private final Handcuffs handcuffs;
-    private final Guns guns;
+    private final List<GuardKit> kit;
     private final Spawns spawns;
     private final Messages messages;
     private final GameLog gameLog;
     private final Clock clock;
 
-    public Duty(PlayerStore players, Combat combat, Handcuffs handcuffs, Guns guns, Spawns spawns, Messages messages,
+    /** {@code kit} is everything guards carry on duty: handcuffs, the taser, a keycard. */
+    public Duty(PlayerStore players, Combat combat, List<GuardKit> kit, Spawns spawns, Messages messages,
             GameLog gameLog, Clock clock) {
         this.players = players;
         this.combat = combat;
-        this.handcuffs = handcuffs;
-        this.guns = guns;
+        this.kit = List.copyOf(kit);
         this.spawns = spawns;
         this.messages = messages;
         this.gameLog = gameLog;
@@ -82,8 +81,7 @@ public final class Duty implements Listener {
                 }
                 state.swapStash();
                 state.role(Role.GUARD);
-                handcuffs.give(player);
-                guns.giveGuardGuns(player);
+                kit.forEach(gear -> gear.give(player));
                 spawns.of(ZoneKind.POLICE).ifPresent(player::teleportAsync);
                 gameLog.record("duty", player.getUniqueId(), null, Map.of("on", "true"));
                 messages.send(player, "duty.on");
@@ -95,8 +93,7 @@ public final class Duty implements Listener {
     private void off(Player player, PlayerState state) {
         state.swapStash();
         state.role(Role.INMATE);
-        handcuffs.take(player);
-        guns.takeGuardGuns(player);
+        kit.forEach(gear -> gear.take(player));
         spawns.of(ZoneKind.PRISON).ifPresent(player::teleportAsync);
         gameLog.record("duty", player.getUniqueId(), null, Map.of("on", "false"));
     }
@@ -118,6 +115,6 @@ public final class Duty implements Listener {
         Player player = event.getPlayer();
         players.get(player.getUniqueId())
                 .filter(state -> state.role() == Role.GUARD)
-                .ifPresent(state -> handcuffs.give(player));
+                .ifPresent(state -> kit.forEach(gear -> gear.give(player)));
     }
 }

@@ -19,6 +19,9 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
   | `hideout` | A criminal base: safe for criminals, and where they bank cash. |
   | `robbery` | A place to rob, such as the bank. Its zone name picks its settings in `config.yml`. |
   | `safe` | No fighting at all. |
+| `wall` | A weak spot. Inmates (or criminals breaking in) punch a block 20 times in a row to break it; guards are alerted; it grows back after 2 minutes. |
+| `gate` | Bars or doors that open for 5 seconds when a guard, or anyone holding a keycard, right-clicks them. |
+| `alarm` | The riot alarm (riots come next). |
 
   Zones can overlap, such as cells inside the prison. Walking into one shows its name above the hotbar. Set a spawn (`/mw zone spawn`) on the prison, the police station and each cell: that's where players are sent.
 - **Combat:** guards and criminals fight; nobody else can hurt anyone (riots will change that). Nobody fights in a `safe` zone, guards are safe at the `police` station and criminals in a `hideout`, and neither can attack out of one.
@@ -29,6 +32,7 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
 - **Duty:** `/duty` swaps between guard and inmate, each with their own cash and bank. Guards respawn at the `police` spawn, inmates at the `prison` spawn.
 - **Guns** (`guns.yml`): a pistol, shotgun, rifle and the guards' taser. Right-click to shoot. Shots are hitscan (they land along where you look, instantly), so they feel the same on Java and Bedrock. Hits go through the combat rules: safe zones hold, and kills count as arrests or bounty as usual. Headshots do 1.5×. Each gun keeps its loaded rounds on the item and reloads by itself from ammo in your inventory. The taser does no damage but slows a criminal hard for 3 seconds, so they can be cuffed; guards get it on duty, and it can't be dropped. An arrest takes a criminal's guns and ammo.
 - **Shops** (`shops.yml`): chest menus, the same on Java and Bedrock. `/shop` opens the one for where you stand: the **hideout shop** for criminals in a hideout, the **armory** for guards at the police station. Put a FancyNpcs NPC in each that runs `shop` for the player when clicked. Prices come out of cash first, then the bank. Guns, ammo, armor and food; guard gear is never sold.
+- **Escape routes:** breakable `wall` zones and keycard `gate` zones (above). Guards carry a keycard on duty and can't hand it over, but it drops half the time when they die; an inmate using one alerts the guards. Arrests take keycards. Broken walls are put back on shutdown, and after a crash on the next start. Vents and sewers are map building: wooden trapdoors open by hand in adventure mode. Numbers in `config.yml` under `escapes`.
 - **Privacy:** `/stats private` hides a player from the website and Discord. Server log files older than 90 days and game log entries older than 12 months are deleted at startup and daily, as the [privacy page](https://mostwantedmc.com/privacy) promises (`retention` in `config.yml`).
 - **Admin commands** for testing, each written to the game log.
 

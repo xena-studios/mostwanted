@@ -15,7 +15,18 @@ public enum ZoneKind {
     /** A place to rob, such as the bank. */
     ROBBERY,
     /** No fighting at all, such as the prison's spawn. */
-    SAFE;
+    SAFE,
+    /** A weak spot in the prison: inmates can punch through it, and it grows back. */
+    WALL,
+    /** Bars or doors that open for a guard, or for anyone with a keycard. */
+    GATE,
+    /** The riot alarm: enough inmates pressing it together start a riot. */
+    ALARM;
+
+    /** Small, so walking into one isn't announced. */
+    public boolean quiet() {
+        return this == WALL || this == GATE;
+    }
 
     public String key() {
         return name().toLowerCase(Locale.ROOT);
