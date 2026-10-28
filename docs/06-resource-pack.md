@@ -2,6 +2,8 @@
 
 We want custom textures and items.
 
+**Built (2026-10-27): the Java pack**, in [`pack/`](../pack/): textures for the guns, ammo, taser, handcuffs and keycard, in vanilla's style and colours. Each item is a vanilla item carrying a custom model data string; the pack overrides the vanilla item to show ours, and falls back to vanilla otherwise, so the game looks plain but works without the pack. CI publishes it to the `pack` GitHub release (an approved Minehut host), and `core` sends it to Java players on join, reading its SHA-1 from the release. Bedrock is still the open question below.
+
 > ⚠️ **Open question for Minehut:** Bedrock players reach us through Minehut's Geyser, not our own. Can an external server give Minehut a Bedrock pack and custom item mappings? If not, Bedrock players see the vanilla base items, and the game still works (see below). Ask in the Minehut Discord before making Bedrock art.
 
 **Hosting the Java pack:** Minehut only accepts packs from approved hosts. GitHub (`raw.githubusercontent.com`, `github.com/…/releases/download/…`) is on the list, so we publish the pack as a **GitHub release** from this repo. The catch: **Java and Bedrock use different resource pack formats**, so a Java pack does nothing for Bedrock players. The plan is to make two packs from one source.
