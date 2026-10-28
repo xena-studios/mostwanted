@@ -151,7 +151,7 @@ Decided 2026-10-27, modelled on AZEscape's. Two-tone bold title everywhere: **Mo
 
 ```
         MostWanted                  title, bold
-◷ 23:24 ET · 10/27/26               clock, grey
+◷ 23:24 · 10/27/26                  clock (Eastern, the server's time)
                                     
 PROFILE                             header, bold orange
 ★ ʀᴏʟᴇ: Inmate                      role in its colour
@@ -165,26 +165,27 @@ PROFILE                             header, bold orange
 ᴍᴏѕᴛᴡᴀɴᴛᴇᴅᴍᴄ.ᴄᴏᴍ                    footer, orange
 ```
 
-- **The clock stays** (date and time, Eastern, the server's timezone, labelled `ET`): screenshots then show when something happened, for reports, appeals and staff checking the logs.
+- **The clock stays** (date and time, Eastern, the server's timezone, unlabelled as in the reference): screenshots then show when something happened, for reports, appeals and staff checking the logs.
 - **The middle follows the role:** inmates see their sentence, escapes and arrests; criminals their bounty and wanted level (`★★★★★`, red stars filled); guards their duty, arrests and the current alarm.
 - **Live events add a red section** while they're on: `HEIST` (the robbery, its timer, guards online), `RIOT` (where, time left, guards online).
-- Each line has a grey icon; no red score numbers down the side (hidden with Paper's number format).
+- Each line's icon is in the colour of what it's about: money yellow (⛃ ⌂ ✪), the role's own colour for its lines (⧗ sentence orange, ⛓ arrests blue), danger red (⚠ ☠), the clock aqua. No red score numbers down the side (hidden with Paper's number format).
 - Updated only when a value changes, never on a timer, apart from the clock once a minute.
 
 ### Tab list
 
 ```
-MostWanted
-[head] MrZCookies
-ʏᴏᴜ ᴀʀᴇ ᴘʟᴀʏɪɴɢ ᴏɴ ᴍᴏѕᴛᴡᴀɴᴛᴇᴅ
-ᴡᴇ ʜᴀᴠᴇ 24 ᴘʟᴀʏᴇʀѕ ᴏɴʟɪɴᴇ              the number orange
+MostWanted                                   bold, two-tone
+ᴄᴏᴘѕ ᴠѕ. ᴘʀɪѕᴏɴᴇʀѕ                           grey
+
+[head] MrZCookies · Inmate                   your role in its colour
 
 [players]
 
-ɢᴜᴀʀᴅѕ 6 · ᴄʀɪᴍɪɴᴀʟѕ 6 · ɪɴᴍᴀᴛᴇѕ 12
-ᴍᴏѕᴛᴡᴀɴᴛᴇᴅᴍᴄ.ᴄᴏᴍ
+⛓ ɢᴜᴀʀᴅѕ 6    ⚑ ᴄʀɪᴍɪɴᴀʟѕ 6    ★ ɪɴᴍᴀᴛᴇѕ 12   each in its role's colour, counts white
+24 ᴏɴʟɪɴᴇ · ᴍᴏѕᴛᴡᴀɴᴛᴇᴅᴍᴄ.ᴄᴏᴍ
 ```
 
+- No "you are playing on": it's one server, not a network.
 - Players sorted staff, guards, criminals (highest bounty first), then inmates.
 - Each entry: the role tag in small caps and colour, then the name (blue for guards, red for criminals, white otherwise).
 - Your own head next to your name in the header (a player-head text component; Java only).
@@ -208,8 +209,9 @@ Bedrock players get the same layouts, with three differences to check on a real 
 Decided 2026-10-28: **menus are how players do things**, so nobody has to know a command (Bedrock players on a phone least of all). Everything is a chest menu, which Bedrock shows the same way (no Bedrock forms: there's no Floodgate on our side). `core/.../menu/Menus.java` draws them all the same way:
 
 - **The way in:** a nether star, **Menu**, always in the last hotbar slot (it can't be dropped, moved, stored or lost), and `/menu`. The main menu opens your profile, settings, the shop, cosmetics, the store, leaderboards, your account (a sign-in code) and the wiki.
-- **Title:** bold, dark grey, normal case (`MostWanted`, `Settings`). Menus have a light background, so palette colours don't read there.
+- **Title:** bold capitals in dark grey, like the sidebar's headers (`MENU`, `SETTINGS`, `PROFILE · Alex`). Menus have a light background, so palette colours don't read there.
 - **Background:** black glass panes with no tooltip, in every empty slot.
+- **Icons:** vanilla items where one fits (a chest for the shop, a book for the wiki); our own where none does, from the resource pack (`pack/textures/`): the menu item's radio, the settings gear, the store's money bag, the leaderboards' trophy, the account's ID badge. Without the pack they're the vanilla items underneath.
 - **Items:** the name in white, normal case (`Your profile`); rank names in their rank's colour. Lore in grey small caps, values in white, money in yellow, like messages. Lore lines stay short (about 30 characters), with a blank line between parts.
 - **The last lore line says what a click does:** `▸ ᴄʟɪᴄᴋ ᴛᴏ ᴏᴘᴇɴ`, the arrow in aqua. A state goes just above it: `✔ ᴏɴ` in green, `✖ ᴏꜰꜰ` in red. Something in use glints.
 - **The bottom row:** **Back** (an arrow) bottom left, **Close** (a barrier) in the middle, and one extra action bottom right (Settings on your profile, the website on the store).

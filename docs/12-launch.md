@@ -74,7 +74,7 @@ Each installs the latest build of `main` from the [`server` release](https://git
 Raptor installs it: Leaf, every plugin we use (pinned, checksums checked), our configs and the core plugin. It then tries to start, and stops with "needs DB_HOST": it has no database yet. That's expected.
 
 1. **Databases** tab: **New database** named `mostwanted`. Raptor gives the server its details at every start (`DB_HOST`, `DB_NAME`, …), and `start.sh` fills them into LuckPerms', LibertyBans' and the game plugin's configs. Nothing to copy. Note its **Host**, **Database** and **User**, and its password (**Password**), for the API (step 7).
-2. **Startup** tab: **Tebex secret key** stays `none` until the store is set up (step 10).
+2. **Startup** tab: **Tebex secret key** stays `none` until the store is set up (step 10). **Join through Minehut** is `true`; until Minehut is set up (step 9), set it to `false` to join the server's own address (`whitelist add <you>` in the console first: the whitelist is on). Set it back to `true` once Minehut is: off, anyone could join around Minehut, and Minehut's players couldn't join.
 3. **Network** tab: **Shown address** `play.mostwantedmc.com`.
 4. **Settings** tab: **Force stop after** 120 seconds, so a big world always finishes saving.
 5. **Start** it, and watch the console for `Done (`. Then, once, paste the `lp` lines from [`server/setup/luckperms.txt`](../server/setup/luckperms.txt) into the console (store ranks included), and `lp user <your name> parent add owner` for yourself.

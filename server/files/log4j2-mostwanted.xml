@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  MostWanted: quiets known, harmless startup warnings. Merged over Paper's own
+  logging config (log4j2.xml inside the server jar) when Java is started with
+    -Dlog4j.configurationFile=log4j2.xml,log4j2-mostwanted.xml
+  Only these exact messages/loggers are affected; everything else logs as before.
+-->
+<Configuration status="WARN">
+    <Loggers>
+        <!-- FancyNpcs' MineSkin client: "Creating MineSkinClient without API key" (we use no MineSkin key) -->
+        <Logger name="org.mineskin.MineSkinClient" level="error"/>
+        <!-- jOOQ open-source edition: "Database version is older than what dialect SQLDialect.POSTGRES supports" -->
+        <Logger name="org.jooq.impl.DefaultExecuteContext.logVersionSupport" level="error"/>
+        <!-- Flyway relaying PostgreSQL notices, e.g. 'schema "mostwanted" already exists, skipping' (first migration only) -->
+        <Logger name="org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub" level="error"/>
+        <!-- Leaf: we turn on the async entity tracker on purpose (config/leaf-global.yml) -->
+        <Logger name="LeafConfig" level="info">
+            <RegexFilter regex="You have following experimental module\(s\) enabled: \[MultithreadedTracker\.enabled\].*" onMatch="DENY" onMismatch="NEUTRAL"/>
+        </Logger>
+        <!-- ViaVersion on the newest Minecraft: nothing newer to translate yet, so it says so at every start.
+             Only those four lines; a real ViaVersion warning still shows. -->
+        <Logger name="ViaVersion" level="info">
+            <RegexFilter regex="(ViaVersion does not have any compatible versions|ViaVersion only supports newer client versions|Get setup help at https://viaversion.com|Need more help\? Join our Discord).*" onMatch="DENY" onMismatch="NEUTRAL"/>
+        </Logger>
+    </Loggers>
+</Configuration>

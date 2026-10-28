@@ -34,7 +34,7 @@ final class MostWantedCommand {
 
     static LiteralCommandNode<CommandSourceStack> create(MostWanted plugin, PlayerStore players, Messages messages,
             GameLog gameLog, ZoneCommand zones, GiveCommand give, Cosmetics cosmetics,
-            BoardCommand boards) {
+            BoardCommand boards, AdminCommands admin) {
         var set = Commands.literal("set").then(Commands.argument("player", StringArgumentType.word())
                 .then(Commands.literal("role").then(Commands.argument("role", StringArgumentType.word())
                         .suggests((context, builder) -> {
@@ -48,8 +48,10 @@ final class MostWantedCommand {
                 .then(amount("bank", "command.bank-set", PlayerState::bank, players, messages, gameLog))
                 .then(amount("bounty", "command.bounty-set", PlayerState::bounty, players, messages, gameLog)));
 
-        return Commands.literal("mostwanted")
-                .requires(source -> source.getSender().hasPermission("mostwanted.admin"))
+        var root = Commands.literal("mostwanted")
+                .requires(source -> source.getSender().hasPermission("mostwanted.admin"));
+        admin.create().forEach(root::then);
+        return root
                 .then(Commands.literal("info").executes(context -> {
                     messages.send(context.getSource().getSender(), "command.info",
                             Messages.value("version", info(plugin.getPluginMeta().getVersion(), Bukkit.getName(),

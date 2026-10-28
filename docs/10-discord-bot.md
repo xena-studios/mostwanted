@@ -1,6 +1,6 @@
 # Discord
 
-Decided 2026-10-26: **our own bot instead of DiscordSRV.** DiscordSRV is large, does a lot we don't use, and adds its own messages and commands to the server. Our bot does exactly what MostWanted needs, in the [message style](09-brand.md#messages). It's part of the [`backend`](../backend/) app with the website's API. Built so far: `/profile`, the **Linked** role, store rank roles, and DMs for ticket replies and application decisions.
+Decided 2026-10-26: **our own bot instead of DiscordSRV.** DiscordSRV is large, does a lot we don't use, and adds its own messages and commands to the server. Our bot does exactly what MostWanted needs, in the [message style](09-brand.md#messages). It's part of the [`backend`](../backend/) app with the website's API. Built so far: `/profile`, the **Linked** role, store rank roles, DMs for ticket replies and application decisions, and a custom status with the player count ("12 players on MostWanted · mostwantedmc.com", or "Server offline" when the game server stops writing it).
 
 ## The server
 

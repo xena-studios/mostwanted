@@ -32,6 +32,12 @@ PACK_FORMAT = 97
 FIXED = {
     "handcuffs": ("tripwire_hook", True),
     "keycard": ("trial_key", False),
+    # Menu icons: the hotbar item that opens the menu, and the buttons inside it.
+    "menu": ("nether_star", False),
+    "settings": ("comparator", False),
+    "store": ("emerald", False),
+    "leaderboards": ("golden_helmet", False),
+    "account": ("name_tag", False),
 }
 
 # Gun skins from the store (core's Cosmetic): skin -> the gun it's for. A skin shows on

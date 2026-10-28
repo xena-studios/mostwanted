@@ -8,7 +8,7 @@ Why each choice was made is in [tech](04-tech.md).
 
 | What | Version | Where to get it | Notes |
 | --- | --- | --- | --- |
-| **Leaf** (server) | `leaf-26.3-12.jar` | [Leaf's download API](https://api.leafmc.one/v2/projects/leaf/versions/26.3/builds) (keeps every build) / [leafmc.one](https://www.leafmc.one/download) | Paper fork. Fallback: [Paper 26.3](https://papermc.io/downloads/paper) (build 223, stable) |
+| **Leaf** (server) | `leaf-26.3-13.jar` | [Leaf's download API](https://api.leafmc.one/v2/projects/leaf/versions/26.3/builds) (keeps every build) / [leafmc.one](https://www.leafmc.one/download) | Paper fork. Fallback: [Paper 26.3](https://papermc.io/downloads/paper) (build 223, stable) |
 | **Java** | **25** | Raptor's Java 25 image / [Adoptium Temurin 25](https://adoptium.net) | Paper 26.3 requires Java 25+ |
 | **PostgreSQL** | Raptor's recommended | A database instance in Raptor ([12-launch.md](12-launch.md), step 3) | Our plugin's data (cash, bounty, stats) + LuckPerms + LibertyBans + the backend |
 | **Raptor** | latest | [raptorpanel.net](https://raptorpanel.net) | Runs the server on the VPS |
@@ -25,7 +25,7 @@ Approved 2026-10-26. The rule: **get a plugin where it's a hard, solved problem;
 | Plugin | Version | Why this one |
 | --- | --- | --- |
 | **LuckPerms** | 5.5.71 | Ranks and permissions. The standard: fast, async, PostgreSQL storage. |
-| **ViaVersion** | 5.12.1 | Newer clients can join when Minecraft updates. The only real option. |
+| **ViaVersion** | 5.12.2 | Newer clients can join when Minecraft updates. The only real option. |
 | **GrimAC** | 2.3.74 | Anti-cheat. The strongest free one; the paid ones (Vulcan, Polar, Intave) cost a lot for little gain at our size. ⚠️ Needs the Bedrock exemption below. |
 | **LibertyBans** | 1.2.0-M1 | Bans, mutes, warnings. Free, light, async, PostgreSQL. ⚠️ A milestone build, the only one for 26.3; boot-tested fine. |
 | **xUtilities** | 2.0.0 | Ours: everyday commands. |

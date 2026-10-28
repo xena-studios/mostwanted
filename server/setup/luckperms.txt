@@ -21,6 +21,7 @@ lp group guard permission set mostwanted.guard true
 lp creategroup helper
 lp group helper permission set zchat.group.helper true
 lp group helper setweight 50
+lp group helper permission set mostwanted.commands.all true
 lp group helper parent add default
 lp group helper meta setprefix 50 "<#ff33ff>ʜᴇʟᴘᴇʀ</#ff33ff> "
 

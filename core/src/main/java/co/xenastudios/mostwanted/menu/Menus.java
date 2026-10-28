@@ -75,6 +75,19 @@ public final class Menus implements Listener {
     }
 
     /**
+     * Shows {@code item} as one of the resource pack's menu icons ("settings", "store",
+     * "leaderboards", "account": pack/build.py). Without the pack it stays the vanilla item.
+     */
+    public static ItemStack icon(ItemStack item, String name) {
+        item.editMeta(meta -> {
+            var model = meta.getCustomModelDataComponent();
+            model.setStrings(List.of("mostwanted:" + name));
+            meta.setCustomModelDataComponent(model);
+        });
+        return item;
+    }
+
+    /**
      * A player's head, named and described as given. With their skin only for a real
      * Java account (a version 4 UUID): someone online brings theirs, anyone else's the
      * server looks up from Mojang once and keeps. Bedrock players and offline-mode

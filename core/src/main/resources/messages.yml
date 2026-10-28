@@ -16,6 +16,7 @@ join:
   first: "<success>✔</success> welcome to <brand>mostwanted</brand>, <value><player></value>. you're an <inmate>inmate</inmate>: find a way out."
 
 command:
+  unknown: "<error>✖</error> there's no such command. <value>/menu</value> has everything."
   info: "<info>ⓘ</info> <value><version></value> · <value>database <database></value>"
   bad-role: "<error>✖</error> roles: <value>inmate, criminal, guard</value>."
   player-not-found: "<error>✖</error> <value><player></value> isn't online."
@@ -67,33 +68,34 @@ escape:
 # The scoreboard (docs/09-brand.md#scoreboard-and-tab-list). Icons are grey.
 hud:
   title: "<b><white>Most</white><brand>Wanted</brand></b>"
-  clock: "◷ <time> <zone> · <date>"
+  # The clock is for screenshots: reports, appeals and staff checking the logs.
+  clock: "<info>◷</info> <time> · <date>"
   profile: "<b><brand>PROFILE</brand></b>"
-  role: "★ role: <role>"
-  cash: "⛃ cash: <money><amount></money>"
-  bank: "⌂ bank: <money><amount></money>"
-  bounty: "✪ bounty: <money><amount></money>"
-  wanted: "⚠ wanted: <criminal><stars></criminal><dim><empty></dim>"
-  sentence: "⧗ sentence: <value><time></value>"
-  escapes: "⚔ escapes: <value><count></value>"
-  arrested: "☠ arrested: <value><count></value>"
-  duty: "✔ duty: <success>on</success>"
+  role: "<brand>★</brand> role: <role>"
+  cash: "<money>⛃</money> cash: <money><amount></money>"
+  bank: "<money>⌂</money> bank: <money><amount></money>"
+  bounty: "<money>✪</money> bounty: <money><amount></money>"
+  wanted: "<criminal>⚠</criminal> wanted: <criminal><stars></criminal><dim><empty></dim>"
+  sentence: "<inmate>⧗</inmate> sentence: <value><time></value>"
+  escapes: "<brand>⚔</brand> escapes: <value><count></value>"
+  arrested: "<error>☠</error> arrested: <value><count></value>"
+  duty: "<success>✔</success> duty: <success>on</success>"
   patrol: "<b><brand>PATROL</brand></b>"
-  arrests: "⛓ arrests: <value><count></value>"
-  bounty-earned: "✪ bounty earned: <money><amount></money>"
+  arrests: "<guard>⛓</guard> arrests: <value><count></value>"
+  bounty-earned: "<money>✪</money> bounty earned: <money><amount></money>"
   # Live events, red while they're on.
   heist: "<b><error>HEIST</error></b>"
-  heist-place: "⚑ place: <value><place></value>"
-  heist-time: "⧗ time left: <value><time></value>"
-  heist-guards: "⚔ guards: <guard><count></guard>"
+  heist-place: "<error>⚑</error> place: <value><place></value>"
+  heist-time: "<error>⧗</error> time left: <value><time></value>"
+  heist-guards: "<guard>⚔</guard> guards: <guard><count></guard>"
   riot: "<b><error>RIOT</error></b>"
-  riot-rioters: "⚑ rioters: <inmate><count></inmate>"
+  riot-rioters: "<inmate>⚑</inmate> rioters: <inmate><count></inmate>"
   footer: "<brand>mostwantedmc.com</brand>"
 
-# The tab list. <head> is the player's own head (Java only).
+# The tab list. <head> is the player's own head (Java only); <role> is theirs, in its colour.
 tab:
-  header: "<b><white>Most</white><brand>Wanted</brand></b>\n<head> <white><player></white>\n<color:white>you are playing on </color><brand>mostwanted</brand>\n<color:white>we have </color><brand><online></brand><color:white> players online</color>\n"
-  footer: "\n<guard>guards</guard> <value><guards></value><dim> · </dim><criminal>criminals</criminal> <value><criminals></value><dim> · </dim><inmate>inmates</inmate> <value><inmates></value>\n<brand>mostwantedmc.com</brand>"
+  header: "\n<b><white>Most</white><brand>Wanted</brand></b>\ncops vs. prisoners\n\n<head> <white><player></white> <dim>·</dim> <role>\n"
+  footer: "\n<guard>⛓ guards</guard> <value><guards></value>    <criminal>⚑ criminals</criminal> <value><criminals></value>    <inmate>★ inmates</inmate> <value><inmates></value>\n<value><online></value> <dim>online</dim> <dim>·</dim> <brand>mostwantedmc.com</brand>\n"
   entry:
     inmate: "<inmate>inmate</inmate> <value><player></value>"
     criminal: "<criminal>criminal</criminal> <criminal><player></criminal>"
@@ -210,7 +212,7 @@ boost:
   chat: "<staff>✔</staff> <value><player></value> boosted the server. thank you for keeping it running!"
 
 cosmetics:
-  title: "<b><dim>Cosmetics</dim></b>"
+  title: "<b><dim>COSMETICS</dim></b>"
   kind:
     trail: "<white>Trails</white>"
     escape: "<white>Escape effects</white>"
@@ -254,6 +256,17 @@ board:
   list: "<info>ⓘ</info> <value><board></value> (<period>) in <value><world></value> at <value><x> <y> <z></value>"
   list-empty: "<info>ⓘ</info> no boards placed. <value>/mw board add</value> places one where you stand."
 
+# /mw debug, tp, release and save: for staff.
+admin:
+  debug:
+    server: "<info>ⓘ</info> tps <value><tps></value> · mspt <value><mspt></value> · memory <value><memory></value> · up <value><uptime></value>"
+    players: "<info>ⓘ</info> online <value><online></value> · loaded <value><loaded></value> · jailed <value><jailed></value> · zones <value><zones></value> · chunks <value><chunks></value> · entities <value><entities></value>"
+    database: "<info>ⓘ</info> database <value><result></value>"
+  tp: "<success>✔</success> at <value><zone></value>."
+  not-jailed: "<error>✖</error> <value><player></value> isn't serving a sentence."
+  released: "<success>✔</success> <value><player></value>'s sentence is over: they're let out now."
+  saved: "<success>✔</success> saving <value><count></value> players now."
+
 # Menus (docs/09-brand.md#menus). Item names are white and normal case, lore is grey
 # small caps, and the last lore line says what a click does. Titles are dark: menus
 # have a light background. A line break in lore starts a new line.
@@ -278,7 +291,7 @@ menu:
     name: "<white>Back</white>"
   close:
     name: "<white>Close</white>"
-  title: "<b><dim>MostWanted</dim></b>"
+  title: "<b><dim>MENU</dim></b>"
   profile:
     name: "<white>Your profile</white>"
     lore: "<role>\ncash <money><cash></money> · bank <money><bank></money>\nbounty <money><bounty></money>"
@@ -308,7 +321,7 @@ menu:
   help-link: "<info>ⓘ</info> how everything works: <click:open_url:'https://mostwantedmc.com/wiki'><value>mostwantedmc.com/wiki</value></click>"
 
 profile:
-  title: "<b><dim><player></dim></b>"
+  title: "<b><dim>PROFILE</dim></b><dim> · <player></dim>"
   head:
     lore: "<role>\nfirst joined <value><joined></value>\nlast seen <value><seen></value>"
   online: "<success>online now</success>"
@@ -334,7 +347,7 @@ profile:
   failed: "<error>✖</error> couldn't load that profile. try again in a moment."
 
 settings:
-  title: "<b><dim>Settings</dim></b>"
+  title: "<b><dim>SETTINGS</dim></b>"
   stats:
     name: "<white>Public stats</white>"
     lore: "your page and leaderboard places,\non the website, in discord\nand in game"
@@ -347,11 +360,11 @@ settings:
   joins:
     name: "<white>Join announcements</white>"
     lore: "when players with a rank join"
-  on: "<success>✔ on</success>"
-  off: "<error>✖ off</error>"
+  enabled: "<success>✔ on</success>"
+  disabled: "<error>✖ off</error>"
 
 leaderboards:
-  title: "<b><dim>Leaderboards</dim></b>"
+  title: "<b><dim>LEADERBOARDS</dim></b>"
   board-title: "<b><dim><board></dim></b>"
   about:
     most-wanted: "the biggest bounties right now"
@@ -375,7 +388,7 @@ leaderboards:
   failed: "<error>✖</error> couldn't load the leaderboard. try again in a moment."
 
 store-menu:
-  title: "<b><dim>Store</dim></b>"
+  title: "<b><dim>STORE</dim></b>"
   name: "<white><name></white>"
   blurb: "<gray><line></gray>"
   perk: "<success>✔</success> <gray><perk></gray>"

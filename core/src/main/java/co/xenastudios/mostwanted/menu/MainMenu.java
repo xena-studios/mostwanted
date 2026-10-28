@@ -13,10 +13,12 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import java.util.List;
+import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * {@code /menu}, and the menu item: the way into everything, so nobody needs to know a
@@ -81,15 +83,16 @@ public final class MainMenu {
                 shop == null ? messages.lines("menu.shop.none")
                         : List.of(messages.get("menu.shop.here", Messages.value("shop", shop.title())), menus.click("open")))),
                 shop == null ? null : click -> shops.open(click.player()));
-        button(menu, 14, Material.FIREWORK_STAR, "menu.cosmetics", "open", click -> cosmetics.open(click.player()));
-        button(menu, 16, Material.EMERALD, "menu.store", "open", click -> store.open(click.player()));
-        button(menu, 19, Material.GOLDEN_HELMET, "menu.leaderboards", "open", click -> leaderboards.open(click.player()));
-        button(menu, 21, Material.COMPARATOR, "menu.settings", "open", click -> settings.open(click.player()));
-        button(menu, 23, Material.NAME_TAG, "menu.account", "code", click -> {
+        button(menu, 14, Material.FIREWORK_STAR, null, "menu.cosmetics", "open", click -> cosmetics.open(click.player()));
+        button(menu, 16, Material.EMERALD, "store", "menu.store", "open", click -> store.open(click.player()));
+        button(menu, 19, Material.GOLDEN_HELMET, "leaderboards", "menu.leaderboards", "open",
+                click -> leaderboards.open(click.player()));
+        button(menu, 21, Material.COMPARATOR, "settings", "menu.settings", "open", click -> settings.open(click.player()));
+        button(menu, 23, Material.NAME_TAG, "account", "menu.account", "code", click -> {
             click.player().closeInventory();
             website.code(click.player());
         });
-        button(menu, 25, Material.BOOK, "menu.help", "link", click -> {
+        button(menu, 25, Material.BOOK, null, "menu.help", "link", click -> {
             click.player().closeInventory();
             messages.send(click.player(), "menu.help-link");
         });
@@ -97,8 +100,11 @@ public final class MainMenu {
         menus.open(player, menu);
     }
 
-    private void button(Menu menu, int slot, Material icon, String key, String click, java.util.function.Consumer<Click> action) {
-        menu.set(slot, menus.item(icon, messages.get(key + ".name"),
-                Menus.sections(menus.lore(key), List.of(menus.click(click)))), action);
+    /** {@code model}: the pack's icon for it, or null for the vanilla item's look. */
+    private void button(Menu menu, int slot, Material icon, String model, String key, String click,
+            Consumer<Click> action) {
+        ItemStack item = menus.item(icon, messages.get(key + ".name"),
+                Menus.sections(menus.lore(key), List.of(menus.click(click))));
+        menu.set(slot, model == null ? item : Menus.icon(item, model), action);
     }
 }

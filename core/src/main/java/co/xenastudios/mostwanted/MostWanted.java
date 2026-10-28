@@ -1,10 +1,13 @@
 package co.xenastudios.mostwanted;
 
+import static co.xenastudios.mostwanted.common.db.Tables.SERVER_STATUS;
+
 import co.xenastudios.mostwanted.arrest.Arrests;
 import co.xenastudios.mostwanted.arrest.Cuffing;
 import co.xenastudios.mostwanted.board.BoardCommand;
 import co.xenastudios.mostwanted.board.Leaderboards;
 import co.xenastudios.mostwanted.combat.Combat;
+import co.xenastudios.mostwanted.command.CommandFilter;
 import co.xenastudios.mostwanted.common.Database;
 import co.xenastudios.mostwanted.config.Settings;
 import co.xenastudios.mostwanted.cosmetic.CosmeticMenu;
@@ -62,6 +65,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jooq.impl.DSL;
 
 /** The game's entry point. Each system registers itself here as it's built. */
 public final class MostWanted extends JavaPlugin {
@@ -187,6 +191,17 @@ public final class MostWanted extends JavaPlugin {
         boards.load();
         getServer().getPluginManager().registerEvents(boards, this);
         getServer().getScheduler().runTaskTimer(this, boards::refresh, 40, 20 * 60);
+        // The player count, for the Discord bot's status (backend's ServerStatus).
+        getServer().getScheduler().runTaskTimer(this, () -> {
+            int online = getServer().getOnlinePlayers().size();
+            int max = getServer().getMaxPlayers();
+            storage.write("the server's status", sql -> sql.insertInto(SERVER_STATUS)
+                    .set(SERVER_STATUS.ID, (short) 1).set(SERVER_STATUS.ONLINE, online).set(SERVER_STATUS.MAX_PLAYERS, max)
+                    .onConflict(SERVER_STATUS.ID).doUpdate()
+                    .set(SERVER_STATUS.ONLINE, online).set(SERVER_STATUS.MAX_PLAYERS, max)
+                    .set(SERVER_STATUS.UPDATED_AT, DSL.currentOffsetDateTime())
+                    .execute());
+        }, 20 * 5, 20 * 30);
         StatsCommand stats = new StatsCommand(players, messages);
         WebsiteCommand website = new WebsiteCommand(storage, messages, this::onMainThread, clock);
 
@@ -205,6 +220,9 @@ public final class MostWanted extends JavaPlugin {
         mainMenu.links(profileMenu, settingsMenu, shops, cosmeticMenu, storeMenu, leaderboardMenu, website);
         shops.home(mainMenu::open);
         cosmeticMenu.links(mainMenu::open, storeMenu::open);
+        List<String> allowedCommands = getConfig().isList("commands.allowed")
+                ? getConfig().getStringList("commands.allowed") : CommandFilter.DEFAULT;
+        getServer().getPluginManager().registerEvents(new CommandFilter(allowedCommands, messages), this);
         MenuItem menuItem = new MenuItem(this, items, messages, mainMenu);
         getServer().getPluginManager().registerEvents(menuItem, this);
         notices = new Notices(this, storage, messages, settings.store().website(), getLogger());
@@ -218,7 +236,8 @@ public final class MostWanted extends JavaPlugin {
                     MostWantedCommand.create(this, players, messages, gameLog,
                             new ZoneCommand(zones, tracker, messages, gameLog),
                             new GiveCommand(guns, messages, gameLog), cosmetics,
-                            new BoardCommand(boards, messages, gameLog)),
+                            new BoardCommand(boards, messages, gameLog),
+                            new AdminCommands(this, players, zones, storage, messages, gameLog, clock)),
                     "The prison break game's admin command.",
                     List.of("mw"));
             event.registrar().register(duty.command(), "Go on or off duty as a guard.");
