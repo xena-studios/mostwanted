@@ -203,6 +203,30 @@ Bedrock players get the same layouts, with three differences to check on a real 
 - **`core`**: one message module sends everything else, and draws the scoreboard and tab list, so new messages follow the style by default.
 - Check every symbol on a Bedrock client: ⚑, ⓘ and the scoreboard icons are the ones most likely to be missing from its font. Swap any that don't render.
 
+## Menus
+
+Decided 2026-10-28: **menus are how players do things**, so nobody has to know a command (Bedrock players on a phone least of all). Everything is a chest menu, which Bedrock shows the same way (no Bedrock forms: there's no Floodgate on our side). `core/.../menu/Menus.java` draws them all the same way:
+
+- **The way in:** a nether star, **Menu**, always in the last hotbar slot (it can't be dropped, moved, stored or lost), and `/menu`. The main menu opens your profile, settings, the shop, cosmetics, the store, leaderboards, your account (a sign-in code) and the wiki.
+- **Title:** bold, dark grey, normal case (`MostWanted`, `Settings`). Menus have a light background, so palette colours don't read there.
+- **Background:** black glass panes with no tooltip, in every empty slot.
+- **Items:** the name in white, normal case (`Your profile`); rank names in their rank's colour. Lore in grey small caps, values in white, money in yellow, like messages. Lore lines stay short (about 30 characters), with a blank line between parts.
+- **The last lore line says what a click does:** `▸ ᴄʟɪᴄᴋ ᴛᴏ ᴏᴘᴇɴ`, the arrow in aqua. A state goes just above it: `✔ ᴏɴ` in green, `✖ ᴏꜰꜰ` in red. Something in use glints.
+- **The bottom row:** **Back** (an arrow) bottom left, **Close** (a barrier) in the middle, and one extra action bottom right (Settings on your profile, the website on the store).
+- **On/off settings:** the setting's icon, with a lime or red pane under it; clicking either switches it.
+- **Feedback:** a quiet click sound on every button. A menu redraws in place after a change, rather than sending a chat message.
+- **Messages** for every menu are in `messages.yml` (`menu`, `profile`, `settings`, `leaderboards`, `store-menu`).
+
+| Menu | Command | What's in it |
+| --- | --- | --- |
+| Main menu | `/menu`, the menu item | Everything below, plus a sign-in code and the wiki |
+| Profile | `/profile [name]` | Head, role, bounty and wanted stars, every stat all time / this month / this week; your own money (only you see it). Private profiles are only shown to their owner (and staff). |
+| Settings | `/settings` | Public stats, scoreboard, server news (broadcasts) and join announcements |
+| Shop | `/shop`, or the main menu where you stand | The hideout shop or the armory |
+| Cosmetics | `/cosmetics` | Trails, effects, gun skins, chat colour |
+| Store | `/store`, `/buy` | The website's store, with links to its cart ([11-store.md](11-store.md#in-game)) |
+| Leaderboards | `/leaderboards`, `/lb` | Every board, then its top 10 as heads, all time, this month or this week; a head opens that profile |
+
 ## Look and feel
 
 **The files** (logos, key art, icons) are in [`brand/`](../brand/).

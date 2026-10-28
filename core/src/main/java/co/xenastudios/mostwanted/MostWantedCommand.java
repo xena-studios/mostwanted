@@ -1,14 +1,14 @@
 package co.xenastudios.mostwanted;
 
-import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.board.BoardCommand;
 import co.xenastudios.mostwanted.common.style.Money;
 import co.xenastudios.mostwanted.cosmetic.Cosmetics;
+import co.xenastudios.mostwanted.gun.GiveCommand;
+import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerState;
 import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.player.Role;
 import co.xenastudios.mostwanted.storage.GameLog;
-import co.xenastudios.mostwanted.gun.GiveCommand;
 import co.xenastudios.mostwanted.zone.ZoneCommand;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.LongArgumentType;

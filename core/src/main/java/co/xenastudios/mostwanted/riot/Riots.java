@@ -8,6 +8,7 @@ import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerState;
 import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.player.Role;
+import co.xenastudios.mostwanted.player.Setting;
 import co.xenastudios.mostwanted.storage.GameLog;
 import co.xenastudios.mostwanted.zone.ZoneKind;
 import co.xenastudios.mostwanted.zone.ZoneTracker;
@@ -18,8 +19,8 @@ import java.util.Map;
 import java.util.UUID;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.title.Title;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -94,8 +95,9 @@ public final class Riots implements Listener {
             players.get(uuid).ifPresent(rioter -> rioter.add(Stat.RIOTS, 1));
         }
         gameLog.record("riot.start", null, null, Map.of("rioters", rioters.size()));
-        messages.send(Bukkit.getServer(), "riot.started");
-        Bukkit.getServer().showTitle(Title.title(messages.get("riot.title"), messages.get("riot.subtitle")));
+        messages.broadcast(players.showing(Setting.BROADCASTS), "riot.started");
+        Title title = Title.title(messages.get("riot.title"), messages.get("riot.subtitle"));
+        Bukkit.getOnlinePlayers().stream().filter(players.showing(Setting.BROADCASTS)).forEach(p -> p.showTitle(title));
         for (Player guard : players.online(Role.GUARD)) {
             messages.send(guard, "riot.alarm");
             guard.playSound(HORN, Sound.Emitter.self());
@@ -126,11 +128,11 @@ public final class Riots implements Listener {
         }, settings.cooldown())) {
             case TIME_UP -> {
                 gameLog.record("riot.end", null, null, Map.of("how", "time"));
-                messages.send(Bukkit.getServer(), "riot.over");
+                messages.broadcast(players.showing(Setting.BROADCASTS), "riot.over");
             }
             case QUELLED -> {
                 gameLog.record("riot.end", null, null, Map.of("how", "quelled"));
-                messages.send(Bukkit.getServer(), "riot.quelled");
+                messages.broadcast(players.showing(Setting.BROADCASTS), "riot.quelled");
             }
             case NONE -> { }
         }

@@ -48,6 +48,8 @@ You can also buy cosmetics one at a time:
 
 ## Buying
 
+The store is on [the website](/store), and in game: **Store** in the menu, or `/store`. In game you can see everything and what you already have; clicking something gives you a link that opens it in the website's cart.
+
 - Enter your Minecraft name at checkout. On Bedrock, use your name exactly as it shows in game.
 - You can buy for a friend: enter their name instead.
 - Got a creator code? Enter it at checkout.

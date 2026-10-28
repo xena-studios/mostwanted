@@ -3,7 +3,9 @@ package co.xenastudios.mostwanted.escape;
 import co.xenastudios.mostwanted.common.Stat;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerState;
+import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.player.Role;
+import co.xenastudios.mostwanted.player.Setting;
 import co.xenastudios.mostwanted.storage.GameLog;
 import co.xenastudios.mostwanted.zone.Zone;
 import co.xenastudios.mostwanted.zone.ZoneKind;
@@ -22,10 +24,12 @@ public final class Escapes implements ZoneListener {
     private final ZoneTracker tracker;
     private final Messages messages;
     private final GameLog gameLog;
+    private final PlayerStore players;
     private final List<Consumer<Player>> onEscape = new ArrayList<>();
 
-    public Escapes(ZoneTracker tracker, Messages messages, GameLog gameLog) {
+    public Escapes(ZoneTracker tracker, PlayerStore players, Messages messages, GameLog gameLog) {
         this.tracker = tracker;
+        this.players = players;
         this.messages = messages;
         this.gameLog = gameLog;
     }
@@ -46,7 +50,7 @@ public final class Escapes implements ZoneListener {
         state.add(Stat.ESCAPES, 1);
         gameLog.record("escape", player.getUniqueId(), null, Map.of("prison", zone.name()));
         messages.send(player, "escape.you");
-        messages.send(Bukkit.getServer(), "escape.everyone", Messages.value("player", player.getName()));
+        messages.broadcast(players.showing(Setting.BROADCASTS), "escape.everyone", Messages.value("player", player.getName()));
         onEscape.forEach(hook -> hook.accept(player));
     }
 }

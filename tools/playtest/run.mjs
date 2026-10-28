@@ -13,6 +13,7 @@
 import { execFileSync, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createServer } from "node:http";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import mineflayer from "mineflayer";
@@ -40,6 +41,25 @@ const VIA = [
     sha512: "78bc7e5fd33ecf13aee31c62e1de46a854e066a1936f294347c6798371357497fe2cc6f23f1d42003ad3050f94ac5382db95e60ffa90d765fada0322b59b0ef9",
   },
 ];
+
+/** A stand-in for the website: the store catalogue the store menu shows (/store.json). */
+const WEBSITE_PORT = 25591;
+const STORE = JSON.stringify({ packages: [
+  { id: "vip", name: "VIP", category: "ranks", price: 4.99, blurb: "A tag by your name.", perks: ["VIP tag"], includes: [] },
+  { id: "trail-cash", name: "Cash Trail", category: "cosmetics", kind: "Trails", price: 3.99, blurb: "Bills behind you." },
+  { id: "tip-jar", name: "Tip Jar", category: "support", price: 1.99, blurb: "Thank you." },
+] });
+
+function website() {
+  const server = createServer((req, res) => {
+    const found = req.url === "/store.json";
+    res.writeHead(found ? 200 : 404, { "Content-Type": "application/json" });
+    res.end(found ? STORE : "{}");
+  });
+  server.listen(WEBSITE_PORT, "127.0.0.1");
+  // Never what keeps the run going.
+  server.unref();
+}
 
 // Fast timers, so a scenario takes seconds instead of minutes.
 const CONFIG = `database:
@@ -76,6 +96,8 @@ riots:
   min-guards: 1
 resource-pack:
   url: ""
+store:
+  website: http://127.0.0.1:${WEBSITE_PORT}
 `;
 
 // The arena, on a flat world (players stand at y -60). x runs west to east:
@@ -570,8 +592,10 @@ const scenarios = {
       await window;
     };
     await open(bots.Crim1);
+    const store = new Promise((r) => bots.Crim1.once("windowOpen", r));
     await bots.Crim1.clickWindow(2, 0, 0);
-    await heard(bots.Crim1, "you don't have");
+    const shown = await store;
+    expect(JSON.stringify(shown.title).includes("Store"), `a cosmetic they don't have opens the store: ${JSON.stringify(shown.title)}`);
     bots.Crim1.closeWindow(bots.Crim1.currentWindow);
 
     // Guard1 is an op, so owns every cosmetic: pick the Cash Trail and a chat colour.
@@ -588,6 +612,48 @@ const scenarios = {
     // The Server Boost reaches everyone.
     server.cmd("mw boost Crim1");
     await heard(bots.Inmate1, "boosted the server");
+  },
+
+  async menus({ bots }) {
+    const bot = bots.Inmate1;
+    const opened = () => new Promise((r) => bot.once("windowOpen", r));
+    const title = (window) => JSON.stringify(window.title);
+    // The menu item sits in the last hotbar slot (36-44 in the player's own window).
+    await until("the menu item in the last hotbar slot", () => bot.inventory.slots[44]?.name === "nether_star");
+
+    // /menu, then Settings: turn the scoreboard off, and it's saved.
+    let window = opened();
+    bot.chat("/menu");
+    expect(title(await window).includes("MostWanted"), "the main menu opens");
+    window = opened();
+    await bot.clickWindow(21, 0, 0);
+    expect(title(await window).includes("Settings"), "settings opens from the main menu");
+    await bot.clickWindow(12, 0, 0);
+    const setting = () => sql("select show_scoreboard from mostwanted.players where name = 'Inmate1'").trim();
+    await until("the scoreboard setting to be saved off", () => setting() === "f");
+    await bot.clickWindow(21, 0, 0);
+    await until("and on again", () => setting() === "t");
+
+    // Back to the main menu, then the profile: their head at the top.
+    window = opened();
+    await bot.clickWindow(27, 0, 0);
+    await window;
+    window = opened();
+    await bot.clickWindow(10, 0, 0);
+    const profile = await window;
+    expect(title(profile).includes("Inmate1") && profile.slots[4]?.name === "player_head", "the profile shows their head");
+    bot.closeWindow(bot.currentWindow);
+
+    // The store opens, and the leaderboards list every board.
+    window = opened();
+    bot.chat("/store");
+    expect(title(await window).includes("Store"), "the store menu opens");
+    bot.closeWindow(bot.currentWindow);
+    window = opened();
+    bot.chat("/leaderboards");
+    const boards = await window;
+    expect([11, 13, 15, 20, 22, 24].every((slot) => boards.slots[slot]), "every board is listed");
+    bot.closeWindow(bot.currentWindow);
   },
 
   async boards({ server, bots, tp }) {
@@ -625,6 +691,8 @@ robberies:
     closed-minutes: 1
 resource-pack:
   url: ""
+store:
+  website: http://127.0.0.1:${WEBSITE_PORT}
 `;
 
 async function main() {
@@ -634,6 +702,7 @@ async function main() {
   const bots = {};
   let failed = 0;
   try {
+    website();
     console.log("Building core…");
     sh("./gradlew", [":core:jar", "-q"], { cwd: ROOT });
     const paper = await paperJar();

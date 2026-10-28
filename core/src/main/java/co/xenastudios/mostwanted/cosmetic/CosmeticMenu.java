@@ -4,6 +4,9 @@ import co.xenastudios.mostwanted.common.style.Palette;
 import co.xenastudios.mostwanted.gun.GunSettings;
 import co.xenastudios.mostwanted.gun.Guns;
 import co.xenastudios.mostwanted.item.CustomItems;
+import co.xenastudios.mostwanted.menu.Click;
+import co.xenastudios.mostwanted.menu.Menu;
+import co.xenastudios.mostwanted.menu.Menus;
 import co.xenastudios.mostwanted.message.Messages;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -11,20 +14,12 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -32,36 +27,34 @@ import org.bukkit.inventory.ItemStack;
  * Ones you don't own show where to get them. {@code /joinmessage} sets a Legend's join
  * message.
  */
-public final class CosmeticMenu implements Listener {
+public final class CosmeticMenu {
 
     private static final List<String> ROWS = List.of("trail", "escape", "arrest", "skin", "chat");
-    private static final int STORE_SLOT = 44;
     private static final int MAX_JOIN_MESSAGE = 48;
 
     private final Cosmetics cosmetics;
     private final CustomItems items;
     private final Messages messages;
+    private final Menus menus;
     private Guns guns;
+    private Consumer<Player> home = Player::closeInventory;
+    private Consumer<Player> store = Player::closeInventory;
 
-    public CosmeticMenu(Cosmetics cosmetics, CustomItems items, Messages messages) {
+    public CosmeticMenu(Cosmetics cosmetics, CustomItems items, Menus menus) {
         this.cosmetics = cosmetics;
         this.items = items;
-        this.messages = messages;
+        this.messages = menus.messages();
+        this.menus = menus;
     }
 
     public void guns(Guns guns) {
         this.guns = guns;
     }
 
-    private static final class Menu implements InventoryHolder {
-
-        final Map<Integer, Cosmetic> slots = new HashMap<>();
-        Inventory inventory;
-
-        @Override
-        public Inventory getInventory() {
-            return inventory;
-        }
+    /** Where Back goes (the main menu), and the store menu, for cosmetics they don't have. */
+    public void links(Consumer<Player> home, Consumer<Player> store) {
+        this.home = home;
+        this.store = store;
     }
 
     // ---------------------------------------------------------------- commands
@@ -131,40 +124,33 @@ public final class CosmeticMenu implements Listener {
 
     // ---------------------------------------------------------------- the menu
 
-    private void open(Player player) {
-        Menu menu = new Menu();
-        menu.inventory = Bukkit.createInventory(menu, 45, messages.get("cosmetics.title"));
+    public void open(Player player) {
+        Menu menu = menus.create(6, "cosmetics.title");
         draw(player, menu);
-        player.openInventory(menu.inventory);
+        menus.open(player, menu);
     }
 
     private void draw(Player player, Menu menu) {
-        menu.inventory.clear();
-        menu.slots.clear();
+        menu.clear();
         for (int row = 0; row < ROWS.size(); row++) {
             String kind = ROWS.get(row);
-            menu.inventory.setItem(row * 9, label(kind));
+            menu.set(row * 9, label(kind));
             int column = 2;
             for (Cosmetic cosmetic : Cosmetic.values()) {
                 if (cosmetic.slot().equals(kind) || cosmetic.slot().equals(kind + ":" + cosmetic.gun())) {
-                    int slot = row * 9 + column++;
-                    menu.slots.put(slot, cosmetic);
-                    menu.inventory.setItem(slot, display(player, cosmetic));
+                    menu.set(row * 9 + column++, display(player, cosmetic), click -> click(click, cosmetic));
                 }
             }
         }
-        ItemStack store = ItemStack.of(Material.EMERALD);
-        store.editMeta(meta -> {
-            meta.itemName(messages.get("cosmetics.store-name"));
-            meta.lore(List.of(messages.get("cosmetics.store-lore")));
-        });
-        menu.inventory.setItem(STORE_SLOT, store);
+        menus.back(menu, home);
+        menus.close(menu);
+        menu.set(menu.bottom() + 8, menus.item(Material.EMERALD, messages.get("menu.store.name"),
+                Menus.sections(menus.lore("menu.store"), List.of(menus.click("open")))),
+                click -> store.accept(click.player()));
     }
 
     private ItemStack label(String kind) {
-        ItemStack item = ItemStack.of(Material.GRAY_STAINED_GLASS_PANE);
-        item.editMeta(meta -> meta.itemName(messages.get("cosmetics.kind." + kind)));
-        return item;
+        return menus.item(Material.GRAY_STAINED_GLASS_PANE, messages.get("cosmetics.kind." + kind), List.of());
     }
 
     private ItemStack display(Player player, Cosmetic cosmetic) {
@@ -181,7 +167,8 @@ public final class CosmeticMenu implements Listener {
                     ? messages.get("cosmetics.chat-off")
                     : messages.get("cosmetics.chat-on").color(TextColor.color(Palette.hue(hue))));
             if (owned) {
-                lore.add(messages.get("cosmetics.chat-click"));
+                lore.add(Component.empty());
+                lore.addAll(messages.lines("cosmetics.chat-click"));
             }
         } else {
             inUse = cosmetics.using(player, slot) == cosmetic;
@@ -189,12 +176,14 @@ public final class CosmeticMenu implements Listener {
                 lore.add(messages.get("cosmetics.using"));
             }
             if (owned) {
-                lore.add(messages.get(inUse ? "cosmetics.click-off" : "cosmetics.click-use"));
+                lore.add(Component.empty());
+                lore.add(menus.click(inUse ? "take-off" : "use"));
             }
         }
         if (!owned) {
             lore.add(messages.get("cosmetics.locked"));
-            lore.add(messages.get("cosmetics.store-lore"));
+            lore.add(Component.empty());
+            lore.add(menus.click("link"));
         }
         item.editMeta(meta -> {
             meta.itemName(messages.get(owned ? "cosmetics.name" : "cosmetics.name-locked",
@@ -222,45 +211,22 @@ public final class CosmeticMenu implements Listener {
         return item;
     }
 
-    @EventHandler
-    public void click(InventoryClickEvent event) {
-        if (!(event.getView().getTopInventory().getHolder(false) instanceof Menu menu)) {
-            return;
-        }
-        event.setCancelled(true);
-        if (!(event.getWhoClicked() instanceof Player player) || event.getClickedInventory() != menu.inventory) {
-            return;
-        }
-        if (event.getSlot() == STORE_SLOT) {
-            player.closeInventory();
-            messages.send(player, "cosmetics.store-link");
-            return;
-        }
-        Cosmetic cosmetic = menu.slots.get(event.getSlot());
-        if (cosmetic == null) {
-            return;
-        }
+    private void click(Click click, Cosmetic cosmetic) {
+        Player player = click.player();
         if (!cosmetics.owns(player, cosmetic)) {
-            messages.send(player, "cosmetics.not-owned", Messages.value("name", cosmetic.displayName()));
+            store.accept(player);
             return;
         }
         if (cosmetic == Cosmetic.CHAT_COLOURS) {
             Integer hue = hue(cosmetics.store().get(player.getUniqueId(), "chat"));
-            Integer next = nextHue(hue, event.isRightClick());
+            Integer next = nextHue(hue, click.right());
             save(player, "chat", next == null ? null : "hue:" + next);
         } else if (cosmetics.using(player, cosmetic.slot()) == cosmetic) {
             save(player, cosmetic.slot(), null);
         } else {
             save(player, cosmetic.slot(), cosmetic.id());
         }
-        draw(player, menu);
-    }
-
-    @EventHandler
-    public void drag(InventoryDragEvent event) {
-        if (event.getView().getTopInventory().getHolder(false) instanceof Menu) {
-            event.setCancelled(true);
-        }
+        draw(player, click.menu());
     }
 
     private void save(Player player, String slot, String choice) {

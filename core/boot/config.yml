@@ -13,3 +13,7 @@ database:
 # No resource pack: the boot test mustn't depend on the network.
 resource-pack:
   url: ""
+
+# Nor the website's store catalogue.
+store:
+  website: ""

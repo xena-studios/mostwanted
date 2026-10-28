@@ -22,10 +22,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
-import org.jooq.DSLContext;
-import org.bukkit.entity.Player;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.jooq.DSLContext;
 import org.jooq.Query;
 import org.jooq.impl.DSL;
 
@@ -101,7 +102,8 @@ public final class PlayerStore {
         OffsetDateTime jailed = row.getJailedUntil();
         online.put(uuid, new PlayerState(uuid, name, Role.fromKey(row.getRole()), row.getCash(), row.getBank(),
                 row.getBounty(), jailed == null ? null : jailed.toInstant(), row.getStashedCash(),
-                row.getStashedBank(), row.getStatsPrivate(), totals));
+                row.getStashedBank(), row.getStatsPrivate(), row.getShowScoreboard(), row.getShowBroadcasts(),
+                row.getShowJoins(), totals));
         // Inserted just now: both default to the same now().
         return row.getFirstJoined().equals(row.getLastSeen()) ? Loaded.FIRST_TIME : Loaded.RETURNING;
     }
@@ -130,6 +132,14 @@ public final class PlayerStore {
             }
         }
         return count;
+    }
+
+    /** Who wants to see what a setting covers: everyone with it on, and anyone not loaded. */
+    public Predicate<Player> showing(Setting setting) {
+        return player -> {
+            PlayerState state = online.get(player.getUniqueId());
+            return state == null || state.on(setting);
+        };
     }
 
     /** Everyone online playing this role: who gets an alarm, say. */
@@ -245,6 +255,9 @@ public final class PlayerStore {
                         .set(PLAYERS.STASHED_CASH, s.stashedCash())
                         .set(PLAYERS.STASHED_BANK, s.stashedBank())
                         .set(PLAYERS.STATS_PRIVATE, s.statsPrivate())
+                        .set(PLAYERS.SHOW_SCOREBOARD, s.showScoreboard())
+                        .set(PLAYERS.SHOW_BROADCASTS, s.showBroadcasts())
+                        .set(PLAYERS.SHOW_JOINS, s.showJoins())
                         .set(PLAYERS.LAST_SEEN, DSL.currentOffsetDateTime())
                         .where(PLAYERS.UUID.eq(s.uuid())));
                 addStats(sql, queries, s.uuid(), s.stats(), periods);

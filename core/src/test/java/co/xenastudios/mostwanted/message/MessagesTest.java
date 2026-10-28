@@ -14,7 +14,22 @@ class MessagesTest {
 
     private final Messages messages = new Messages(Map.of(
             "plain", SmallCapsText.convert("<success>✔</success> done."),
-            "named", SmallCapsText.convert("<value><player></value> is here.")));
+            "named", SmallCapsText.convert("<value><player></value> is here."),
+            "lore", SmallCapsText.convert("first <value>One</value>\n<info>ⓘ</info> second")));
+
+    @Test
+    void loreSplitsIntoLines() {
+        var lines = messages.lines("lore");
+        assertEquals(2, lines.size());
+        assertEquals("ꜰɪʀѕᴛ One", PlainTextComponentSerializer.plainText().serialize(lines.get(0)));
+        assertEquals("ⓘ ѕᴇᴄᴏɴᴅ", PlainTextComponentSerializer.plainText().serialize(lines.get(1)));
+    }
+
+    @Test
+    void neverItalic() {
+        assertEquals(net.kyori.adventure.text.format.TextDecoration.State.FALSE,
+                messages.get("plain").decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC));
+    }
 
     @Test
     void fillsPlaceholdersAsWritten() {

@@ -175,7 +175,6 @@ shop:
   none: "<error>✖</error> there's no shop for you here. criminals shop at a hideout, guards at the police station."
   title: "<b><dim><name></dim></b>"
   price: "price: <money><price></money>"
-  click: "click to buy"
   balance: "<white>Your money</white>"
   bought: "<success>✔</success> bought <value><amount></value>× <value><item></value> for <money><price></money>."
   cant-afford: "<error>✖</error> that costs <money><price></money>, more than your cash and bank together."
@@ -221,16 +220,10 @@ cosmetics:
   name: "<white><name></white>"
   name-locked: "<dim><name></dim>"
   using: "<success>✔ using</success>"
-  click-use: "click to use"
-  click-off: "click to take off"
   locked: "<dim>not yours yet</dim>"
-  store-lore: "<dim>get it at</dim> <value>mostwantedmc.com/store</value>"
-  store-name: "<white>Store</white>"
-  store-link: "<info>ⓘ</info> ranks and cosmetics are at <click:open_url:'https://mostwantedmc.com/store'><value>mostwantedmc.com/store</value></click>. they only change how things look."
-  not-owned: "<error>✖</error> you don't have <value><name></value> yet. get it at <click:open_url:'https://mostwantedmc.com/store'><value>mostwantedmc.com/store</value></click>."
   chat-off: "off"
   chat-on: "your messages look like this"
-  chat-click: "click for the next colour, right-click to go back"
+  chat-click: "<info>▸</info> click for the next colour,\n<info>▸</info> right-click to go back"
   join-message:
     none: "<info>ⓘ</info> you have no join message. set one with <value>/joinmessage set [message]</value>."
     is: "<info>ⓘ</info> your join message: <white><message></white>. <value>/joinmessage clear</value> removes it."
@@ -260,3 +253,139 @@ board:
   unknown: "<error>✖</error> boards: <value>most-wanted, escapes, guards, robberies, bounty-earned, most-arrested</value>. periods: <value>all, month, week</value>."
   list: "<info>ⓘ</info> <value><board></value> (<period>) in <value><world></value> at <value><x> <y> <z></value>"
   list-empty: "<info>ⓘ</info> no boards placed. <value>/mw board add</value> places one where you stand."
+
+# Menus (docs/09-brand.md#menus). Item names are white and normal case, lore is grey
+# small caps, and the last lore line says what a click does. Titles are dark: menus
+# have a light background. A line break in lore starts a new line.
+menu:
+  item:
+    name: "<brand><keep>Menu</keep></brand>"
+    lore: "right-click to open the menu"
+  click:
+    open: "<info>▸</info> click to open"
+    back: "<info>▸</info> click to go back"
+    buy: "<info>▸</info> click to buy"
+    use: "<info>▸</info> click to use"
+    take-off: "<info>▸</info> click to take off"
+    profile: "<info>▸</info> click to see their profile"
+    stats: "<info>▸</info> click to see your stats"
+    turn-on: "<info>▸</info> click to turn on"
+    turn-off: "<info>▸</info> click to turn off"
+    link: "<info>▸</info> click for the link"
+    code: "<info>▸</info> click for a sign-in code"
+    show: "<info>▸</info> click to show"
+  back:
+    name: "<white>Back</white>"
+  close:
+    name: "<white>Close</white>"
+  title: "<b><dim>MostWanted</dim></b>"
+  profile:
+    name: "<white>Your profile</white>"
+    lore: "<role>\ncash <money><cash></money> · bank <money><bank></money>\nbounty <money><bounty></money>"
+  settings:
+    name: "<white>Settings</white>"
+    lore: "privacy, the scoreboard\nand what shows in chat"
+  shop:
+    name: "<white>Shop</white>"
+    lore: "guns, ammo and gear, for cash"
+    here: "<value><shop></value> is right here"
+    none: "criminals shop at a hideout,\nguards at the police station"
+  cosmetics:
+    name: "<white>Cosmetics</white>"
+    lore: "your trail, effects, gun skins\nand chat colour"
+  store:
+    name: "<white>Store</white>"
+    lore: "ranks and cosmetics.\nthey only change how things look."
+  leaderboards:
+    name: "<white>Leaderboards</white>"
+    lore: "the most wanted, top escapers,\ntop guards and more"
+  account:
+    name: "<white>Your account</white>"
+    lore: "sign in on <value>mostwantedmc.com</value>\nto link discord and see your page"
+  help:
+    name: "<white>How to play</white>"
+    lore: "escaping, robberies, guards,\nmoney and more, on the wiki"
+  help-link: "<info>ⓘ</info> how everything works: <click:open_url:'https://mostwantedmc.com/wiki'><value>mostwantedmc.com/wiki</value></click>"
+
+profile:
+  title: "<b><dim><player></dim></b>"
+  head:
+    lore: "<role>\nfirst joined <value><joined></value>\nlast seen <value><seen></value>"
+  online: "<success>online now</success>"
+  bounty:
+    name: "<white>Bounty</white>"
+    lore: "<money><amount></money>\n<criminal><stars></criminal><dim><empty></dim>"
+  money:
+    name: "<white>Your money</white>"
+    lore: "<money><cash></money> cash\n<money><bank></money> in the bank\nonly you see this"
+  stat:
+    lore: "all time <value><all></value>\nthis month <value><month></value>\nthis week <value><week></value>"
+    lore-money: "all time <money><all></money>\nthis month <money><month></money>\nthis week <money><week></money>"
+    escapes: "<white>Escapes</white>"
+    times_arrested: "<white>Times arrested</white>"
+    arrests: "<white>Arrests</white>"
+    bounty_earned: "<white>Bounty earned</white>"
+    robberies: "<white>Robberies</white>"
+    cash_stolen: "<white>Cash stolen</white>"
+    guards_killed: "<white>Guards taken down</white>"
+    riots: "<white>Riots</white>"
+  not-found: "<error>✖</error> nobody called <value><player></value> has played yet."
+  private: "<error>✖</error> <value><player></value>'s stats are private."
+  failed: "<error>✖</error> couldn't load that profile. try again in a moment."
+
+settings:
+  title: "<b><dim>Settings</dim></b>"
+  stats:
+    name: "<white>Public stats</white>"
+    lore: "your page and leaderboard places,\non the website, in discord\nand in game"
+  scoreboard:
+    name: "<white>Scoreboard</white>"
+    lore: "the sidebar: your money,\nbounty and the clock"
+  broadcasts:
+    name: "<white>Server news</white>"
+    lore: "robberies, riots, escapes and\narrests in chat. guards' alarms\nalways come through."
+  joins:
+    name: "<white>Join announcements</white>"
+    lore: "when players with a rank join"
+  on: "<success>✔ on</success>"
+  off: "<error>✖ off</error>"
+
+leaderboards:
+  title: "<b><dim>Leaderboards</dim></b>"
+  board-title: "<b><dim><board></dim></b>"
+  about:
+    most-wanted: "the biggest bounties right now"
+    escapes: "most times over the wall"
+    guards: "most criminals brought in"
+    robberies: "most banks, jewelers and\ngas stations hit"
+    bounty-earned: "most bounty collected by guards"
+    most-arrested: "most times caught"
+  entry:
+    name: "<dim>#<rank></dim> <white><player></white>"
+    lore: "<value><amount></value>"
+    lore-money: "<money><amount></money>"
+  empty:
+    name: "<white>Nobody yet</white>"
+    lore: "this could be you"
+  period:
+    all: "<white>All time</white>"
+    month: "<white>This month</white>"
+    week: "<white>This week</white>"
+  showing: "<success>✔ showing</success>"
+  failed: "<error>✖</error> couldn't load the leaderboard. try again in a moment."
+
+store-menu:
+  title: "<b><dim>Store</dim></b>"
+  name: "<white><name></white>"
+  blurb: "<gray><line></gray>"
+  perk: "<success>✔</success> <gray><perk></gray>"
+  price: "<value><price></value> on the website"
+  owned: "<success>✔ you have this</success>"
+  included: "<success>✔ included in your rank</success>"
+  website:
+    name: "<white>The whole store</white>"
+    lore: "with your cart and checkout,\nat <value>mostwantedmc.com/store</value>"
+  loading:
+    name: "<white>The store is loading</white>"
+    lore: "try again in a moment, or visit\n<value>mostwantedmc.com/store</value>"
+  link: "<info>ⓘ</info> <value><name></value>: open <value><url></value> to add it to your cart. it only changes how things look."

@@ -280,10 +280,10 @@ info-commands:
   discord:
     enabled: false
     message: "<#33ffff>ⓘ</#33ffff> ᴊᴏɪɴ ᴛʜᴇ ᴅɪѕᴄᴏʀᴅ: <click:open_url:'https://discord.gg/INVITE'><hover:show_text:'<gray>ᴄʟɪᴄᴋ ᴛᴏ ᴏᴘᴇɴ'><highlight><underlined>discord.gg/INVITE"
-  # No /shop alias: that's the game's own shop menu.
+  # Off: /store and /buy are the game's own store menu, and /shop its shop.
   store:
-    enabled: true
-    aliases: [buy]
+    enabled: false
+    aliases: [shop, buy]
     message: "<#33ffff>ⓘ</#33ffff> ᴛʜᴇ ѕᴛᴏʀᴇ (ᴄᴏѕᴍᴇᴛɪᴄѕ ᴏɴʟʏ): <click:open_url:'https://mostwantedmc.com/store'><hover:show_text:'<gray>ᴄʟɪᴄᴋ ᴛᴏ ᴏᴘᴇɴ'><highlight><underlined>mostwantedmc.com/store"
   # Off: /website is the game's own (the sign-in code).
   website:

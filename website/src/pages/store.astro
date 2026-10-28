@@ -476,6 +476,13 @@ const sections = [
     write([]);
     $("thanks").hidden = false;
   }
+  // From the store menu in game (mostwantedmc.com/buy/<id>): that package in the cart, cart open.
+  const adding = params.get("add");
+  if (adding && byId.has(adding)) {
+    if (!cart().includes(adding)) write([...cart(), adding]);
+    history.replaceState(null, "", "/store");
+    dialog.showModal();
+  }
 
   render();
   if (token) {

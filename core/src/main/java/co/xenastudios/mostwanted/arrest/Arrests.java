@@ -7,6 +7,7 @@ import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.player.PlayerState;
 import co.xenastudios.mostwanted.player.PlayerStore;
 import co.xenastudios.mostwanted.player.Role;
+import co.xenastudios.mostwanted.player.Setting;
 import co.xenastudios.mostwanted.storage.GameLog;
 import co.xenastudios.mostwanted.zone.Spawns;
 import co.xenastudios.mostwanted.zone.Zone;
@@ -117,13 +118,13 @@ public final class Arrests implements Listener, ZoneListener {
         if (guard == null) {
             messages.send(criminal, "arrest.you-died", Messages.value("time", time),
                     Messages.value("cash", Money.format(cashLost)));
-            messages.send(Bukkit.getServer(), "arrest.everyone-died", Messages.value("player", criminal.getName()));
+            messages.broadcast(players.showing(Setting.BROADCASTS), "arrest.everyone-died", Messages.value("player", criminal.getName()));
         } else {
             messages.send(criminal, "arrest.you", Messages.value("officer", guard.getName()),
                     Messages.value("time", time), Messages.value("cash", Money.format(cashLost)));
             messages.send(guard, how == How.KILLED ? "arrest.guard-killed" : "arrest.guard",
                     Messages.value("player", criminal.getName()), Messages.value("amount", Money.format(payout)));
-            messages.send(Bukkit.getServer(), "arrest.everyone", Messages.value("player", criminal.getName()),
+            messages.broadcast(players.showing(Setting.BROADCASTS), "arrest.everyone", Messages.value("player", criminal.getName()),
                     Messages.value("officer", guard.getName()));
         }
         onArrest.forEach(hook -> hook.accept(criminal));
