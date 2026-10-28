@@ -1,5 +1,5 @@
 {
-  "_comment": "MostWanted's game server, for Raptor (or any Pterodactyl/Pelican panel). Import it on the Eggs page. Its files come from server/install.sh, not from this egg: see docs/12-launch.md.",
+  "_comment": "MostWanted's game server, for Raptor (or any Pterodactyl/Pelican panel). Import it on the Eggs page: docs/12-launch.md.",
   "meta": {
     "version": "PTDL_v2",
     "update_url": null
@@ -7,7 +7,7 @@
   "exported_at": "2026-10-28T00:00:00+00:00",
   "name": "MostWanted",
   "author": "contact@xenastudios.co",
-  "description": "The MostWanted game server: Leaf with our plugins and configs. The install does nothing on purpose, so a reinstall never swaps Leaf for another jar: server/install.sh puts the files in, and start.sh starts it. https://github.com/xena-studios/mostwanted",
+  "description": "The MostWanted game server: Leaf, every plugin we use (pinned and checksummed), our configs and the core plugin, from the latest build of github.com/xena-studios/mostwanted. Reinstall to update. Needs a database on its Databases tab.",
   "features": [
     "eula",
     "java_version",
@@ -26,10 +26,51 @@
   },
   "scripts": {
     "installation": {
-      "script": "#!/bin/bash\n# Nothing to download: server/install.sh fills this server from the MostWanted repo\n# (docs/12-launch.md, step 5). Doing nothing here means Reinstall can't replace Leaf.\nmkdir -p /mnt/server\necho \"MostWanted: run server/install.sh on the node to put the server's files in.\"\n",
+      "script": "#!/bin/bash\n# MostWanted's game server: the latest build (the \"server\" release, from main), put\n# in place by its own server/install.sh: Leaf and every plugin pinned in its\n# manifest, checksums checked, and the configs. The world and plugin data stay.\n# Reinstall in Raptor to update. Settings are filled in at each start (start.sh).\nset -euo pipefail\napt-get update -qq\napt-get install -y -qq curl jq perl ca-certificates >/dev/null\nwork=$(mktemp -d)\ncurl -fsSL -o \"$work/server.tar.gz\" \"https://github.com/xena-studios/mostwanted/releases/download/${RELEASE}/mostwanted-server.tar.gz\"\ntar -xzf \"$work/server.tar.gz\" -C \"$work\"\necho \"MostWanted build $(cat \"$work/COMMIT\")\"\nbash \"$work/server/install.sh\" /mnt/server\nrm -f /mnt/server/plugins/core-*.jar\ncp \"$work/core.jar\" /mnt/server/plugins/MostWanted.jar\nrm -rf \"$work\"\necho \"Installed. Before the first start: a database on the Databases tab, and the settings on the Startup tab.\"\n",
       "container": "ghcr.io/pelican-eggs/installers:debian",
       "entrypoint": "bash"
     }
   },
-  "variables": []
+  "variables": [
+    {
+      "name": "Build",
+      "description": "Which build to install: a release on github.com/xena-studios/mostwanted. \"server\" is always the latest from main. Reinstall to get it.",
+      "env_variable": "RELEASE",
+      "default_value": "server",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:64",
+      "field_type": "text"
+    },
+    {
+      "name": "Tebex secret key",
+      "description": "The webstore's secret key, so the server delivers purchases (Tebex: Integrations → Game servers). \"none\" until the store is set up.",
+      "env_variable": "TEBEX_SECRET",
+      "default_value": "none",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:128",
+      "field_type": "text"
+    },
+    {
+      "name": "LuckPerms storage",
+      "description": "postgresql: the server's database. h2 only for a test without one.",
+      "env_variable": "LUCKPERMS_STORAGE",
+      "default_value": "postgresql",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|in:postgresql,h2",
+      "field_type": "text"
+    },
+    {
+      "name": "LibertyBans database",
+      "description": "POSTGRES: the server's database. HSQLDB only for a test without one.",
+      "env_variable": "LIBERTYBANS_DATABASE",
+      "default_value": "POSTGRES",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|in:POSTGRES,HSQLDB",
+      "field_type": "text"
+    }
+  ]
 }
