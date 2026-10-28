@@ -15,9 +15,10 @@ import org.bukkit.configuration.file.FileConfiguration;
  * @param zoneLabel shown after the time, such as "ET"
  * @param rules the gameplay numbers
  * @param robberies how each robbery spot plays
+ * @param retention how long logs are kept, as the privacy page promises
  */
 public record Settings(DatabaseConfig database, Duration saveEvery, ZoneId zone, String zoneLabel, Rules rules,
-        RobberySettings robberies) {
+        RobberySettings robberies, Retention retention) {
 
     public static Settings read(FileConfiguration config) {
         ConfigurationSection db = config.getConfigurationSection("database");
@@ -43,6 +44,7 @@ public record Settings(DatabaseConfig database, Duration saveEvery, ZoneId zone,
                 ZoneId.of(config.getString("clock.timezone", "America/New_York")),
                 config.getString("clock.label", "ET"),
                 Rules.read(config.getConfigurationSection("rules")),
-                RobberySettings.read(config.getConfigurationSection("robberies")));
+                RobberySettings.read(config.getConfigurationSection("robberies")),
+                Retention.read(config.getConfigurationSection("retention")));
     }
 }
