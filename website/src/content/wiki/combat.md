@@ -29,7 +29,7 @@ Guards and criminals fight. Nobody else does, unless there's a [riot](/wiki/riot
 | **Safe zones** | Everyone. No fighting at all. |
 | **The police station** | Guards |
 | **Criminal hideouts** | Criminals |
-| **A cell, while serving a sentence** | The prisoner. Nothing hurts them. |
+| **A cell, while serving a sentence** | The inmate. Nothing hurts them. |
 
 If you're safe in a zone, you can't attack from it either. A guard can't shoot out of the police station, and a criminal can't shoot out of a hideout.
 

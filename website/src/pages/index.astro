@@ -96,7 +96,7 @@ const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month:
           {
             ranks.map((r) => (
               <li>
-                <a href="/store#ranks" style={`--rank: ${r.colour}`}>
+                <a href="/store#ranks" data-rank={r.id}>
                   <img src={r.icon} alt="" width="64" height="64" />
                   <span class="rank-name">{r.name}</span>
                   <span class="rank-price">{money(r.price)}</span>
@@ -285,7 +285,7 @@ const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month:
     align-self: end;
     font-family: var(--display);
     font-size: 1.5rem;
-    color: var(--rank);
+    color: var(--rank-text);
   }
 
   .rank-price {

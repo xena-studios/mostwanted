@@ -12,6 +12,7 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -40,7 +41,9 @@ public final class Messages {
             color("guard", Palette.GUARD),
             color("staff", Palette.STAFF),
             color("value", Palette.WHITE),
-            TagResolver.resolver("dim", Tag.styling(NamedTextColor.DARK_GRAY)));
+            TagResolver.resolver("dim", Tag.styling(NamedTextColor.DARK_GRAY)),
+            // No look of its own: what's inside stays as written (SmallCapsText), as in item names.
+            TagResolver.resolver("keep", Tag.styling(style -> { })));
 
     private static final MiniMessage MINI = MiniMessage.builder().editTags(tags -> tags.resolver(STYLE)).build();
 
@@ -113,7 +116,9 @@ public final class Messages {
 
     private static Component parse(String text, TagResolver... placeholders) {
         // Grey unless a tag says otherwise.
-        return MINI.deserialize(text, placeholders).colorIfAbsent(NamedTextColor.GRAY);
+        // Never italic: item names and lore are, unless told otherwise.
+        return MINI.deserialize(text, placeholders).colorIfAbsent(NamedTextColor.GRAY)
+                .decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     }
 
     /** Whether the text has a tag that isn't one of the style's own. */

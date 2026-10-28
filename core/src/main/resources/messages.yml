@@ -2,7 +2,7 @@
 # Edit and restart to apply. Text is MiniMessage: https://docs.advntr.dev/minimessage/format
 #
 # Write plain text: it becomes small caps when it loads. Text inside <value>, <money>,
-# <white> or bold stays as written, for names, amounts and headers.
+# <white>, <keep> or bold stays as written, for names, amounts and headers.
 # Colour tags: <success> <error> <money> <info> <brand> <inmate> <criminal> <guard>
 # <staff> <value> <dim>. Everything else is grey.
 # Placeholders such as <player> are filled in when the message is sent, as written.
@@ -13,9 +13,11 @@ login:
 
 join:
   welcome: "<success>✔</success> welcome back, <value><player></value>."
-  first: "<success>✔</success> welcome to <brand>mostwanted</brand>, <value><player></value>. you're an inmate: find a way out."
+  first: "<success>✔</success> welcome to <brand>mostwanted</brand>, <value><player></value>. you're an <inmate>inmate</inmate>: find a way out."
 
 command:
+  info: "<info>ⓘ</info> <value><version></value> · database <value><database></value>"
+  bad-role: "<error>✖</error> roles: <value>inmate, criminal, guard</value>."
   player-not-found: "<error>✖</error> <value><player></value> isn't online."
   player: "<info>ⓘ</info> <value><player></value>: <role>, cash <money><cash></money>, bank <money><bank></money>, bounty <money><bounty></money>."
   role-set: "<success>✔</success> <value><player></value> is now <role>."
@@ -28,7 +30,7 @@ command:
     players-only: "<error>✖</error> only players can do that."
     needs-fawe: "<error>✖</error> zones are marked with a fawe selection, and fawe isn't installed."
     no-selection: "<error>✖</error> select the area first: <value>//wand</value>, then click two corners."
-    bad-name: "<error>✖</error> zone names are lowercase letters, numbers, - and _, up to 32."
+    bad-name: "<error>✖</error> zone names are lowercase letters, numbers, - and _, up to 32 characters."
     bad-kind: "<error>✖</error> zone kinds: <value><kinds></value>."
     exists: "<error>✖</error> there's already a zone called <value><zone></value>. <value>/mw zone redefine <zone></value> moves it."
     not-found: "<error>✖</error> there's no zone called <value><zone></value>."
@@ -53,14 +55,14 @@ zone:
     hideout: "<criminal>⌂</criminal> hideout · <criminal>safe for criminals</criminal>"
     robbery: "<money>⛃</money> <value><zone></value>"
     safe: "<success>✔</success> safe zone"
-    alarm: "<error>⚠</error> riot alarm · <value>right-click</value> it with other inmates to start a riot"
+    alarm: "<inmate>⚑</inmate> riot alarm · <value>right-click</value> it with other inmates"
 
 escape:
-  wall-alert: "<error>⚠</error> the prison wall at <value><wall></value> has been broken!"
-  keycard-alert: "<error>⚠</error> <inmate><player></inmate> used a keycard on <value><gate></value>!"
+  wall-alert: "<criminal>⚑</criminal> the prison wall at <value><wall></value> has been broken!"
+  keycard-alert: "<criminal>⚑</criminal> <inmate><player></inmate> used a keycard on <value><gate></value>!"
   gate-locked: "<error>✖</error> locked. a guard's keycard opens it."
   you: "<success>✔</success> you escaped! you're a <criminal>criminal</criminal> now: rob, stay free, and bank your cash at a hideout."
-  everyone: "<criminal>⚠</criminal> <criminal><player></criminal> escaped from the prison!"
+  everyone: "<criminal>⚑</criminal> <criminal><player></criminal> escaped from the prison!"
 
 # The scoreboard (docs/09-brand.md#scoreboard-and-tab-list). Icons are grey.
 hud:
@@ -98,10 +100,10 @@ tab:
     guard: "<guard>guard</guard> <guard><player></guard>"
 
 arrest:
-  you: "<error>⛓</error> <guard><officer></guard> arrested you. you lost <money><cash></money> in cash, and you're in a cell for <value><time></value>."
-  you-died: "<error>⛓</error> you died, so you're back in prison. you lost <money><cash></money> in cash, and you're in a cell for <value><time></value>."
+  you: "<guard>⚑</guard> <guard><officer></guard> arrested you. you lost <money><cash></money> in cash and your gear, and you're in a cell for <value><time></value>."
+  you-died: "<guard>⚑</guard> you died, so you're back in prison. you lost <money><cash></money> in cash and your gear, and you're in a cell for <value><time></value>."
   guard: "<success>✔</success> you arrested <criminal><player></criminal> and earned <money><amount></money>."
-  guard-killed: "<success>✔</success> you took down <criminal><player></criminal> and earned <money><amount></money>. cuff them for the whole bounty."
+  guard-killed: "<success>✔</success> you took down <criminal><player></criminal> and earned <money><amount></money>. cuff criminals instead for the whole bounty."
   everyone: "<guard>⚑</guard> <criminal><player></criminal> was arrested by <guard><officer></guard>."
   everyone-died: "<guard>⚑</guard> <criminal><player></criminal> is back in prison."
   stay: "<error>✖</error> you're serving a sentence. back in your cell."
@@ -122,30 +124,30 @@ duty:
   removed: "<info>ⓘ</info> you're not a guard any more, so you're off duty."
 
 bounty:
-  guard-killed: "<criminal>⚠</criminal> you killed <guard><player></guard>: <money>+<amount></money> bounty."
+  guard-killed: "<money>★</money> you killed <guard><player></guard>: <money>+<amount></money> bounty."
 
 item:
   handcuffs:
-    name: "<guard>handcuffs</guard>"
+    name: "<guard><keep>Handcuffs</keep></guard>"
     lore: "right-click a criminal to arrest them"
   gun:
     name: "<white><name></white>"
     guard-name: "<guard><name></guard>"
     lore: "<value><damage></value> damage · <value><magazine></value> rounds · right-click to shoot"
-    taser-lore: "slows a criminal so you can cuff them · right-click"
+    taser-lore: "right-click to slow a criminal so you can cuff them"
   ammo:
     name: "<white><name></white>"
   keycard:
-    name: "<guard>keycard</guard>"
+    name: "<guard><keep>Keycard</keep></guard>"
     lore: "right-click a gate to open it"
 
 robbery:
-  open: "<money>⛃</money> <value><place></value> is open. criminals, it's yours if you can hold it."
-  started: "<criminal>⚠</criminal> you're robbing <value><place></value>. stay inside for <value><time></value>: if everyone leaves, it fails."
-  alarm: "<error>⚠</error> alarm! <value><place></value> is being robbed."
-  bar: "robbing <place> · <time>"
+  open: "<criminal><b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b></criminal>\n<criminal>⚑</criminal> <b><criminal>ROBBERY</criminal></b> <value><place></value> is open.\ncriminals, it's yours if you can hold it.\n<criminal><b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b></criminal>"
+  started: "<criminal>⚑</criminal> you're robbing <value><place></value>. stay inside for <value><time></value>: if everyone leaves, it fails."
+  alarm: "<criminal>⚑</criminal> alarm! <value><place></value> is being robbed."
+  bar: "<criminal>⚑</criminal> robbing <value><place></value> · <value><time></value>"
   got-away: "<success>✔</success> you got <money><amount></money> from <value><place></value>, and <money>+<bounty></money> bounty. bank it at a hideout before you're caught!"
-  robbed: "<criminal>⚠</criminal> <value><place></value> was robbed!"
+  robbed: "<criminal>⚑</criminal> <value><place></value> was robbed!"
   failed: "<guard>⚑</guard> the robbery at <value><place></value> failed."
 
 bank:
@@ -165,26 +167,28 @@ website:
 gun:
   hud: "<white><name></white> <value><loaded></value><dim>/<magazine></dim> · <value><spare></value> spare"
   reloading: "<white><name></white> reloading…"
-  no-ammo: "<error>✖</error> no <value><ammo></value> left. buy more at a hideout."
+  no-ammo: "<error>✖</error> no <value><ammo></value> left. <value>/shop</value> at a hideout or the police station sells more."
   tased: "<success>✔</success> you tased <criminal><player></criminal>. cuff them!"
-  tased-you: "<error>⚡</error> <guard><player></guard> tased you!"
+  tased-you: "<guard>⚑</guard> <guard><player></guard> tased you!"
 
 shop:
   none: "<error>✖</error> there's no shop for you here. criminals shop at a hideout, guards at the police station."
-  title: "<b><brand><name></brand></b>"
+  title: "<b><dim><name></dim></b>"
   price: "price: <money><price></money>"
   click: "click to buy"
-  balance: "<white>your money</white>"
+  balance: "<white>Your money</white>"
   bought: "<success>✔</success> bought <value><amount></value>× <value><item></value> for <money><price></money>."
   cant-afford: "<error>✖</error> that costs <money><price></money>, more than your cash and bank together."
   full: "<error>✖</error> your inventory is full."
 
 riot:
-  pressed: "<inmate>⚠</inmate> you pressed the alarm. it takes <value><needed></value> inmates together to start a riot."
+  pressed: "<info>ⓘ</info> you pressed the alarm. it takes <value><needed></value> inmates together to start a riot."
   cooldown: "<error>✖</error> the guards are still on edge from the last riot. try again later."
   no-guards: "<error>✖</error> no guards are on duty to riot against."
-  started: "<error>⚠</error> <b>RIOT!</b> the inmates have taken the yard. guards and inmates can fight inside the prison."
-  alarm: "<error>⚠</error> riot at the prison! get back and take control: you can cuff rioting inmates."
+  started: "<criminal><b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b></criminal>\n<criminal>⚑</criminal> <b><criminal>RIOT IN THE PRISON</criminal></b>\nthe inmates have taken the yard. guards and inmates can fight inside the prison.\n<criminal><b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b></criminal>"
+  title: "<b><criminal>RIOT!</criminal></b>"
+  subtitle: "the inmates have taken the yard"
+  alarm: "<criminal>⚑</criminal> riot at the prison! get back and take control: you can cuff rioting inmates."
   over: "<guard>⚑</guard> the riot has died down."
   quelled: "<guard>⚑</guard> the guards stopped the riot."
 
@@ -204,16 +208,16 @@ rank:
 boost:
   title: "<b><brand>SERVER BOOST</brand></b>"
   subtitle: "thanks to <value><player></value>"
-  chat: "<money>★</money> <value><player></value> boosted the server. thank you for keeping it running!"
+  chat: "<staff>✔</staff> <value><player></value> boosted the server. thank you for keeping it running!"
 
 cosmetics:
-  title: "<b>Cosmetics</b>"
+  title: "<b><dim>Cosmetics</dim></b>"
   kind:
     trail: "<white>Trails</white>"
     escape: "<white>Escape effects</white>"
     arrest: "<white>Arrest effects</white>"
     skin: "<white>Gun skins</white>"
-    chat: "<white>Chat colour</white>"
+    chat: "<white>Chat colours</white>"
   name: "<white><name></white>"
   name-locked: "<dim><name></dim>"
   using: "<success>✔ using</success>"
@@ -223,12 +227,12 @@ cosmetics:
   store-lore: "<dim>get it at</dim> <value>mostwantedmc.com/store</value>"
   store-name: "<white>Store</white>"
   store-link: "<info>ⓘ</info> ranks and cosmetics are at <click:open_url:'https://mostwantedmc.com/store'><value>mostwantedmc.com/store</value></click>. they only change how things look."
-  not-owned: "<error>✖</error> you don't have <value><name></value> yet. it's at <value>mostwantedmc.com/store</value>."
+  not-owned: "<error>✖</error> you don't have <value><name></value> yet. get it at <click:open_url:'https://mostwantedmc.com/store'><value>mostwantedmc.com/store</value></click>."
   chat-off: "off"
   chat-on: "your messages look like this"
   chat-click: "click for the next colour, right-click to go back"
   join-message:
-    none: "<info>ⓘ</info> you have no join message. <value>/joinmessage set</value> and a message sets one."
+    none: "<info>ⓘ</info> you have no join message. set one with <value>/joinmessage set [message]</value>."
     is: "<info>ⓘ</info> your join message: <white><message></white>. <value>/joinmessage clear</value> removes it."
     set: "<success>✔</success> your join message is now: <white><message></white>"
     cleared: "<success>✔</success> your join message is gone."
@@ -238,7 +242,7 @@ cosmetics:
 board:
   title:
     most-wanted: "<b><criminal>MOST WANTED</criminal></b>"
-    escapes: "<b><inmate>TOP ESCAPES</inmate></b>"
+    escapes: "<b><inmate>TOP ESCAPERS</inmate></b>"
     guards: "<b><guard>TOP GUARDS</guard></b>"
     robberies: "<b><money>TOP ROBBERS</money></b>"
     bounty-earned: "<b><guard>BOUNTY HUNTERS</guard></b>"
@@ -247,11 +251,12 @@ board:
     all: "<dim>all time</dim>"
     month: "<dim>this month</dim>"
     week: "<dim>this week</dim>"
-  line: "<dim><rank>.</dim> <white><player></white> <value><value></value>"
+  line: "<dim><rank>.</dim> <white><player></white> <value><amount></value>"
+  line-money: "<dim><rank>.</dim> <white><player></white> <money><amount></money>"
   empty: "<dim>nobody yet</dim>"
   added: "<success>✔</success> placed the <value><board></value> board. it updates every minute."
   removed: "<success>✔</success> took away the <value><board></value> board."
   none-near: "<error>✖</error> there's no board within 5 blocks."
-  unknown: "<error>✖</error> boards: most-wanted, escapes, guards, robberies, bounty-earned, most-arrested. periods: all, month, week."
+  unknown: "<error>✖</error> boards: <value>most-wanted, escapes, guards, robberies, bounty-earned, most-arrested</value>. periods: <value>all, month, week</value>."
   list: "<info>ⓘ</info> <value><board></value> (<period>) in <value><world></value> at <value><x> <y> <z></value>"
   list-empty: "<info>ⓘ</info> no boards placed. <value>/mw board add</value> places one where you stand."

@@ -205,9 +205,10 @@ import { site } from "../site";
   }
 
   .really {
-    background: linear-gradient(to bottom, #ff5c5c, #ff3333);
-    border-color: #a51c1c;
-    color: white;
+    background: var(--red);
+    border-color: var(--orange-deep);
+    /* Dark text: white on this red is too faint to read. */
+    color: var(--ink);
   }
 
   .error {

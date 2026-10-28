@@ -3,7 +3,7 @@ import { ArrowRight, Check, Gamepad2, Heart, Lock, ShieldCheck, ShoppingCart, Sp
 import Base from "../layouts/Base.astro";
 import PageHero from "../components/PageHero.astro";
 import { site } from "../site";
-import { catalog, cosmetics, firstRankWith, includedValue, money, never, ranks, rankTable, support } from "../store/catalog";
+import { bestValue, catalog, cosmetics, firstRankWith, includedValue, money, never, ranks, rankTable, support } from "../store/catalog";
 import road from "../brand/scene-road.png";
 
 const kinds = [...new Set(cosmetics.map((c) => c.kind!))];
@@ -12,12 +12,13 @@ const kinds = [...new Set(cosmetics.map((c) => c.kind!))];
 const items = catalog.map((p) => ({ id: p.id, name: p.name, category: p.category, price: p.price, icon: p.icon, includes: p.includes }));
 
 const faq = [
-  ["How long does it take to arrive?", "Usually under a minute. If you're online it shows up straight away; if not, it's waiting next time you join."],
+  ["How long does it take to arrive?", "Usually within a few minutes. If you're online it shows up then; if not, it's waiting next time you join."],
   ["I play on Bedrock. Can I buy?", "Yes. Enter the name you play under, exactly as it shows in game (on the tab list), and everything works the same."],
   ["Can I buy for a friend?", "Yes: put their Minecraft username in the cart instead of yours. It goes to them."],
   ["Does anything here help me win?", "No. Ranks and cosmetics change how you look, never how you play. Guns, armor, cash, shorter sentences and the guard rank can't be bought, by anyone."],
   ["I already have a rank. What happens if I buy a higher one?", "You get the higher rank and keep every cosmetic you already had."],
   ["How do I pay?", "On Tebex's secure checkout, the store most Minecraft servers use: cards, PayPal and more, depending on where you are. We never see your card details."],
+  ["When do I get my Discord role?", "Once you've linked Discord and Minecraft on your account page. It's added within a few minutes."],
   ["Can I get a refund?", "See the Terms. If something didn't arrive, contact Support with your transaction ID and we'll sort it."],
 ];
 
@@ -48,11 +49,11 @@ const sections = [
     <section class="wrap trust" aria-label="About buying">
       <ul>
         <li><Lock aria-hidden="true" /> Secure checkout by Tebex</li>
-        <li><Zap aria-hidden="true" /> In game within a minute</li>
+        <li><Zap aria-hidden="true" /> In game within minutes</li>
         <li><Gamepad2 aria-hidden="true" /> Java and Bedrock</li>
         <li><ShieldCheck aria-hidden="true" /> Never pay to win</li>
       </ul>
-      <p class="banner" data-thanks hidden><Heart aria-hidden="true" /> Thank you! Your purchase is on its way: it shows up in game within a minute.</p>
+      <p class="banner" data-thanks hidden><Heart aria-hidden="true" /> Thank you! Your purchase is on its way: it shows up in game within a few minutes.</p>
       {!site.tebexToken && <p class="note"><strong>The store opens with the server.</strong> Have a look around and fill your cart: checkout turns on at launch, and your cart will still be here.</p>}
     </section>
 
@@ -67,8 +68,8 @@ const sections = [
             ranks.map((r) => {
               const worth = includedValue(r);
               return (
-                <li class:list={["panel rank", { featured: r.ribbon === "Most popular" }]} style={`--rank: ${r.colour}`}>
-                  {r.ribbon && <span class="ribbon pixel">{r.ribbon}</span>}
+                <li class:list={["panel rank", { featured: r === bestValue }]} data-rank={r.id}>
+                  {(r === bestValue ? "Best value" : r.ribbon) && <span class="ribbon pixel">{r === bestValue ? "Best value" : r.ribbon}</span>}
                   <img class="icon" src={r.icon} alt="" width="80" height="80" />
                   <h3>{r.name}</h3>
                   <p class="price" data-price={r.id}>{money(r.price)}</p>
@@ -102,7 +103,7 @@ const sections = [
               <thead>
                 <tr>
                   <th scope="col">Rank</th>
-                  {ranks.map((r) => <th scope="col" style={`--rank: ${r.colour}`}>{r.name}</th>)}
+                  {ranks.map((r) => <th scope="col" data-rank={r.id}>{r.name}</th>)}
                 </tr>
               </thead>
               <tbody>
@@ -161,7 +162,7 @@ const sections = [
                     <h3>{c.name}</h3>
                     <p>{c.blurb}</p>
                     {rank && (
-                      <p class="included" style={`--rank: ${rank.colour}`}>
+                      <p class="included" data-rank={rank.id}>
                         Included in {rank.name}{rank.id === "legend" ? "" : " and up"}
                       </p>
                     )}
@@ -275,6 +276,7 @@ const sections = [
           <input id="creator" class="input" name="creator" maxlength="32" spellcheck="false" autocomplete="off" placeholder="Creator code" aria-label="Creator code" />
         </details>
         <p class="error" role="alert" data-cart-error hidden></p>
+        <p class="hint">Under 18? Ask a parent or guardian before you buy.</p>
         <button class="button primary pay" type="submit" data-pay>
           <Lock aria-hidden="true" /> <span data-pay-label>{site.tebexToken ? "Checkout" : "Checkout opens at launch"}</span>
         </button>
@@ -646,7 +648,7 @@ const sections = [
     padding: 0.1rem var(--s-3);
     border-radius: 6px;
     background: var(--rank);
-    color: var(--ink);
+    color: var(--rank-ink);
     font-size: 1.15rem;
   }
 
@@ -656,7 +658,7 @@ const sections = [
 
   .rank h3 {
     font-size: 2rem;
-    color: var(--rank);
+    color: var(--rank-text);
     text-shadow: 0 3px 0 color-mix(in srgb, black 45%, transparent);
   }
 
@@ -707,7 +709,7 @@ const sections = [
     width: 1.1rem;
     height: 1.1rem;
     margin-top: 0.15rem;
-    color: var(--rank);
+    color: var(--rank-text);
   }
 
   .rank .add {
@@ -774,7 +776,7 @@ const sections = [
   }
 
   td :global(.no) {
-    color: color-mix(in srgb, var(--muted) 50%, transparent);
+    color: var(--muted);
   }
 
   /* ---------------------------------------------------------------- cosmetics */
@@ -801,7 +803,7 @@ const sections = [
   }
 
   .chip .n {
-    color: color-mix(in srgb, var(--muted) 70%, transparent);
+    color: var(--muted);
     font-size: 0.85em;
   }
 

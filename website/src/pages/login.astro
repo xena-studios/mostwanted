@@ -58,8 +58,8 @@ import { site, signInOpen } from "../site";
     show("Discord sign-in didn't finish. Try again.");
   }
 
-  // Already signed in: straight to the account page.
-  call<Me>(api, "GET", "/v1/me").then(() => location.replace("/account"), () => {});
+  // Already signed in: straight to the account page (only once sign-in is open).
+  if (form) call<Me>(api, "GET", "/v1/me").then(() => location.replace("/account"), () => {});
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();

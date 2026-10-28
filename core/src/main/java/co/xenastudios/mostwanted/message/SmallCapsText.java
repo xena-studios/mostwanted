@@ -14,7 +14,7 @@ import java.util.Set;
 public final class SmallCapsText {
 
     /** Tags whose contents stay as written: names, places, amounts, and bold headers. */
-    private static final Set<String> KEEP = Set.of("value", "money", "white", "b", "bold");
+    private static final Set<String> KEEP = Set.of("value", "money", "white", "keep", "b", "bold");
 
     private SmallCapsText() {}
 

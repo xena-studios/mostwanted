@@ -267,8 +267,9 @@ public final class Leaderboards implements Listener {
         boolean money = each.board() == Board.MOST_WANTED || each.board().stat() == Stat.BOUNTY_EARNED;
         for (int i = 0; i < lines.size(); i++) {
             Line line = lines.get(i);
-            parts.add(messages.get("board.line", Messages.value("rank", i + 1), Messages.value("player", line.name()),
-                    Messages.value("value", money ? Money.format(line.value()) : String.format(Locale.US, "%,d", line.value()))));
+            parts.add(messages.get(money ? "board.line-money" : "board.line", Messages.value("rank", i + 1),
+                    Messages.value("player", line.name()),
+                    Messages.value("amount", money ? Money.format(line.value()) : String.format(Locale.US, "%,d", line.value()))));
         }
         if (lines.isEmpty()) {
             parts.add(messages.get("board.empty"));

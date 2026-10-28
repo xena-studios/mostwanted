@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.title.Title;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -94,6 +95,7 @@ public final class Riots implements Listener {
         }
         gameLog.record("riot.start", null, null, Map.of("rioters", rioters.size()));
         messages.send(Bukkit.getServer(), "riot.started");
+        Bukkit.getServer().showTitle(Title.title(messages.get("riot.title"), messages.get("riot.subtitle")));
         for (Player guard : players.online(Role.GUARD)) {
             messages.send(guard, "riot.alarm");
             guard.playSound(HORN, Sound.Emitter.self());

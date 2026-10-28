@@ -63,7 +63,6 @@ export const ranks: Package[] = [
     price: 19.99,
     icon: "/store/rank-mvp.png",
     colour: "#6633ff",
-    ribbon: "Most popular",
     blurb: "Every trail and effect, and the server knows when you arrive.",
     perks: ["MVP tag and a coloured name", "Every trail", "Every escape and arrest effect", "Chat colours", "Your joins are announced", "MVP role on Discord", "Supporter badge on your player page"],
     includes: [
@@ -113,7 +112,7 @@ export const cosmetics: Package[] = [
   cosmetic("skin-copper-shotgun", "Copper Shotgun", "Gun skins", 4.99, "A copper shotgun. Same stats as everyone's."),
   cosmetic("skin-midnight-rifle", "Midnight Rifle", "Gun skins", 4.99, "A netherite-black rifle. Same stats as everyone's."),
   cosmetic("skin-diamond-taser", "Diamond Taser", "Gun skins", 3.99, "A diamond taser, for guards. Same stats as everyone's."),
-  cosmetic("chat-colours", "Chat Colours", "Chat", 2.99, "Write in any colour of the server's palette."),
+  cosmetic("chat-colours", "Chat Colours", "Chat", 2.99, "Write in any of 12 colours from the server's palette."),
 ];
 
 export const support: Package[] = [
@@ -146,6 +145,11 @@ export const catalog: Package[] = [...ranks, ...cosmetics, ...support];
 export const includedValue = (rank: Package) =>
   (rank.includes ?? []).reduce((sum, id) => sum + (cosmetics.find((c) => c.id === id)?.price ?? 0), 0);
 
+/** The rank whose included cosmetics are worth the most for its price: worked out, so "Best value" stays true. */
+export const bestValue = ranks
+  .filter((r) => r.includes?.length)
+  .reduce((best, r) => (includedValue(r) / r.price > includedValue(best) / best.price ? r : best));
+
 /** The cheapest rank that includes a cosmetic, or none. */
 export const firstRankWith = (id: string) => ranks.find((r) => r.includes?.includes(id));
 
@@ -165,7 +169,7 @@ export const rankTable: { perk: string; values: (boolean | string)[] }[] = [
   { perk: "Cosmetics added later", values: [false, false, false, true] },
 ];
 
-export const never = ["Guns", "Ammo", "Armor", "Cash", "Shorter jail time", "The guard rank", "Crates or anything random"];
+export const never = ["Guns", "Ammo", "Armor", "Cash", "Shorter sentences", "The guard rank", "Crates or anything random"];
 
 export const money = (n: number, currency = "USD") =>
   new Intl.NumberFormat("en-US", { style: "currency", currency }).format(n);
