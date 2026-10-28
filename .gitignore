@@ -20,3 +20,5 @@ pack/out/
 .env
 *.key
 backend/tls/
+# Playtest bots
+tools/playtest/node_modules/

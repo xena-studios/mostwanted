@@ -1,0 +1,15 @@
+{
+  "name": "mostwanted-playtest",
+  "private": true,
+  "type": "module",
+  "description": "Scripted bot players that play MostWanted on a throwaway local server and check it works.",
+  "scripts": {
+    "playtest": "node run.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "mineflayer": "4.39.0"
+  }
+}

@@ -183,7 +183,7 @@ riot:
   pressed: "<inmate>⚠</inmate> you pressed the alarm. it takes <value><needed></value> inmates together to start a riot."
   cooldown: "<error>✖</error> the guards are still on edge from the last riot. try again later."
   no-guards: "<error>✖</error> no guards are on duty to riot against."
-  started: "<error>⚠</error> <b>riot!</b> the inmates have taken the yard. guards and inmates can fight inside the prison."
+  started: "<error>⚠</error> <b>RIOT!</b> the inmates have taken the yard. guards and inmates can fight inside the prison."
   alarm: "<error>⚠</error> riot at the prison! get back and take control: you can cuff rioting inmates."
   over: "<guard>⚑</guard> the riot has died down."
   quelled: "<guard>⚑</guard> the guards stopped the riot."
