@@ -3,8 +3,8 @@ import Base from "../layouts/Base.astro";
 import PageHero from "../components/PageHero.astro";
 import { site } from "../site";
 ---
-<Base title="Your account" description="Your MostWanted account: linked Minecraft and Discord accounts." noindex>
-  <PageHero title="Your account" lead="Your Minecraft and Discord accounts, linked in one place." />
+<Base title="Your account" description="Your MostWanted account: linked accounts, tickets and applications." noindex>
+  <PageHero title="Your account" lead="Your linked accounts, tickets and applications, in one place." />
   <section class="section">
     <div class="wrap account" data-account data-api={site.api}>
       <p class="error" role="alert" data-error hidden></p>
@@ -38,6 +38,32 @@ import { site } from "../site";
 
       <p class="linked" data-linked hidden>Both linked: you have the <strong>Linked</strong> role on our Discord.</p>
 
+      <a class="panel staff-link" href="/panel" data-staff hidden><strong>Staff panel</strong> <span>Tickets and applications</span></a>
+
+      <section class="panel list" id="notifications" data-ready hidden aria-labelledby="notices-title">
+        <h2 id="notices-title">Notifications</h2>
+        <ol class="items" data-notices></ol>
+        <p class="none" data-no-notices>Nothing yet. Staff replies and application decisions show up here, by Discord DM if you've linked Discord, and in game.</p>
+      </section>
+
+      <section class="panel list" id="tickets" data-ready hidden aria-labelledby="tickets-title">
+        <div class="list-head">
+          <h2 id="tickets-title">Tickets</h2>
+          <a class="button" href="/support#ticket">Open a ticket</a>
+        </div>
+        <ol class="items" data-tickets></ol>
+        <p class="none" data-no-tickets>No tickets. Reports, appeals, bugs and questions go through <a href="/support#ticket">Support</a>.</p>
+      </section>
+
+      <section class="panel list" id="applications" data-ready hidden aria-labelledby="applications-title">
+        <div class="list-head">
+          <h2 id="applications-title">Applications</h2>
+          <a class="button" href="/apply">Apply</a>
+        </div>
+        <ol class="items" data-applications></ol>
+        <p class="none" data-no-applications>None. Want to be a guard, join the staff or the creator program? See <a href="/apply">Apply</a>.</p>
+      </section>
+
       <section class="panel danger" data-ready hidden aria-labelledby="manage-title">
         <h2 id="manage-title">Manage</h2>
         <div class="actions">
@@ -53,6 +79,14 @@ import { site } from "../site";
 
 <script>
   import { ApiError, call, type Me } from "../scripts/api";
+  import { APPLICATION_STATES, KINDS, TICKET_STATES, chip, el, when, type Application, type Notice, type Ticket } from "../scripts/support";
+
+  // Back from signing in with Discord, which always lands here: on to where they were going.
+  const next = sessionStorage.getItem("mw-next");
+  if (next) {
+    sessionStorage.removeItem("mw-next");
+    location.replace(next);
+  }
 
   const root = document.querySelector<HTMLElement>("[data-account]")!;
   const api = root.dataset.api!;
@@ -85,10 +119,49 @@ import { site } from "../site";
     $("discord-link").hidden = !!me.discord;
     if (me.discord) $("discord-name").textContent = me.discord.name;
     $("linked").hidden = !me.linked;
+    $("staff").hidden = !me.staff;
+  }
+
+  function item(title: Node | string, meta: string, state: HTMLElement | null, href: string | null): HTMLLIElement {
+    const head = el("p", "item-head", el("strong", "", title), state);
+    const body = el("div", "", head, el("p", "item-meta", meta));
+    if (!href) return el("li", "item", body);
+    const a = el("a", "item-link", body);
+    a.href = href;
+    return el("li", "item", a);
+  }
+
+  async function lists() {
+    const [notices, tickets, applications] = await Promise.all([
+      call<Notice[]>(api, "GET", "/v1/me/notifications"),
+      call<Ticket[]>(api, "GET", "/v1/me/tickets"),
+      call<Application[]>(api, "GET", "/v1/me/applications"),
+    ]);
+    $("notices").replaceChildren(
+      ...notices!.map((n) => item(n.text, when(n.createdAt), n.read ? null : chip("open", "New"), n.link)),
+    );
+    $("no-notices").hidden = notices!.length > 0;
+    $("tickets").replaceChildren(
+      ...tickets!.map((t) => item(t.subject, `Updated ${when(t.updatedAt)}`, chip(t.status, TICKET_STATES[t.status]), `/ticket?id=${t.id}`)),
+    );
+    $("no-tickets").hidden = tickets!.length > 0;
+    $("applications").replaceChildren(
+      ...applications!.map((a) => {
+        const li = item(KINDS[a.kind] ?? a.kind, `Sent ${when(a.createdAt)}`, chip(a.status, APPLICATION_STATES[a.status]), null);
+        if (a.note) li.append(el("p", "note-from", el("strong", "", `${a.decidedBy ?? "Staff"}: `), a.note));
+        return li;
+      }),
+    );
+    $("no-applications").hidden = applications!.length > 0;
+    // Seen now: the next visit shows them as read.
+    if (notices!.some((n) => !n.read)) call(api, "POST", "/v1/me/notifications/read").catch(() => {});
   }
 
   call<Me>(api, "GET", "/v1/me").then(
-    (me) => render(me!),
+    (me) => {
+      render(me!);
+      lists().catch((e) => show((e as Error).message));
+    },
     (e) => {
       if (e instanceof ApiError && e.status === 401) location.replace("/login");
       else {
@@ -152,7 +225,8 @@ import { site } from "../site";
   }
 
   .side,
-  .danger {
+  .danger,
+  .list {
     display: grid;
     align-content: start;
     gap: var(--s-4);
@@ -220,5 +294,74 @@ import { site } from "../site";
 
   .small {
     font-size: 0.875rem;
+  }
+
+  .list-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .items {
+    display: grid;
+    gap: var(--s-2);
+    padding: 0;
+    list-style: none;
+  }
+
+  .items :global(.item) {
+    padding: var(--s-3) var(--s-4);
+    border: 2px solid var(--rule);
+    border-radius: 10px;
+  }
+
+  .items :global(.item-link) {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .items :global(.item:has(.item-link):hover) {
+    border-color: var(--orange);
+  }
+
+  .items :global(.item-head) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text);
+  }
+
+  .items :global(.item-meta) {
+    font-size: 0.875rem;
+  }
+
+  .items :global(.note-from) {
+    margin-top: var(--s-2);
+    padding-left: var(--s-3);
+    border-left: 3px solid var(--rule);
+  }
+
+  .none a {
+    color: var(--orange);
+  }
+
+  .staff-link {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    align-items: baseline;
+    padding: var(--s-4) var(--s-6);
+    border-color: var(--orange);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .staff-link span {
+    color: var(--muted);
   }
 </style>

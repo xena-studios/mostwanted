@@ -28,6 +28,11 @@ public final class Storage implements AutoCloseable {
         this.log = log;
     }
 
+    /** For listening to the backend (LISTEN/NOTIFY). */
+    public Database database() {
+        return database;
+    }
+
     /** For reads, which callers run off the main thread themselves. */
     public DSLContext sql() {
         return database.sql();

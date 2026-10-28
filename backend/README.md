@@ -26,7 +26,15 @@ discord-setup/   builds the Discord server (roles, channels, posts, AutoMod) fro
 | `GET /v1/me` | The signed-in account: its Discord and Minecraft sides, and whether they're linked. 401 if not signed in. |
 | `POST /v1/me/minecraft` `{"code": "..."}` | Links the Minecraft account behind a code. |
 | `POST /v1/auth/logout` | Signs out this browser. |
-| `DELETE /v1/me` | Deletes the account, its sessions and its links. Game data stays (the privacy page says to email for that). |
+| `DELETE /v1/me` | Deletes the account, its sessions and its links, tickets, applications and notifications. Game data stays (the privacy page says to email for that). |
+| `GET /v1/forms` | The support categories and each application's questions, for the site's forms. |
+| `GET`, `POST /v1/me/tickets` `{"category", "subject", "body"}` | Your tickets; opens one (3 an hour at most). |
+| `GET /v1/tickets/{id}` | A ticket and its messages: yours, or any if you're staff. |
+| `POST /v1/tickets/{id}/messages` `{"body"}`, `POST /v1/tickets/{id}/close` | Replies (staff replies notify the player), or closes it. |
+| `GET`, `POST /v1/me/applications` `{"kind", "answers"}` | Your applications; sends one (Minecraft linked, one waiting per kind, a week after a "no"). |
+| `GET /v1/me/notifications`, `POST /v1/me/notifications/read` | Your notifications; marks them read. |
+| `GET /v1/staff/tickets?status=`, `GET /v1/staff/applications?status=` | Staff only (helper and up, from LuckPerms): the queues. |
+| `POST /v1/staff/applications/{id}` `{"decision": "accept"\|"deny", "note"}` | Moderators and up. Accepting a guard gives the guard rank in game. |
 
 - The session is a 30-day cookie scripts can't read (`HttpOnly`, `SameSite=Lax`, `Secure`, shared by `COOKIE_DOMAIN`). Only its SHA-256 is stored.
 - Anything that changes something must come from an `API_ORIGINS` page (its `Origin` header), so other sites can't act for a signed-in visitor.

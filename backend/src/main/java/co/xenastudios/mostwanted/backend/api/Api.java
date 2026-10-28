@@ -7,6 +7,10 @@ import co.xenastudios.mostwanted.backend.accounts.DiscordOAuth;
 import co.xenastudios.mostwanted.backend.accounts.LinkedRole;
 import co.xenastudios.mostwanted.backend.accounts.Sessions;
 import co.xenastudios.mostwanted.backend.stats.Stats;
+import co.xenastudios.mostwanted.backend.support.Applications;
+import co.xenastudios.mostwanted.backend.support.Inbox;
+import co.xenastudios.mostwanted.backend.support.Staff;
+import co.xenastudios.mostwanted.backend.support.Tickets;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
@@ -52,6 +56,12 @@ public final class Api {
     public static AccountRoutes accounts(BackendConfig config, Accounts accounts, Sessions sessions,
             DiscordOAuth discord, LinkedRole linkedRole) {
         return new AccountRoutes(config, accounts, sessions, discord, linkedRole);
+    }
+
+    /** Adds support tickets, applications and notifications to the account routes. */
+    public static void support(AccountRoutes routes, Accounts accounts, Tickets tickets, Applications applications,
+            Inbox inbox, Staff staff) {
+        routes.support(new SupportRoutes(routes, accounts, tickets, applications, inbox, staff));
     }
 
     /** Reads and checks the TLS files, if any; throws IllegalArgumentException with the reason. */

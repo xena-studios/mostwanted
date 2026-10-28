@@ -127,6 +127,17 @@ public final class Bot extends ListenerAdapter implements LinkedRole {
         }
     }
 
+    /**
+     * A direct message: a staff reply or an application decision. Someone with DMs
+     * closed doesn't get it, which is fine: it's on the site and in game too.
+     */
+    public void dm(String discordId, String text) {
+        jda.retrieveUserById(discordId)
+                .flatMap(user -> user.openPrivateChannel())
+                .flatMap(channel -> channel.sendMessage(text))
+                .queue(sent -> { }, failed -> LOG.info("Couldn't DM {}: {}", discordId, failed.getMessage()));
+    }
+
     public boolean connected() {
         return jda.getStatus() == JDA.Status.CONNECTED;
     }

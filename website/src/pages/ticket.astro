@@ -1,0 +1,210 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../site";
+---
+<Base title="Ticket" description="A MostWanted support ticket." noindex>
+  <section class="section">
+    <div class="wrap thread" data-ticket data-api={site.api}>
+      <p class="loading" data-loading>Loading…</p>
+      <p class="alert" role="alert" data-error hidden></p>
+
+      <header class="head" data-ready hidden>
+        <p class="crumbs"><a data-back href="/account#tickets">← Your tickets</a></p>
+        <h1 data-subject></h1>
+        <p class="meta"><span data-status></span> <span data-about></span></p>
+      </header>
+
+      <ol class="messages" data-messages data-ready hidden></ol>
+
+      <form class="panel form reply" data-reply hidden>
+        <label>
+          Reply
+          <textarea class="input" name="body" required maxlength="4000"></textarea>
+        </label>
+        <p class="alert" role="alert" data-reply-error hidden></p>
+        <div class="actions">
+          <button class="button primary" type="submit">Send</button>
+          <button class="button" type="button" data-close>Close the ticket</button>
+        </div>
+      </form>
+      <p class="closed" data-closed hidden>This ticket is closed. Need more help? <a href="/support#ticket">Open a new one</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { ApiError, call } from "../scripts/api";
+  import { TICKET_STATES, chip, el, linked, when, type Message, type Ticket } from "../scripts/support";
+
+  type View = { ticket: Ticket; messages: Message[]; mine: boolean };
+
+  const root = document.querySelector<HTMLElement>("[data-ticket]")!;
+  const api = root.dataset.api!;
+  const $ = <T extends HTMLElement>(name: string) => root.querySelector<T>(`[data-${name}]`)!;
+  const id = new URLSearchParams(location.search).get("id") ?? "";
+
+  function fail(message: string) {
+    $("loading").hidden = true;
+    $("error").textContent = message;
+    $("error").hidden = false;
+  }
+
+  function render(view: View) {
+    const { ticket, messages, mine } = view;
+    document.title = `${ticket.subject} · MostWanted`;
+    $("loading").hidden = true;
+    root.querySelectorAll<HTMLElement>("[data-ready]").forEach((node) => (node.hidden = false));
+    $("subject").textContent = ticket.subject;
+    $("status").replaceChildren(chip(ticket.status, TICKET_STATES[ticket.status]));
+    $("about").textContent = mine ? `Opened ${when(ticket.createdAt)}` : `From ${ticket.owner}, opened ${when(ticket.createdAt)}`;
+    if (!mine) {
+      $<HTMLAnchorElement>("back").href = "/panel";
+      $("back").textContent = "← Staff panel";
+    }
+    $("messages").replaceChildren(
+      ...messages.map((m) =>
+        el(
+          "li",
+          `panel message${m.staff ? " staff" : ""}`,
+          el("p", "who", el("strong", "", m.author), m.staff ? el("span", "badge", "Staff") : null, el("span", "time", when(m.createdAt))),
+          el("p", "body", linked(m.body)),
+        ),
+      ),
+    );
+    const closed = ticket.status === "closed";
+    $("reply").hidden = closed;
+    $("closed").hidden = !closed;
+  }
+
+  const load = () =>
+    call<View>(api, "GET", `/v1/tickets/${encodeURIComponent(id)}`).then(
+      (view) => render(view!),
+      (e) => {
+        if (e instanceof ApiError && e.status === 401) location.replace(`/login?next=${encodeURIComponent(location.pathname + location.search)}`);
+        else fail((e as Error).message);
+      },
+    );
+  load();
+
+  const form = $<HTMLFormElement>("reply");
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+    button.disabled = true;
+    try {
+      await call(api, "POST", `/v1/tickets/${encodeURIComponent(id)}/messages`, { body: new FormData(form).get("body") });
+      form.reset();
+      $("reply-error").hidden = true;
+      await load();
+    } catch (e) {
+      $("reply-error").textContent = (e as Error).message;
+      $("reply-error").hidden = false;
+    }
+    button.disabled = false;
+  });
+
+  $("close").addEventListener("click", async () => {
+    try {
+      await call(api, "POST", `/v1/tickets/${encodeURIComponent(id)}/close`);
+      await load();
+    } catch (e) {
+      $("reply-error").textContent = (e as Error).message;
+      $("reply-error").hidden = false;
+    }
+  });
+</script>
+
+<style>
+  [hidden] {
+    display: none !important;
+  }
+
+  .thread {
+    display: grid;
+    gap: var(--s-5);
+    max-width: 48rem;
+  }
+
+  .crumbs a,
+  .closed a {
+    color: var(--orange);
+  }
+
+  h1 {
+    margin-top: var(--s-2);
+    font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.5rem);
+    overflow-wrap: anywhere;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    align-items: center;
+    margin-top: var(--s-2);
+    color: var(--muted);
+  }
+
+  .messages {
+    display: grid;
+    gap: var(--s-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  .messages :global(.message) {
+    display: grid;
+    gap: var(--s-2);
+    padding: var(--s-4) var(--s-5);
+  }
+
+  .messages :global(.message.staff) {
+    border-left: 4px solid var(--orange);
+  }
+
+  .messages :global(.who) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    align-items: center;
+  }
+
+  .messages :global(.badge) {
+    padding: 0 0.5rem;
+    border-radius: 6px;
+    background: var(--orange);
+    color: var(--ink);
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+
+  .messages :global(.time) {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+
+  .messages :global(.body) {
+    color: var(--text);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .messages :global(.body a) {
+    color: var(--orange);
+  }
+
+  .reply {
+    padding: var(--s-5);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+  }
+
+  .closed {
+    color: var(--muted);
+  }
+</style>

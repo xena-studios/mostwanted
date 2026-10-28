@@ -2,14 +2,14 @@
 import { Bug, Flag, Gavel, Mail, MessageCircle } from "@lucide/astro";
 import Base from "../layouts/Base.astro";
 import PageHero from "../components/PageHero.astro";
-import { site } from "../site";
+import { site, signInOpen } from "../site";
 import cactus from "../brand/scene-cactus.png";
 
 const ways = [
   { icon: Flag, title: "Report a player", body: "Cheating, abusing a bug, or a guard breaking the code. Open a ticket with a screenshot or clip." },
   { icon: Bug, title: "Report a bug", body: "Something broken? Tell us what happened and how to make it happen again. Exploits go to staff privately, never in public chat." },
   { icon: Gavel, title: "Appeal a punishment", body: "Think a mute or ban was a mistake? Open an appeal ticket with your username and what happened." },
-  { icon: MessageCircle, title: "Ask a question", body: "Most answers are in the wiki. Still stuck? Ask in the Discord." },
+  { icon: MessageCircle, title: "Ask a question", body: "Most answers are in the wiki. Still stuck? Open a ticket, or ask in the Discord." },
 ];
 ---
 <Base title="Support" description="Report a player or a bug, appeal a punishment, or get help on MostWanted.">
@@ -27,25 +27,103 @@ const ways = [
           ))
         }
       </ul>
-      <div class="panel contact">
-        <Mail aria-hidden="true" />
-        <div>
-          <h2>Tickets</h2>
-          {
-            site.discord ? (
-              <p>Open a ticket in the <a href={site.discord}>Discord</a>. Staff answer in order.</p>
-            ) : (
-              <p>Tickets run through the MostWanted Discord once the server opens. Until then, email <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
-            )
-          }
+      <div class="panel ticket" id="ticket" data-support data-api={site.api} data-open={String(signInOpen)}>
+        <div class="ticket-head">
+          <Mail aria-hidden="true" />
+          <h2>Open a ticket</h2>
         </div>
-        <a class="button" href="/wiki/faq">Read the FAQ</a>
+        {
+          signInOpen ? (
+            <>
+              <p class="lead-in" data-loading>Loading…</p>
+              <p class="lead-in" data-signed-out hidden>
+                Tickets live on your MostWanted account, so you can follow the replies. <a href="/login?next=/support%23ticket">Sign in</a> with Discord or a code from <code>/website</code> in game.
+              </p>
+              <form class="form" data-form hidden>
+                <label>
+                  What's it about?
+                  <select class="input" name="category" data-categories required></select>
+                </label>
+                <label>
+                  Subject
+                  <input class="input" name="subject" required maxlength="100" placeholder="In a few words" />
+                </label>
+                <label>
+                  What happened?
+                  <span class="hint">Names, when and where. For proof, paste links to screenshots or clips (YouTube, Imgur, Medal).</span>
+                  <textarea class="input" name="body" required maxlength="4000"></textarea>
+                </label>
+                <p class="alert" role="alert" data-error hidden></p>
+                <button class="button primary" type="submit">Send</button>
+                <p class="hint">Staff answer in order. You'll hear back on your <a href="/account#tickets">account page</a>, by Discord DM if you've linked Discord, and in game.</p>
+              </form>
+            </>
+          ) : (
+            <p class="lead-in">Tickets open with the server. Until then, email <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+          )
+        }
       </div>
+      <p class="faq">Questions about how things work? Try the <a href="/wiki/faq">FAQ</a> first.</p>
     </div>
   </section>
 </Base>
 
+<script>
+  import { ApiError, call } from "../scripts/api";
+  import { el, type Forms } from "../scripts/support";
+
+  const root = document.querySelector<HTMLElement>("[data-support]")!;
+  const api = root.dataset.api!;
+  const $ = <T extends HTMLElement>(name: string) => root.querySelector<T>(`[data-${name}]`)!;
+  const form = root.querySelector<HTMLFormElement>("[data-form]");
+
+  if (form) {
+    Promise.all([call(api, "GET", "/v1/me"), call<Forms>(api, "GET", "/v1/forms")]).then(
+      ([, forms]) => {
+        for (const [id, label] of Object.entries(forms!.categories)) {
+          const option = el("option", "", label);
+          option.value = id;
+          $("categories").append(option);
+        }
+        $("loading").hidden = true;
+        form.hidden = false;
+      },
+      (e) => {
+        $("loading").hidden = true;
+        if (e instanceof ApiError && e.status === 401) $("signed-out").hidden = false;
+        else {
+          $("loading").hidden = false;
+          $("loading").textContent = (e as Error).message;
+        }
+      },
+    );
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = form.querySelector<HTMLButtonElement>("button")!;
+      const data = new FormData(form);
+      button.disabled = true;
+      try {
+        const made = await call<{ id: number }>(api, "POST", "/v1/me/tickets", {
+          category: data.get("category"),
+          subject: data.get("subject"),
+          body: data.get("body"),
+        });
+        location.assign(`/ticket?id=${made!.id}`);
+      } catch (e) {
+        $("error").textContent = (e as Error).message;
+        $("error").hidden = false;
+        button.disabled = false;
+      }
+    });
+  }
+</script>
+
 <style>
+  [hidden] {
+    display: none !important;
+  }
+
   .ways {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -59,7 +137,7 @@ const ways = [
   }
 
   .way :global(svg),
-  .contact :global(svg) {
+  .ticket-head :global(svg) {
     width: 2rem;
     height: 2rem;
     color: var(--orange);
@@ -71,27 +149,37 @@ const ways = [
   }
 
   .way p,
-  .contact p {
+  .lead-in {
     margin-top: var(--s-2);
     color: var(--muted);
   }
 
-  .contact {
+  .ticket {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: var(--s-5);
-    align-items: center;
-    margin-top: var(--s-4);
+    gap: var(--s-4);
+    max-width: 44rem;
+    margin-top: var(--s-6);
     padding: var(--s-6);
+    scroll-margin-top: 6rem;
   }
 
-  .contact h2 {
+  .ticket-head {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+  }
+
+  .ticket-head h2 {
     margin-top: 0;
   }
 
+  .faq {
+    margin-top: var(--s-4);
+    color: var(--muted);
+  }
+
   @media (max-width: 52rem) {
-    .ways,
-    .contact {
+    .ways {
       grid-template-columns: minmax(0, 1fr);
     }
   }
