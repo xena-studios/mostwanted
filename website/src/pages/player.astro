@@ -37,6 +37,7 @@ import sun from "../brand/scene-sun.png";
                 <p class="tags">
                   <span class="badge role" data-role></span>
                   <span class="badge bounty" data-bounty hidden></span>
+                  <a class="badge supporter" data-supporter href="/store#ranks" hidden></a>
                 </p>
                 <p class="seen"><span data-first></span> · <span data-last></span></p>
               </div>
@@ -68,6 +69,7 @@ import sun from "../brand/scene-sun.png";
 <script>
   import { ApiError } from "../scripts/api";
   import { format, head, player, validName, type Period, type Profile } from "../scripts/stats";
+  import { ranks } from "../store/catalog";
 
   const root = document.querySelector<HTMLElement>("[data-player]")!;
   const $ = <T extends HTMLElement>(name: string) => root.querySelector<T>(`[data-${name}]`)!;
@@ -104,6 +106,15 @@ import sun from "../brand/scene-sun.png";
     const bounty = $("bounty");
     bounty.hidden = profile.bounty <= 0;
     bounty.textContent = `Bounty ${format(profile.bounty, true)}`;
+    // Their store rank, in its tag colour: a thank-you, and a way to the store.
+    const supporter = $<HTMLAnchorElement>("supporter");
+    const rank = ranks.find((r) => r.id === profile.supporter);
+    supporter.hidden = !rank;
+    if (rank) {
+      supporter.textContent = `★ ${rank.name} supporter`;
+      supporter.style.color = rank.colour ?? "";
+      supporter.title = `${profile.name} supports the server with ${rank.name}`;
+    }
     $("first").textContent = `Joined ${day.format(new Date(profile.firstJoined))}`;
     $("last").textContent = `Last seen ${since(profile.lastSeen)}`;
     document.title = `${profile.name} · MostWanted`;
@@ -208,6 +219,11 @@ import sun from "../brand/scene-sun.png";
 
   .role[data-role="guard"] {
     color: #3399ff;
+  }
+
+  .supporter {
+    border-color: currentColor;
+    text-decoration: none;
   }
 
   .bounty {

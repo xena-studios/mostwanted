@@ -18,6 +18,7 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 import org.jooq.DSLContext;
 import org.jooq.Record3;
+import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
 /**
@@ -44,8 +45,12 @@ public final class Stats {
         }
     }
 
+    /** {@code supporter} is their store rank ("vip", "vip-plus", "mvp", "legend"), or null. */
     public record Profile(UUID uuid, String name, boolean bedrock, String role, long bounty, Instant firstJoined,
-            Instant lastSeen, Map<String, Map<String, Long>> stats) {}
+            Instant lastSeen, Map<String, Map<String, Long>> stats, String supporter) {}
+
+    /** LuckPerms' store groups, highest first, and the key the website knows each by. */
+    private static final List<String> RANKS = List.of("legend", "mvp", "vip_plus", "vip");
 
     public record Entry(int rank, UUID uuid, String name, long value) {}
 
@@ -101,7 +106,35 @@ public final class Stats {
                     values.computeIfPresent(r.value1(), (key, old) -> r.value3());
                 });
         return Optional.of(new Profile(row.getUuid(), row.getName(), row.getBedrock(), row.getRole(),
-                row.getBounty(), row.getFirstJoined().toInstant(), row.getLastSeen().toInstant(), stats));
+                row.getBounty(), row.getFirstJoined().toInstant(), row.getLastSeen().toInstant(), stats,
+                supporter(row.getUuid())));
+    }
+
+    /**
+     * Their highest store rank, from LuckPerms' own table (it shares our database in
+     * production). Null without one, or when LuckPerms isn't there, as in development.
+     */
+    String supporter(UUID uuid) {
+        List<String> groups;
+        try {
+            groups = sql.select(DSL.field("permission", String.class))
+                    .from(DSL.table("luckperms_user_permissions"))
+                    .where(DSL.field("uuid", String.class).eq(uuid.toString()))
+                    .and(DSL.field("value", Boolean.class).isTrue())
+                    .and(DSL.field("permission", String.class).in(RANKS.stream().map(rank -> "group." + rank).toList()))
+                    .and(DSL.field("server", String.class).in("global", "mostwanted"))
+                    .and(DSL.field("expiry", Long.class).eq(0L)
+                            .or(DSL.field("expiry", Long.class).gt(clock.instant().getEpochSecond())))
+                    .fetch(DSL.field("permission", String.class));
+        } catch (DataAccessException e) {
+            return null;
+        }
+        for (String rank : RANKS) {
+            if (groups.contains("group." + rank)) {
+                return rank.replace('_', '-');
+            }
+        }
+        return null;
     }
 
     /** The top {@code limit} on a board, highest first; ties by name. Zero values aren't listed. */

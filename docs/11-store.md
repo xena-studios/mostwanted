@@ -109,6 +109,8 @@ Core reads the permissions above, so a purchase works the moment LuckPerms has i
 
 Ops aren't given a rank tag: only a LuckPerms group really set counts. They do own every cosmetic (ops have every permission), which helps testing.
 
+- **Supporter badge:** a player's page on the website shows their rank ("★ MVP supporter", in its colour, linking to the store). The backend reads it from LuckPerms' own table, which shares our database (`Stats.supporter`). Players with private stats have no page, so no badge either.
+
 ## Still to do
 
-- **The supporter badge** on website player pages, and **Discord roles** per rank (the bot can sync them like the Linked role).
+- **Discord roles** per rank (the bot can sync them like the Linked role, once the roles exist on the server).

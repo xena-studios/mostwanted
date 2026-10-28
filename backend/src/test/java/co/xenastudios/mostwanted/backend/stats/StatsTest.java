@@ -55,6 +55,29 @@ class StatsTest {
     }
 
     @Test
+    void theSupporterBadgeIsTheirHighestStoreRank() {
+        UUID dee = db.player("Dee", "inmate", 0, false);
+        UUID eve = db.player("Eve", "inmate", 0, false);
+        // Without LuckPerms' table (development), nobody has one.
+        assertEquals(null, stats.supporter(dee));
+        // LuckPerms' own layout (its PostgreSQL schema).
+        db.database.sql().execute("""
+                CREATE TABLE luckperms_user_permissions (id SERIAL PRIMARY KEY, uuid VARCHAR(36) NOT NULL,
+                  permission VARCHAR(200) NOT NULL, value BOOL NOT NULL, server VARCHAR(36) NOT NULL,
+                  world VARCHAR(64) NOT NULL, expiry BIGINT NOT NULL, contexts VARCHAR(200) NOT NULL)""");
+        String insert = "INSERT INTO luckperms_user_permissions (uuid, permission, value, server, world, expiry, contexts)"
+                + " VALUES (?, ?, ?, 'global', 'global', ?, '{}')";
+        db.database.sql().execute(insert, dee.toString(), "group.vip", true, 0L);
+        db.database.sql().execute(insert, dee.toString(), "group.vip_plus", true, 0L);
+        db.database.sql().execute(insert, dee.toString(), "group.default", true, 0L);
+        db.database.sql().execute(insert, eve.toString(), "group.legend", true, 1L);
+        db.database.sql().execute(insert, eve.toString(), "group.mvp", false, 0L);
+        assertEquals("vip-plus", stats.supporter(dee));
+        assertEquals(null, stats.supporter(eve), "expired, and set to false");
+        assertEquals("vip-plus", stats.player("dee").orElseThrow().supporter());
+    }
+
+    @Test
     void periodsFollowTheServersTimezone() {
         assertEquals("2026-10", stats.periodKey(Stats.Period.MONTH));
         assertEquals("2026-W44", stats.periodKey(Stats.Period.WEEK));

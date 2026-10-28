@@ -14,6 +14,8 @@ export type Profile = {
   firstJoined: string;
   lastSeen: string;
   stats: Record<Period, Record<string, number>>;
+  /** Their store rank ("vip", "vip-plus", "mvp", "legend"), or null. */
+  supporter: string | null;
 };
 
 export type Entry = { rank: number; uuid: string; name: string; value: number };
