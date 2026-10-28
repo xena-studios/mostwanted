@@ -1,0 +1,46 @@
+# Shops: chest menus, the same on Java and Bedrock (docs/02-gameplay.md#economy).
+# Edit and restart to apply.
+#
+# /shop opens the shop for where you stand: a shop's role must match yours and you
+# must be in a zone of its kind. Put a FancyNpcs NPC there that runs "shop" for the
+# player when clicked. Prices come out of cash first, then the bank.
+#
+# items: "gun:<id>" and "ammo:<id>" from guns.yml, or any vanilla item
+# ("minecraft:iron_chestplate"). Up to 45 per shop. Guns, ammo and armor are never
+# in the Tebex store: only here, for in-game cash.
+
+shops:
+  hideout:
+    title: Hideout shop
+    zone: hideout
+    role: criminal
+    items:
+      - { item: "gun:pistol", price: 1500 }
+      - { item: "ammo:pistol", amount: 12, price: 100 }
+      - { item: "gun:shotgun", price: 4000 }
+      - { item: "ammo:shells", amount: 6, price: 200 }
+      - { item: "gun:rifle", price: 8000 }
+      - { item: "ammo:rifle", amount: 5, price: 300 }
+      - { item: "minecraft:iron_helmet", price: 600 }
+      - { item: "minecraft:iron_chestplate", price: 1200 }
+      - { item: "minecraft:iron_leggings", price: 1000 }
+      - { item: "minecraft:iron_boots", price: 500 }
+      - { item: "minecraft:cooked_beef", amount: 8, price: 50 }
+      - { item: "minecraft:golden_apple", price: 400 }
+
+  armory:
+    title: Armory
+    zone: police
+    role: guard
+    items:
+      - { item: "gun:pistol", price: 750 }
+      - { item: "ammo:pistol", amount: 12, price: 50 }
+      - { item: "gun:shotgun", price: 2000 }
+      - { item: "ammo:shells", amount: 6, price: 100 }
+      - { item: "gun:rifle", price: 4000 }
+      - { item: "ammo:rifle", amount: 5, price: 150 }
+      - { item: "minecraft:iron_helmet", price: 300 }
+      - { item: "minecraft:iron_chestplate", price: 600 }
+      - { item: "minecraft:iron_leggings", price: 500 }
+      - { item: "minecraft:iron_boots", price: 250 }
+      - { item: "minecraft:cooked_beef", amount: 8, price: 25 }

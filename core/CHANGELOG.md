@@ -1,2 +1,2 @@
 
-- Guns: pistol, shotgun, rifle and the guards' taser, hitscan, with magazines and auto-reload from ammo. Arrests confiscate them. `/mw give` for testing.
+- Shops: `/shop` opens the hideout shop (criminals) or the armory (guards) as a chest menu; prices from cash, then bank.

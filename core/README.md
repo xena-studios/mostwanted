@@ -28,6 +28,7 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
 - **Robberies:** every `robbery` zone is a place to rob. A criminal walking into an open one starts it, and the alarm goes off for guards on duty. The robbers must stay inside until the time is up (a red bar fills); if they all leave or are caught, it fails. The payout is split between the robbers and grows with the guards on duty; each robber gets bounty. Then it closes for a while and reopens with an announcement. While one is on, everyone's scoreboard has a red HEIST section. Times and payouts per spot are in `config.yml` under `robberies`.
 - **Duty:** `/duty` swaps between guard and inmate, each with their own cash and bank. Guards respawn at the `police` spawn, inmates at the `prison` spawn.
 - **Guns** (`guns.yml`): a pistol, shotgun, rifle and the guards' taser. Right-click to shoot. Shots are hitscan (they land along where you look, instantly), so they feel the same on Java and Bedrock. Hits go through the combat rules: safe zones hold, and kills count as arrests or bounty as usual. Headshots do 1.5×. Each gun keeps its loaded rounds on the item and reloads by itself from ammo in your inventory. The taser does no damage but slows a criminal hard for 3 seconds, so they can be cuffed; guards get it on duty, and it can't be dropped. An arrest takes a criminal's guns and ammo.
+- **Shops** (`shops.yml`): chest menus, the same on Java and Bedrock. `/shop` opens the one for where you stand: the **hideout shop** for criminals in a hideout, the **armory** for guards at the police station. Put a FancyNpcs NPC in each that runs `shop` for the player when clicked. Prices come out of cash first, then the bank. Guns, ammo, armor and food; guard gear is never sold.
 - **Privacy:** `/stats private` hides a player from the website and Discord. Server log files older than 90 days and game log entries older than 12 months are deleted at startup and daily, as the [privacy page](https://mostwantedmc.com/privacy) promises (`retention` in `config.yml`).
 - **Admin commands** for testing, each written to the game log.
 
@@ -40,6 +41,7 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
 | `/mw set <name> role <inmate\|criminal\|guard>` | `mostwanted.admin` | Changes their role |
 | `/mw set <name> cash\|bank\|bounty <amount>` | `mostwanted.admin` | Sets an amount |
 | `/stats private` · `public` | everyone | Hides your stats from the website and Discord, or shows them again. In-game boards still show you. |
+| `/shop` | everyone | Opens the shop where you stand (hideout for criminals, armory for guards) |
 | `/website` | everyone | A one-time code (10 minutes) to sign in on mostwantedmc.com or link this Minecraft account. Typed, not clicked, so it works on Bedrock. |
 | `/duty` | `mostwanted.guard` | Goes on duty as a guard (from the prison, as an inmate) or off duty |
 | `/mw give <name> gun\|ammo <id> [amount]` | `mostwanted.admin` | Gives a gun or ammo from `guns.yml`, for testing |
@@ -51,7 +53,7 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
 
 ## Config
 
-`plugins/MostWanted/config.yml`: the database, how often to save, the scoreboard clock's timezone, the gameplay numbers under `rules` (sentence length, kill share, guard-kill bounty, cuff range, combat tag), and each robbery spot under `robberies`. On the server it's rendered from [`server/files/plugins/MostWanted/config.yml.tmpl`](../server/files/plugins/MostWanted/config.yml.tmpl) with the password from `.env`. `messages.yml` holds every message, and `guns.yml` every gun and ammo type.
+`plugins/MostWanted/config.yml`: the database, how often to save, the scoreboard clock's timezone, the gameplay numbers under `rules` (sentence length, kill share, guard-kill bounty, cuff range, combat tag), and each robbery spot under `robberies`. On the server it's rendered from [`server/files/plugins/MostWanted/config.yml.tmpl`](../server/files/plugins/MostWanted/config.yml.tmpl) with the password from `.env`. `messages.yml` holds every message, `guns.yml` every gun and ammo type, and `shops.yml` what each shop sells.
 
 FAWE is optional: without it the game runs, but zones can't be marked out.
 
