@@ -3,6 +3,7 @@ package co.xenastudios.mostwanted.backend;
 import co.xenastudios.mostwanted.backend.accounts.Accounts;
 import co.xenastudios.mostwanted.backend.accounts.DiscordOAuth;
 import co.xenastudios.mostwanted.backend.accounts.LinkedRole;
+import co.xenastudios.mostwanted.backend.discord.RankRoles;
 import co.xenastudios.mostwanted.backend.accounts.Sessions;
 import co.xenastudios.mostwanted.backend.api.Api;
 import co.xenastudios.mostwanted.backend.discord.Bot;
@@ -58,6 +59,10 @@ public final class Backend {
                 Api.accounts(config, accounts, sessions, discord, bot == null ? LinkedRole.NONE : bot),
                 bot == null ? null : bot::connected);
         Thread.ofVirtual().name("daily-cleanup").start(() -> daily(sessions));
+        if (bot != null) {
+            RankRoles roles = new RankRoles(accounts, stats, bot);
+            Thread.ofVirtual().name("rank-roles").start(() -> every(Duration.ofMinutes(10), roles::sync));
+        }
         LOG.info("API listening on {}:{}", config.host(), api.port());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -68,6 +73,23 @@ public final class Backend {
             }
             database.close();
         }, "shutdown"));
+    }
+
+    /** Runs {@code task} now and then, a minute after starting (the bot needs to connect first). */
+    private static void every(Duration gap, Runnable task) {
+        try {
+            Thread.sleep(Duration.ofMinutes(1));
+            while (true) {
+                try {
+                    task.run();
+                } catch (RuntimeException e) {
+                    LOG.warn("Rank roles failed", e);
+                }
+                Thread.sleep(gap);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /** Expired sessions and codes go once a day: the privacy page promises 30-day sessions. */

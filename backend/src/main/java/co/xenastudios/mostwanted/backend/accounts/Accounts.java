@@ -5,6 +5,8 @@ import static co.xenastudios.mostwanted.common.db.Tables.LOGIN_CODES;
 import static co.xenastudios.mostwanted.common.db.Tables.PLAYERS;
 
 import co.xenastudios.mostwanted.common.db.tables.records.AccountsRecord;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
@@ -50,6 +52,16 @@ public final class Accounts {
                 .leftJoin(PLAYERS).on(PLAYERS.UUID.eq(ACCOUNTS.MINECRAFT_UUID))
                 .where(ACCOUNTS.ID.eq(id))
                 .fetchOptional(r -> new Account(r.value1(), r.value2(), r.value3(), r.value4(), r.value5()));
+    }
+
+    /** Each account with both sides connected: its Discord user and Minecraft player. */
+    public Map<String, UUID> linked() {
+        Map<String, UUID> linked = new LinkedHashMap<>();
+        sql.select(ACCOUNTS.DISCORD_ID, ACCOUNTS.MINECRAFT_UUID)
+                .from(ACCOUNTS)
+                .where(ACCOUNTS.DISCORD_ID.isNotNull()).and(ACCOUNTS.MINECRAFT_UUID.isNotNull())
+                .forEach(r -> linked.put(r.value1(), r.value2()));
+        return linked;
     }
 
     /** Finds or makes the account for this Discord user, keeping their name up to date. */
