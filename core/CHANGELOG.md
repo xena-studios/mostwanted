@@ -25,3 +25,4 @@
 - The resource pack: sent on join, with vanilla-style textures for every item of ours. `pack-models` in `guns.yml` is gone (items are always tagged).
 - Fixed: `config.yml` (and its server template) had lost every section but the last one added, so the shipped default couldn't start the plugin. `/duty` messages showed their keys, because YAML reads a key named `on` or `off` as true or false.
 - Store ranks and cosmetics: rank tags in the tab list, trails, escape and arrest effects, gun skins, chat colours, coloured names, joins announced, `/joinmessage`, all from LuckPerms permissions. `/cosmetics` to choose them. `/mw boost <player>` for the Server Boost.
+- Store delivery without the Tebex plugin: core runs the commands Tebex queues (`store` in `config.yml`, key from `TEBEX_SECRET`), only those matching `allowed-commands`.

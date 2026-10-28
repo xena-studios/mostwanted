@@ -9,7 +9,7 @@ Decided 2026-10-25. **Built** in [`website/`](../website/): home (explore cards,
 | Site | **[Astro](https://astro.build)** in [`website/`](../website/), same as [xenastudios.co](https://github.com/xena-studios/website) and the plugin docs |
 | Hosting | **Cloudflare** (Workers static assets), free tier |
 | Store | **[Tebex](https://tebex.io)**, through its [Headless API](https://docs.tebex.io/developers/headless-api/overview) |
-| Delivery | The **Tebex plugin** on the game server runs the commands for each purchase |
+| Delivery | Core asks Tebex's command queue and runs the commands for each purchase (no Tebex plugin; [11-store.md](11-store.md)) |
 | Domain | **mostwantedmc.com**: the site at the root, `play.` for the server address, `store.` if the store needs its own |
 
 ## Pages
@@ -38,12 +38,12 @@ Player on our site ──▶ Store page (our design, packages from Tebex's API)
                     Tebex checkout (payment, tax, fraud, chargebacks)
                           │
                           ▼
-              Tebex plugin on our server ──▶ runs commands
+              core on our server (asks Tebex) ──▶ runs commands
                                               e.g. lp user <name> parent add vip
-                                                   mostwanted cosmetic give <name> <id>
+                                                   mostwanted boost <name>
 ```
 
-- The Tebex plugin connects **out** to Tebex, so Minehut sitting in front of the server doesn't matter.
+- Core connects **out** to Tebex, so Minehut sitting in front of the server doesn't matter.
 - Bedrock players buy with the username they play under (check how Minehut names them).
 - Tebex's secret key never goes in the repo. The site only uses the public token.
 

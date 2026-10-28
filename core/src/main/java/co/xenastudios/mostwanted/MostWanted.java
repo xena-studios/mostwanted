@@ -32,6 +32,7 @@ import co.xenastudios.mostwanted.robbery.Robberies;
 import co.xenastudios.mostwanted.shop.ShopSettings;
 import co.xenastudios.mostwanted.shop.Shops;
 import co.xenastudios.mostwanted.storage.GameLog;
+import co.xenastudios.mostwanted.store.TebexQueue;
 import co.xenastudios.mostwanted.storage.Storage;
 import co.xenastudios.mostwanted.zone.ZoneCommand;
 import co.xenastudios.mostwanted.zone.Spawns;
@@ -56,6 +57,7 @@ public final class MostWanted extends JavaPlugin {
     private PlayerStore players;
     private Walls walls;
     private Gates gates;
+    private TebexQueue store;
 
     @Override
     public void onEnable() {
@@ -160,6 +162,8 @@ public final class MostWanted extends JavaPlugin {
         ResourcePack pack = new ResourcePack(settings.pack(), messages, getLogger());
         getServer().getPluginManager().registerEvents(pack, this);
         getServer().getScheduler().runTaskTimerAsynchronously(this, pack::refresh, 0, 20 * 60 * 5);
+        store = new TebexQueue(this, settings.store(), getLogger());
+        store.start();
         StatsCommand stats = new StatsCommand(players, messages);
         WebsiteCommand website = new WebsiteCommand(storage, messages, this::onMainThread, clock);
 
@@ -181,6 +185,9 @@ public final class MostWanted extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (store != null) {
+            store.stop();
+        }
         // Leave the map as it was built: no holes in walls, no gates open.
         if (walls != null) {
             walls.restoreAll();

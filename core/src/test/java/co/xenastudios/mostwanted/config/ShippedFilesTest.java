@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 class ShippedFilesTest {
 
     static final List<String> SECTIONS = List.of("database", "save-every-seconds", "clock", "rules", "robberies",
-            "retention", "escapes", "riots", "resource-pack");
+            "retention", "escapes", "riots", "resource-pack", "store");
 
     static YamlConfiguration resource(String name) throws Exception {
         try (var in = ShippedFilesTest.class.getResourceAsStream("/" + name)) {

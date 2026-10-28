@@ -160,7 +160,7 @@ The server already speaks Minehut's PROXY protocol and checks logins with Minehu
 
 ## 10. Tebex
 
-Follow [store: setting up Tebex](11-store.md#setting-up-tebex-whats-left-for-you): the webstore, the packages, and the **public token** as the `TEBEX_PUBLIC_TOKEN` repository variable (GitHub → Settings → Secrets and variables → Actions → Variables). Delivery in game needs the Tebex plugin, which is waiting for your approval ([11-store.md](11-store.md), step 5); its secret key goes in the game server's `.env`, never here.
+Follow [store: setting up Tebex](11-store.md#setting-up-tebex-whats-left-for-you): the webstore, the packages, and the **public token** as the `TEBEX_PUBLIC_TOKEN` repository variable (GitHub → Settings → Secrets and variables → Actions → Variables). Delivery in game is built into core: put the game server's Tebex secret key in its `.env` as `TEBEX_SECRET` ([11-store.md](11-store.md), step 5), never here.
 
 ## 11. Open the doors
 
