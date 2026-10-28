@@ -23,13 +23,30 @@ public final class CombatRules {
         }
     }
 
-    /** Whether {@code attacker} can damage {@code victim}. Guards and criminals fight; nobody else does. */
+    /** Whether {@code attacker} can damage {@code victim}, with no riot on. */
     public static boolean canHurt(Fighter attacker, Fighter victim) {
+        return canHurt(attacker, victim, false);
+    }
+
+    /**
+     * Whether {@code attacker} can damage {@code victim}. Guards and criminals fight; during
+     * a riot, guards and inmates also fight inside the prison. Nobody else does.
+     */
+    public static boolean canHurt(Fighter attacker, Fighter victim, boolean riot) {
         if (attacker.jailed() || victim.jailed() || attacker.protectedHere() || victim.protectedHere()) {
             return false;
         }
+        if (riot && rioting(attacker, victim)) {
+            return true;
+        }
         return attacker.role() == Role.GUARD && victim.role() == Role.CRIMINAL
                 || attacker.role() == Role.CRIMINAL && victim.role() == Role.GUARD;
+    }
+
+    /** A guard and an inmate, both inside the prison. */
+    private static boolean rioting(Fighter a, Fighter b) {
+        boolean pair = a.role() == Role.GUARD && b.role() == Role.INMATE || a.role() == Role.INMATE && b.role() == Role.GUARD;
+        return pair && a.zones().contains(ZoneKind.PRISON) && b.zones().contains(ZoneKind.PRISON);
     }
 
     public enum Cuff {
@@ -48,10 +65,16 @@ public final class CombatRules {
      * station: a criminal who walks in can be arrested there.
      */
     public static Cuff canCuff(Fighter guard, Fighter target) {
+        return canCuff(guard, target, false);
+    }
+
+    /** As above; during a riot, guards can also cuff inmates inside the prison. */
+    public static Cuff canCuff(Fighter guard, Fighter target, boolean riot) {
         if (guard.role() != Role.GUARD || guard.jailed()) {
             return Cuff.NOT_A_GUARD;
         }
-        if (target.role() != Role.CRIMINAL || target.jailed()) {
+        boolean rioter = riot && target.role() == Role.INMATE && target.zones().contains(ZoneKind.PRISON);
+        if (target.role() != Role.CRIMINAL && !rioter || target.jailed()) {
             return Cuff.NOT_A_CRIMINAL;
         }
         return target.protectedHere() ? Cuff.PROTECTED : Cuff.OK;

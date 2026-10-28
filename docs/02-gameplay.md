@@ -92,10 +92,10 @@ Criminals **can fight back** (decided). Guards vs. criminals is full PvP.
 
 Inmates **can start a riot** (decided).
 
-- **How it starts:** ideas are enough inmates hitting an alarm in the yard, overwhelming a guard post, or a riot item crafted from contraband. It should need several inmates, so one person can't start one alone.
+- **How it starts** (built 2026-10-27): 3 inmates right-click inside the alarm zone in the yard within 30 seconds. Needs a guard on duty, and 30 minutes since the last riot.
 - **During a riot:** inmates and guards can fight inside the prison, and the "no arresting inmates who aren't escaping" protection is off.
 - **Announced** to all guards, maybe server-wide, so guards rush back from the city. That's a great distraction for escapes and robberies happening at the same time.
-- **How it ends:** a timer, guards retaking control points, or most rioters arrested or down.
+- **How it ends** (built): after 5 minutes, or as soon as every rioter (those who pressed the alarm, and any inmate who hits a guard) is arrested or gone. A guard cuffing an inmate in the prison during a riot gives a 1-minute sentence.
 - **Cooldown** so riots stay special and guards aren't stuck at the prison all day.
 
 ### Guns

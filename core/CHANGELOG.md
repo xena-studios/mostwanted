@@ -1,2 +1,2 @@
 
-- Escape routes: breakable walls that grow back, and keycard gates; guards carry a keycard that can drop when they die.
+- Riots: inmates press the alarm together; guards and inmates fight in the prison until time runs out or every rioter is caught.

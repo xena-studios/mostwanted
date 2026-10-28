@@ -1,7 +1,6 @@
 package co.xenastudios.mostwanted.gun;
 
 import co.xenastudios.mostwanted.combat.Combat;
-import co.xenastudios.mostwanted.combat.CombatRules;
 import co.xenastudios.mostwanted.item.CustomItems;
 import co.xenastudios.mostwanted.item.GuardKit;
 import co.xenastudios.mostwanted.message.Messages;
@@ -204,8 +203,8 @@ public final class Guns implements Listener {
             }
             PlayerState shooterState = players.get(shooter.getUniqueId()).orElse(null);
             PlayerState victimState = players.get(victim.getUniqueId()).orElse(null);
-            if (shooterState == null || victimState == null || !CombatRules.canHurt(
-                    combat.fighter(shooter, shooterState), combat.fighter(victim, victimState))) {
+            if (shooterState == null || victimState == null
+                    || !combat.canHurt(shooter, shooterState, victim, victimState)) {
                 return;
             }
             int ticks = (int) (gun.stun().toMillis() / 50);

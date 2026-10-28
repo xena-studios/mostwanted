@@ -72,7 +72,7 @@ public final class Cuffing implements Listener {
             messages.send(guard, "cuffs.too-far", Messages.value("player", target.getName()));
             return;
         }
-        switch (CombatRules.canCuff(combat.fighter(guard, guardState), combat.fighter(target, targetState))) {
+        switch (CombatRules.canCuff(combat.fighter(guard, guardState), combat.fighter(target, targetState), combat.riot())) {
             case OK -> arrests.arrest(target, targetState, guard, guardState, Arrests.How.CUFFED);
             case NOT_A_GUARD -> messages.send(guard, "cuffs.not-a-guard");
             case NOT_A_CRIMINAL -> messages.send(guard, "cuffs.not-a-criminal", Messages.value("player", target.getName()));

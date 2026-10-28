@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -50,6 +51,8 @@ public final class Combat implements Listener {
     private final Clock clock;
     /** When each player last hit or was hit by another player. */
     private final Map<UUID, Instant> lastFight = new HashMap<>();
+    /** Whether a riot is on: set once riots are built. */
+    private BooleanSupplier riot = () -> false;
 
     public Combat(PlayerStore players, ZoneTracker tracker, Arrests arrests, Handcuffs handcuffs, Messages messages,
             GameLog gameLog, Rules rules, Clock clock) {
@@ -61,6 +64,19 @@ public final class Combat implements Listener {
         this.gameLog = gameLog;
         this.rules = rules;
         this.clock = clock;
+    }
+
+    public void riot(BooleanSupplier riot) {
+        this.riot = riot;
+    }
+
+    public boolean riot() {
+        return riot.getAsBoolean();
+    }
+
+    /** The combat rules for these two, here and now (riot included). */
+    public boolean canHurt(Player attacker, PlayerState attackerState, Player victim, PlayerState victimState) {
+        return CombatRules.canHurt(fighter(attacker, attackerState), fighter(victim, victimState), riot());
     }
 
     /** Whether they've fought another player within the combat tag. */
@@ -88,8 +104,7 @@ public final class Combat implements Listener {
         }
         PlayerState attackerState = players.get(attacker.getUniqueId()).orElse(null);
         PlayerState victimState = players.get(victim.getUniqueId()).orElse(null);
-        if (attackerState == null || victimState == null
-                || !CombatRules.canHurt(fighter(attacker, attackerState), fighter(victim, victimState))) {
+        if (attackerState == null || victimState == null || !canHurt(attacker, attackerState, victim, victimState)) {
             event.setCancelled(true);
             return;
         }
@@ -141,7 +156,7 @@ public final class Combat implements Listener {
     }
 
     /** The player behind a hit: the attacker, or whoever shot, threw or lit it. */
-    private static Player attacker(Entity damager) {
+    public static Player attacker(Entity damager) {
         if (damager instanceof Player player) {
             return player;
         }

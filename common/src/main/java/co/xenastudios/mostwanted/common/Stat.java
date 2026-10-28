@@ -8,7 +8,8 @@ public enum Stat {
     BOUNTY_EARNED("bounty_earned"),
     ROBBERIES("robberies"),
     CASH_STOLEN("cash_stolen"),
-    GUARDS_KILLED("guards_killed");
+    GUARDS_KILLED("guards_killed"),
+    RIOTS("riots");
 
     private final String key;
 
