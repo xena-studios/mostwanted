@@ -74,13 +74,20 @@ public final class Menus implements Listener {
         return messages.has(key + ".lore") ? messages.lines(key + ".lore", placeholders) : List.of();
     }
 
-    /** A player's head, named and described as given. */
+    /**
+     * A player's head, named and described as given. With their skin only for a real
+     * Java account (a version 4 UUID): someone online brings theirs, anyone else's the
+     * server looks up from Mojang once and keeps. Bedrock players and offline-mode
+     * test players have no skin there to find, so they get the plain head, no lookup.
+     */
     public ItemStack head(UUID uuid, String name, Component display, List<Component> lore) {
         ItemStack item = ItemStack.of(Material.PLAYER_HEAD);
         item.editMeta(SkullMeta.class, meta -> {
-            // Just who: the game fills in the skin, no lookup here.
-            PlayerProfile profile = Bukkit.createProfile(uuid, name);
-            meta.setPlayerProfile(profile);
+            if (uuid.version() == 4) {
+                Player online = Bukkit.getPlayer(uuid);
+                PlayerProfile profile = online != null ? online.getPlayerProfile() : Bukkit.createProfile(uuid, name);
+                meta.setPlayerProfile(profile);
+            }
             meta.itemName(display);
             meta.lore(lore);
         });
