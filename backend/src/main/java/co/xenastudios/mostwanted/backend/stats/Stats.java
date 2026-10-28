@@ -10,6 +10,8 @@ import co.xenastudios.mostwanted.common.db.tables.records.PlayersRecord;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -18,6 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record3;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
@@ -113,29 +116,44 @@ public final class Stats {
 
     /**
      * Their highest store rank, from LuckPerms' own table (it shares our database in
-     * production). Null without one, or when LuckPerms isn't there, as in development.
+     * production). Null without one, or when it can't be read (no LuckPerms, as in
+     * development): the badge just doesn't show.
      */
     public String supporter(UUID uuid) {
-        List<String> groups;
         try {
-            groups = sql.select(DSL.field("permission", String.class))
-                    .from(DSL.table("luckperms_user_permissions"))
-                    .where(DSL.field("uuid", String.class).eq(uuid.toString()))
-                    .and(DSL.field("value", Boolean.class).isTrue())
-                    .and(DSL.field("permission", String.class).in(RANKS.stream().map(rank -> "group." + rank).toList()))
-                    .and(DSL.field("server", String.class).in("global", "mostwanted"))
-                    .and(DSL.field("expiry", Long.class).eq(0L)
-                            .or(DSL.field("expiry", Long.class).gt(clock.instant().getEpochSecond())))
-                    .fetch(DSL.field("permission", String.class));
+            return supporters(List.of(uuid)).get(uuid);
         } catch (DataAccessException e) {
             return null;
         }
-        for (String rank : RANKS) {
-            if (groups.contains("group." + rank)) {
-                return rank.replace('_', '-');
-            }
+    }
+
+    /**
+     * The store rank of each of these players that has one, in one query. Throws if
+     * LuckPerms' table can't be read, so a caller can tell that apart from no rank.
+     */
+    public Map<UUID, String> supporters(Collection<UUID> uuids) {
+        Field<String> uuid = DSL.field("uuid", String.class);
+        Field<String> permission = DSL.field("permission", String.class);
+        Map<UUID, String> ranks = new HashMap<>();
+        if (uuids.isEmpty()) {
+            return ranks;
         }
-        return null;
+        sql.select(uuid, permission)
+                .from(DSL.table("luckperms_user_permissions"))
+                .where(uuid.in(uuids.stream().map(UUID::toString).toList()))
+                .and(DSL.field("value", Boolean.class).isTrue())
+                .and(permission.in(RANKS.stream().map(rank -> "group." + rank).toList()))
+                .and(DSL.field("server", String.class).in("global", "mostwanted"))
+                .and(DSL.field("expiry", Long.class).eq(0L)
+                        .or(DSL.field("expiry", Long.class).gt(clock.instant().getEpochSecond())))
+                .forEach(row -> {
+                    String rank = row.value2().substring("group.".length());
+                    // RANKS is highest first: keep the highest each player has.
+                    ranks.merge(UUID.fromString(row.value1()), rank,
+                            (a, b) -> RANKS.indexOf(a) <= RANKS.indexOf(b) ? a : b);
+                });
+        ranks.replaceAll((player, rank) -> rank.replace('_', '-'));
+        return ranks;
     }
 
     /** The top {@code limit} on a board, highest first; ties by name. Zero values aren't listed. */

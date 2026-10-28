@@ -112,7 +112,7 @@ import sun from "../brand/scene-sun.png";
     supporter.hidden = !rank;
     if (rank) {
       supporter.textContent = `★ ${rank.name} supporter`;
-      supporter.style.color = rank.colour ?? "";
+      supporter.dataset.rank = rank.id;
       supporter.title = `${profile.name} supports the server with ${rank.name}`;
     }
     $("first").textContent = `Joined ${day.format(new Date(profile.firstJoined))}`;
@@ -219,6 +219,10 @@ import sun from "../brand/scene-sun.png";
 
   .role[data-role="guard"] {
     color: #3399ff;
+  }
+
+  .supporter[data-rank] {
+    color: var(--rank-text);
   }
 
   .supporter {

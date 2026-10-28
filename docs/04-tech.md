@@ -178,13 +178,13 @@ Decided 2026-10-26. **Java, like `core`**, so the game, the API and the bot shar
 `core` runs everything for up to 100 players on one shared CPU core, so speed is a rule, not a hope. These are checked in review ([CONTRIBUTING.md](../CONTRIBUTING.md#what-a-change-has-to-keep-true)) and measured before launch.
 
 **Do nothing until something happens**
-- Event-driven: no loop that runs every tick over every player. The few timers (robbery open/close, riot clock, jail time) are one scheduled task each, started when needed and cancelled when done.
+- Event-driven: no loop that runs every tick over every player. The few timers (robberies, riots, jail time, walls and gates) run once a second, not every tick, and are cheap when nothing is going on; the scoreboard runs twice a second and only redraws what changed.
 - Movement is the hottest event. Its handler returns immediately unless the player changed block, and zone checks only run when they changed chunk or crossed a zone edge.
 
 **Keep the hot path in memory**
 - Each online player's state (role, cash, bounty, zone) lives in memory, loaded once on join. Gameplay never waits on the database.
 - Zones are indexed by chunk: finding "which zone am I in" looks at the few zones touching that chunk, not all of them.
-- Config, messages and item definitions are parsed once on load or `/mostwanted reload`, never per event.
+- Config, messages and item definitions are parsed once at startup, never per event (changing them takes a restart).
 
 **Database off the main thread, in batches**
 - PostgreSQL through a small HikariCP pool (a handful of connections). Every query runs async.
@@ -197,7 +197,7 @@ Decided 2026-10-26. **Java, like `core`**, so the game, the API and the bot shar
 
 **Robust**
 - Paper API only: no NMS or reflection into server internals, so it keeps running on Leaf and through Paper updates.
-- Each system is a module that can be switched off in config; one failing module logs an error and turns itself off, the rest keep running.
+- Each system is its own package, wired together in `MostWanted.java`; the parts that talk to the outside (store delivery, the resource pack) can be switched off in config.
 - Players are stored by UUID. Bedrock players (through Minehut) included.
 
 **Measured**

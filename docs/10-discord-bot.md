@@ -1,6 +1,6 @@
 # Discord
 
-Decided 2026-10-26: **our own bot instead of DiscordSRV.** DiscordSRV is large, does a lot we don't use, and adds its own messages and commands to the server. Our bot does exactly what MostWanted needs, in the [message style](09-brand.md#messages). It's part of the [`backend`](../backend/) app with the website's API. Built so far: `/profile`.
+Decided 2026-10-26: **our own bot instead of DiscordSRV.** DiscordSRV is large, does a lot we don't use, and adds its own messages and commands to the server. Our bot does exactly what MostWanted needs, in the [message style](09-brand.md#messages). It's part of the [`backend`](../backend/) app with the website's API. Built so far: `/profile`, the **Linked** role and store rank roles.
 
 ## The server
 
@@ -36,8 +36,8 @@ One Discord application, **MostWanted** (client id `1564123260562440303`), is bo
 Support, applications and account linking live on the **website** ([accounts](08-website.md#accounts-and-the-api)); staff handle tickets, applications and punishments in the website's staff panel. Discord is one more way in, and one more place notifications arrive.
 
 **At launch**
-- **Linking:** players link Discord and Minecraft on the website; the bot gives the **Linked** role and keeps it right (unlink, leave and rejoin).
-- **Store ranks:** a linked player with a store rank gets the role named after it, **VIP**, **VIP+**, **MVP** or **Legend** (exact names, in the rank's colour: `#99ff33`, `#33ffcc`, `#6633ff`, `#ff3366`), and loses the others. The bot checks every 10 minutes, reading the rank from LuckPerms like the website's supporter badge, and only sends changes. Unlinking takes the role away. Roles that don't exist on the server are skipped, so it does nothing until you make them (below the bot's own role, so it can give them).
+- **Linking:** players link Discord and Minecraft on the website; the bot gives the **Linked** role straight away, takes it on unlinking, and gives it back within the hour to someone who left and rejoined.
+- **Store ranks:** a linked player with a store rank gets the role named after it, **VIP**, **VIP+**, **MVP** or **Legend** (exact names, in the rank's colour: `#99ff33`, `#33ffcc`, `#6633ff`, `#ff3366`), and loses the others. The bot checks every 10 minutes, reading the rank from LuckPerms like the website's supporter badge, and only sends changes; a change Discord turns down is tried again next time, and if LuckPerms can't be read, nobody's roles change. Unlinking takes the role away. Roles that don't exist on the server are skipped, so it does nothing until you make them (below the bot's own role, so it can give them).
 - **Rank sync:** Guard, Helper, Moderator, Admin and Creator follow the player's LuckPerms groups, both ways, within seconds (PostgreSQL `LISTEN/NOTIFY`, no polling).
 - **DMs:** ticket replies and application decisions, with a link to the page. If a player's DMs are closed, they still get it on the site and in game.
 - **`/support` and `/apply`:** Discord forms that create the ticket or application on the website, for people who'd rather not open a browser.

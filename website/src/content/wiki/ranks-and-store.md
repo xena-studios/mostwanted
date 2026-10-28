@@ -11,7 +11,7 @@ The [store](/store) helps pay for the server. It opens with the server.
 
 The store only sells **cosmetics**: things that change how you look, never how you play. Nothing in it helps you win a fight, an escape or a robbery.
 
-**Never for sale:** guns, ammo, armor, cash, shorter jail time, the guard rank, crates or anything random.
+**Never for sale:** guns, ammo, armor, cash, shorter sentences, the guard rank, crates or anything random.
 
 Everything is a **one-time** purchase and **yours for good**. There are no subscriptions.
 
@@ -45,10 +45,6 @@ You can also buy cosmetics one at a time:
 - **Arrest effects:** Spotlight and Siren.
 - **Gun skins:** Gilded Pistol, Copper Shotgun, Midnight Rifle and Diamond Taser. A skin changes how a gun looks, never its stats.
 - **Chat colours.**
-
-## Coming soon
-
-The perks above are still being built, for launch: the trails and effects, gun skins, chat colours, rank tags in the tab list, joins announced, Discord roles and the supporter badge. Until then, they don't show in game yet.
 
 ## Buying
 

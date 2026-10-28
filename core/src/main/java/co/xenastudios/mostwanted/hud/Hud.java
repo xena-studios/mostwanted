@@ -14,8 +14,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -44,7 +46,11 @@ public final class Hud {
     private final String zoneLabel;
     private final Map<UUID, Sidebar> sidebars = new HashMap<>();
     private String lastMinute = "";
+    private long lastSecond;
     private boolean tabChanged = true;
+    /** The tab footer and player count last sent, and who has them: only changes are sent. */
+    private String lastTab = "";
+    private final Set<UUID> tabSent = new HashSet<>();
     /** Live events (a robbery, later a riot): a section everyone sees while they're on. */
     private Supplier<List<Component>> live = List::of;
     private List<Component> lastLive = List.of();
@@ -77,6 +83,7 @@ public final class Hud {
 
     public void hide(Player player) {
         sidebars.remove(player.getUniqueId());
+        tabSent.remove(player.getUniqueId());
         tabChanged = true;
     }
 
@@ -86,9 +93,15 @@ public final class Hud {
         String minute = TIME.format(now.atZone(zone));
         boolean clockChanged = !minute.equals(lastMinute);
         lastMinute = minute;
+        // Sentences and live timers count in seconds; this runs twice a second.
+        long second = now.getEpochSecond();
+        boolean newSecond = second != lastSecond;
+        lastSecond = second;
         List<Component> events = live.get();
-        boolean liveChanged = !events.equals(lastLive);
-        lastLive = events;
+        boolean liveChanged = newSecond && !events.equals(lastLive);
+        if (newSecond) {
+            lastLive = events;
+        }
         for (Player player : Bukkit.getOnlinePlayers()) {
             Sidebar sidebar = sidebars.get(player.getUniqueId());
             PlayerState state = store.get(player.getUniqueId()).orElse(null);
@@ -101,8 +114,8 @@ public final class Hud {
                 player.setPlayerListOrder(listOrder(state));
                 tabChanged = true;
             }
-            if (changed || clockChanged || liveChanged || serving(state, now)) {
-                sidebar.lines(lines(state, now, events));
+            if (changed || clockChanged || liveChanged || newSecond && serving(state, now)) {
+                sidebar.lines(lines(state, now, lastLive));
             }
         }
         if (tabChanged) {
@@ -163,11 +176,21 @@ public final class Hud {
         }
         store.all().forEach(state -> counts.merge(state.role(), 1, Integer::sum));
         int online = Bukkit.getOnlinePlayers().size();
+        // A role change or someone joining changes this; most state changes (cash, bounty) don't.
+        String tab = counts + "/" + online;
+        boolean everyone = !tab.equals(lastTab);
+        lastTab = tab;
+        if (everyone) {
+            tabSent.clear();
+        }
         Component footer = messages.get("tab.footer",
                 Messages.value("guards", counts.get(Role.GUARD)),
                 Messages.value("criminals", counts.get(Role.CRIMINAL)),
                 Messages.value("inmates", counts.get(Role.INMATE)));
         for (Player player : Bukkit.getOnlinePlayers()) {
+            if (!tabSent.add(player.getUniqueId())) {
+                continue;
+            }
             Component header = messages.get("tab.header",
                     Messages.component("head", Component.object(ObjectContents.playerHead(player.getUniqueId()))),
                     Messages.value("player", player.getName()),

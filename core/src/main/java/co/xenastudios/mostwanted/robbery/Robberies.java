@@ -66,6 +66,7 @@ public final class Robberies {
     public void tick() {
         Instant now = clock.instant();
         Set<String> live = new HashSet<>();
+        Map<String, List<Player>> robbing = robbers(now);
         for (Zone zone : zones.all()) {
             if (zone.kind() != ZoneKind.ROBBERY) {
                 continue;
@@ -73,7 +74,7 @@ public final class Robberies {
             live.add(zone.name());
             RobberySpot spot = spots.computeIfAbsent(zone.name(), name -> new RobberySpot());
             RobberySettings.Spot config = settings.spot(zone.name());
-            List<Player> robbers = robbersIn(zone, now);
+            List<Player> robbers = robbing.getOrDefault(zone.name(), List.of());
             String place = settings.displayName(zone.name());
             switch (spot.step(now, !robbers.isEmpty(), config.time(), config.closed())) {
                 case OPENED -> messages.send(Bukkit.getServer(), "robbery.open", Messages.value("place", place));
@@ -118,7 +119,7 @@ public final class Robberies {
                 messages.get("hud.heist"),
                 messages.get("hud.heist-place", Messages.value("place", settings.displayName(closest))),
                 messages.get("hud.heist-time", Messages.value("time", Hud.clockTime(least))),
-                messages.get("hud.heist-guards", Messages.value("count", guardsOnDuty())));
+                messages.get("hud.heist-guards", Messages.value("count", players.count(Role.GUARD))));
     }
 
     private void started(Zone zone, String place, List<Player> robbers, RobberySettings.Spot config) {
@@ -129,16 +130,14 @@ public final class Robberies {
             messages.send(robber, "robbery.started", Messages.value("place", place),
                     Messages.value("time", Hud.clockTime(config.time())));
         }
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (players.get(player.getUniqueId()).map(state -> state.role() == Role.GUARD).orElse(false)) {
-                messages.send(player, "robbery.alarm", Messages.value("place", place));
-                player.playSound(ALARM, Sound.Emitter.self());
-            }
+        for (Player guard : players.online(Role.GUARD)) {
+            messages.send(guard, "robbery.alarm", Messages.value("place", place));
+            guard.playSound(ALARM, Sound.Emitter.self());
         }
     }
 
     private void finished(Zone zone, String place, List<Player> robbers, RobberySettings.Spot config) {
-        long total = settings.payout(config, guardsOnDuty());
+        long total = settings.payout(config, players.count(Role.GUARD));
         long share = total / robbers.size();
         for (Player robber : robbers) {
             PlayerState state = players.get(robber.getUniqueId()).orElseThrow();
@@ -154,33 +153,22 @@ public final class Robberies {
         messages.send(Bukkit.getServer(), "robbery.robbed", Messages.value("place", place));
     }
 
-    /** Criminals inside the zone who aren't serving a sentence. */
-    private List<Player> robbersIn(Zone zone, Instant now) {
-        List<Player> robbers = new ArrayList<>();
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            PlayerState state = players.get(player.getUniqueId()).orElse(null);
-            if (state == null || state.role() != Role.CRIMINAL || state.jailed(now)) {
+    /** Criminals not serving a sentence, by the robbery zone they're in: one pass over the players. */
+    private Map<String, List<Player>> robbers(Instant now) {
+        Map<String, List<Player>> robbers = new HashMap<>();
+        for (Player player : players.online(Role.CRIMINAL)) {
+            if (players.get(player.getUniqueId()).map(state -> state.jailed(now)).orElse(true)) {
                 continue;
             }
             for (Zone in : tracker.zonesOf(player)) {
-                if (in.name().equals(zone.name())) {
-                    robbers.add(player);
-                    break;
+                if (in.kind() == ZoneKind.ROBBERY) {
+                    robbers.computeIfAbsent(in.name(), name -> new ArrayList<>()).add(player);
                 }
             }
         }
         return robbers;
     }
 
-    private int guardsOnDuty() {
-        int guards = 0;
-        for (PlayerState state : players.all()) {
-            if (state.role() == Role.GUARD) {
-                guards++;
-            }
-        }
-        return guards;
-    }
 
     private void showBar(String zone, String place, RobberySpot spot, RobberySettings.Spot config,
             List<Player> robbers) {
@@ -205,6 +193,11 @@ public final class Robberies {
                 }
             });
         }
+    }
+
+    /** On shutdown: no robbery's bar is left on anyone's screen. */
+    public void hideBars() {
+        List.copyOf(bars.keySet()).forEach(this::hideBar);
     }
 
     private void hideBar(String zone) {

@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The MostWanted Discord bot (docs/10-discord-bot.md). For now: {@code /profile}. Its
+ * The MostWanted Discord bot (docs/10-discord-bot.md): {@code /profile}, and linked players' roles. Its
  * commands are registered on the one server it's in, so changes show straight away.
  */
 public final class Bot extends ListenerAdapter implements LinkedRole {
@@ -77,36 +77,53 @@ public final class Bot extends ListenerAdapter implements LinkedRole {
         }
     }
 
-    /**
-     * Gives them the role named {@code role} (a store rank's) and takes the other ranks'
-     * roles, on every server the bot is in. Null takes them all. Roles the server
-     * doesn't have are skipped; nothing is sent if nothing changes.
-     */
+    /** Takes every store rank's role (after unlinking). */
     public void rank(String discordId, String role) {
+        roles(discordId, role, false, () -> { });
+    }
+
+    /**
+     * For a linked player: gives the Linked role and the role named {@code role} (a
+     * store rank's, or null for none), and takes the other ranks' roles, on every server
+     * the bot is in. {@code done} runs once their roles are right.
+     */
+    public void sync(String discordId, String role, Runnable done) {
+        roles(discordId, role, true, done);
+    }
+
+    private void roles(String discordId, String role, boolean linked, Runnable done) {
         for (Guild guild : jda.getGuilds()) {
-            List<Role> add = new ArrayList<>();
+            List<Role> want = new ArrayList<>();
             List<Role> ranks = new ArrayList<>();
             for (String name : RankRoles.ROLES.values()) {
                 for (Role found : guild.getRolesByName(name, false)) {
                     ranks.add(found);
                     if (name.equals(role)) {
-                        add.add(found);
+                        want.add(found);
                     }
                 }
             }
-            if (ranks.isEmpty()) {
+            if (linked) {
+                want.addAll(guild.getRolesByName("Linked", true));
+            }
+            if (ranks.isEmpty() && want.isEmpty()) {
+                done.run();
                 continue;
             }
             guild.retrieveMemberById(discordId).queue(member -> {
-                List<Role> give = add.stream().filter(r -> !member.getRoles().contains(r)).toList();
-                List<Role> take = ranks.stream().filter(r -> !add.contains(r) && member.getRoles().contains(r)).toList();
+                List<Role> give = want.stream().filter(r -> !member.getRoles().contains(r)).toList();
+                List<Role> take = ranks.stream().filter(r -> !want.contains(r) && member.getRoles().contains(r)).toList();
                 if (give.isEmpty() && take.isEmpty()) {
+                    done.run();
                     return;
                 }
                 guild.modifyMemberRoles(member, give, take).queue(
-                        done -> LOG.info("Rank role for {} is now {}", discordId, role == null ? "none" : role),
-                        failed -> LOG.info("Couldn't change the rank role for {}: {}", discordId, failed.getMessage()));
-            }, missing -> { });
+                        ok -> {
+                            LOG.info("Rank role for {} is now {}", discordId, role == null ? "none" : role);
+                            done.run();
+                        },
+                        failed -> LOG.info("Couldn't change the roles of {}: {}", discordId, failed.getMessage()));
+            }, notMember -> { });  // Not in the server (yet): tried again next pass.
         }
     }
 

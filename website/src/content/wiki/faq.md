@@ -39,7 +39,7 @@ Apply when applications open. See [Apply](/apply), then [Being a guard](/wiki/gu
 
 ## How do I hide my stats?
 
-Type `/stats private`. You won't show on the website or in Discord. `/stats public` shows you again. See [Commands](/wiki/commands).
+Type `/stats private`. You won't show on the website, in Discord or on the leaderboards in game. `/stats public` shows you again. See [Commands](/wiki/commands).
 
 ## I found a bug or a cheater
 

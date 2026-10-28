@@ -30,9 +30,10 @@ export const validName = (name: string) => NAME.test(name) && !/^\.+$/.test(name
 async function get<T>(api: string, path: string): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(api + path, { headers: { Accept: "application/json" } });
+    // Ten seconds, so a stuck request says so instead of loading for ever.
+    response = await fetch(api + path, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(10_000) });
   } catch {
-    throw new ApiError(0, "Couldn't reach MostWanted. Check your connection and try again.");
+    throw new ApiError(0, "Couldn't reach MostWanted right now. Try again in a minute.");
   }
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {

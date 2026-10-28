@@ -51,9 +51,10 @@ final class MostWantedCommand {
         return Commands.literal("mostwanted")
                 .requires(source -> source.getSender().hasPermission("mostwanted.admin"))
                 .then(Commands.literal("info").executes(context -> {
-                    String line = info(plugin.getPluginMeta().getVersion(), Bukkit.getName(), Bukkit.getMinecraftVersion())
-                            + " · database " + (plugin.databaseReady() ? "connected" : "off");
-                    context.getSource().getSender().sendMessage(Component.text(line));
+                    messages.send(context.getSource().getSender(), "command.info",
+                            Messages.value("version", info(plugin.getPluginMeta().getVersion(), Bukkit.getName(),
+                                    Bukkit.getMinecraftVersion())),
+                            Messages.value("database", plugin.databaseReady() ? "connected" : "off"));
                     return Command.SINGLE_SUCCESS;
                 }))
                 .then(Commands.literal("player").then(Commands.argument("player", StringArgumentType.word())
@@ -94,7 +95,7 @@ final class MostWantedCommand {
         try {
             role = Role.fromKey(StringArgumentType.getString(context, "role"));
         } catch (IllegalArgumentException e) {
-            sender.sendMessage(Component.text("Roles: inmate, criminal, guard"));
+            messages.send(sender, "command.bad-role");
             return 0;
         }
         PlayerState state = target(context, players, messages);

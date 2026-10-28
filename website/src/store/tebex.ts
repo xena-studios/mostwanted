@@ -19,6 +19,7 @@ async function call<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
     ...init,
     headers: init?.body ? { "Content-Type": "application/json" } : undefined,
+    signal: AbortSignal.timeout(15_000),
   });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {

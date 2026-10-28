@@ -16,9 +16,11 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.json.JsonMapper;
@@ -36,6 +38,7 @@ public final class Api {
     static final Pattern NAME = Pattern.compile("[A-Za-z0-9_.* -]{1,32}");
     private static final String CACHE_STATS = "public, max-age=60, s-maxage=120";
     static final int MAX_LIMIT = 50;
+    private static final AtomicLong lastDatabaseError = new AtomicLong(System.nanoTime() - Duration.ofHours(1).toNanos());
 
     private final Javalin app;
 
@@ -83,7 +86,7 @@ public final class Api {
             javalin.routes.before(ctx -> {
                 if (!limits.allow(client(ctx, config.behindCloudflare()))) {
                     ctx.header("Retry-After", "60");
-                    throw new Failure(HttpStatus.TOO_MANY_REQUESTS, "too many requests, try again in a minute");
+                    throw new Failure(HttpStatus.TOO_MANY_REQUESTS, "Too many requests. Try again in a minute.");
                 }
             });
 
@@ -99,25 +102,25 @@ public final class Api {
             javalin.routes.get("/v1/players/{name}", ctx -> {
                 String name = ctx.pathParam("name");
                 if (!NAME.matcher(name).matches()) {
-                    throw new Failure(HttpStatus.BAD_REQUEST, "that isn't a Minecraft name");
+                    throw new Failure(HttpStatus.BAD_REQUEST, "That isn't a Minecraft name.");
                 }
                 Stats.Profile profile = stats.player(name)
-                        .orElseThrow(() -> new Failure(HttpStatus.NOT_FOUND, "no player called " + name));
+                        .orElseThrow(() -> new Failure(HttpStatus.NOT_FOUND, "Nobody called " + name + " has played yet, or their stats are private."));
                 ctx.header("Cache-Control", CACHE_STATS).json(profile);
             });
 
             javalin.routes.get("/v1/leaderboards/{board}", ctx -> {
                 Board board = Board.byId(ctx.pathParam("board"));
                 if (board == null) {
-                    throw new Failure(HttpStatus.NOT_FOUND, "no such board");
+                    throw new Failure(HttpStatus.NOT_FOUND, "There's no such board.");
                 }
                 Stats.Period period = Stats.Period.byKey(ctx.queryParamAsClass("period", String.class)
                         .getOrDefault("all"));
                 if (period == null) {
-                    throw new Failure(HttpStatus.BAD_REQUEST, "period is all, month or week");
+                    throw new Failure(HttpStatus.BAD_REQUEST, "The period is all, month or week.");
                 }
                 int limit = ctx.queryParamAsClass("limit", Integer.class)
-                        .check(n -> n >= 1 && n <= MAX_LIMIT, "limit is 1 to " + MAX_LIMIT)
+                        .check(n -> n >= 1 && n <= MAX_LIMIT, "The limit is 1 to " + MAX_LIMIT + ".")
                         .getOrDefault(10);
                 Map<String, Object> body = new LinkedHashMap<>();
                 body.put("board", board.id());
@@ -129,22 +132,33 @@ public final class Api {
 
             accounts.register(javalin);
 
+            // Errors aren't cached: a player who's not found now may have joined a minute later.
             javalin.routes.exception(Failure.class, (e, ctx) ->
-                    ctx.status(e.status).json(Map.of("error", e.getMessage())));
+                    ctx.header("Cache-Control", "no-store").status(e.status).json(Map.of("error", e.getMessage())));
             javalin.routes.exception(ValidationException.class, (e, ctx) -> {
                 String message = e.getErrors().values().stream().flatMap(List::stream)
-                        .map(error -> error.getMessage()).findFirst().orElse("bad query parameters");
+                        .map(error -> error.getMessage()).findFirst().orElse("Bad query parameters.");
                 ctx.status(HttpStatus.BAD_REQUEST).json(Map.of("error", message));
             });
             javalin.routes.exception(Exception.class, (e, ctx) -> {
-                LOG.error("{} {} failed", ctx.method(), ctx.path(), e);
-                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(Map.of("error", "something went wrong"));
+                if (e instanceof DataAccessException) {
+                    // The database is down: once a minute, not a stack trace per request.
+                    long now = System.nanoTime();
+                    long last = lastDatabaseError.get();
+                    if (now - last > Duration.ofMinutes(1).toNanos() && lastDatabaseError.compareAndSet(last, now)) {
+                        LOG.error("{} {} failed: {}", ctx.method(), ctx.path(), e.getMessage());
+                    }
+                } else {
+                    LOG.error("{} {} failed", ctx.method(), ctx.path(), e);
+                }
+                ctx.header("Cache-Control", "no-store");
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(Map.of("error", "Something went wrong."));
             });
             // A path with no route: JSON like every other error (a missing player is already JSON).
             javalin.routes.error(404, ctx -> {
                 String type = ctx.res().getContentType();
                 if (type == null || !type.contains("json")) {
-                    ctx.json(Map.of("error", "not found"));
+                    ctx.json(Map.of("error", "Not found."));
                 }
             });
         });
@@ -157,6 +171,7 @@ public final class Api {
                     return;
                 }
                 limits.sweep();
+                accounts.sweep();
             }
         });
         return new Api(app);

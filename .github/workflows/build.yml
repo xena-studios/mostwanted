@@ -12,6 +12,11 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  # A new push to a pull request cancels the run it replaces.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   changes:
     runs-on: ubuntu-26.04
@@ -26,13 +31,15 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
         run: |
           if [[ $GITHUB_EVENT_NAME != pull_request ]]; then echo "code=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          # Read first, so a failed call fails the step instead of skipping the build.
+          files=$(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only)
           code=false
           while read -r file; do
             case $file in
               *.md | website/* | server/* | backend/discord-setup/* | .github/workflows/website.yml | .github/workflows/server.yml) ;;
               *) code=true ;;
             esac
-          done < <(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only)
+          done <<< "$files"
           echo "code=$code" >> "$GITHUB_OUTPUT"
 
   build:
@@ -110,7 +117,9 @@ jobs:
       - uses: actions/cache@v6
         with:
           path: .cache/servers
-          key: servers-${{ matrix.project }}-${{ matrix.target.version }}
+          # A new key each run, so a newer server build is saved; the latest is restored.
+          key: servers-${{ matrix.project }}-${{ matrix.target.version }}-${{ github.run_id }}
+          restore-keys: servers-${{ matrix.project }}-${{ matrix.target.version }}-
       # Runs each module's boot-checks.txt against all the jars at once.
       - env:
           # Leaf's jar comes from GitHub's API, which rate-limits anonymous calls.

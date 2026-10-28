@@ -4,6 +4,8 @@
    pixel accent face (VT323) for labels, like blocks in the game. */
 :root {
   --orange: #ff9933;
+  --orange-light: color-mix(in srgb, #ff9933 75%, white);
+  --amber: #e29020;
   --orange-dark: #c46002;
   --orange-deep: #893500;
   --sand: #eebd3b;
@@ -43,6 +45,22 @@
 
   color-scheme: dark;
 }
+
+/* Store ranks' colours (the CSP blocks inline styles, so they're set here by data-rank).
+   --rank-text is for text on the dark background, --rank-ink for text on the colour. */
+[data-rank] {
+  --rank-text: var(--rank);
+  --rank-ink: var(--ink);
+}
+[data-rank="vip"] { --rank: #99ff33; }
+[data-rank="vip-plus"] { --rank: #33ffcc; }
+[data-rank="mvp"] {
+  --rank: #6633ff;
+  /* Too dark to read as text on the dark background as it is. */
+  --rank-text: color-mix(in srgb, #6633ff 65%, white);
+  --rank-ink: var(--text);
+}
+[data-rank="legend"] { --rank: #ff3366; }
 
 *,
 *::before,
@@ -255,7 +273,7 @@ a {
 
 .button.primary {
   border-color: var(--orange-deep);
-  background: linear-gradient(to bottom, #ffb35c, var(--orange) 55%, #f08a22);
+  background: linear-gradient(to bottom, var(--orange-light), var(--orange) 55%, var(--amber));
   color: var(--ink);
   box-shadow: inset 0 2px 0 color-mix(in srgb, white 35%, transparent);
 }

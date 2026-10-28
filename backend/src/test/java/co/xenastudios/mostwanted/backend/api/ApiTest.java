@@ -84,13 +84,13 @@ class ApiTest {
 
     @Test
     void errorsAreJsonWithAReason() throws Exception {
-        assertEquals("{\"error\":\"no player called Nobody\"}", get("/v1/players/Nobody", "1.1.1.3").body());
+        assertEquals("{\"error\":\"Nobody called Nobody has played yet, or their stats are private.\"}", get("/v1/players/Nobody", "1.1.1.3").body());
         assertEquals(400, get("/v1/players/bad%20name%3F", "1.1.1.3").statusCode());
-        assertEquals("{\"error\":\"no such board\"}", get("/v1/leaderboards/fastest", "1.1.1.3").body());
-        assertEquals("{\"error\":\"limit is 1 to 50\"}", get("/v1/leaderboards/escapes?limit=0", "1.1.1.3").body());
+        assertEquals("{\"error\":\"There's no such board.\"}", get("/v1/leaderboards/fastest", "1.1.1.3").body());
+        assertEquals("{\"error\":\"The limit is 1 to 50.\"}", get("/v1/leaderboards/escapes?limit=0", "1.1.1.3").body());
         HttpResponse<String> missing = get("/nothing/here", "1.1.1.3");
         assertEquals(404, missing.statusCode());
-        assertEquals("{\"error\":\"not found\"}", missing.body());
+        assertEquals("{\"error\":\"Not found.\"}", missing.body());
     }
 
     @Test

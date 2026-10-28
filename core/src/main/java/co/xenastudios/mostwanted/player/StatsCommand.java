@@ -9,8 +9,8 @@ import org.bukkit.entity.Player;
 
 /**
  * {@code /stats private} and {@code /stats public}: whether your page and leaderboard
- * places show on the website and in Discord (the privacy page promises this). In-game
- * boards still show you, since other players see you in game anyway.
+ * places show on the website, in Discord and on the leaderboards in game (the privacy
+ * page promises this). Players in game still see you play.
  */
 public final class StatsCommand {
 

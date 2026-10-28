@@ -22,9 +22,10 @@ export async function call<T>(api: string, method: string, path: string, body?: 
       credentials: "include",
       headers: body === undefined ? {} : { "Content-Type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body),
+      signal: AbortSignal.timeout(10_000),
     });
   } catch {
-    throw new ApiError(0, "Couldn't reach MostWanted. Check your connection and try again.");
+    throw new ApiError(0, "Couldn't reach MostWanted right now. Try again in a minute.");
   }
   if (response.status === 204) return null;
   const data = await response.json().catch(() => ({}));

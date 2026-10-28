@@ -2,16 +2,15 @@ package co.xenastudios.mostwanted.backend.discord;
 
 import co.xenastudios.mostwanted.backend.accounts.Accounts;
 import co.xenastudios.mostwanted.backend.stats.Stats;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Keeps store ranks' Discord roles in step: each linked player gets the role named
- * after their rank (VIP, VIP+, MVP or Legend) and loses the others. Checks every
+ * Keeps linked players' Discord roles in step: the Linked role, and the role named
+ * after their store rank (VIP, VIP+, MVP or Legend) without the others. Checks every
  * linked account now and then; only changes are sent to Discord.
  */
 public final class RankRoles {
@@ -22,11 +21,18 @@ public final class RankRoles {
     public static final Map<String, String> ROLES = Map.of("vip", "VIP", "vip-plus", "VIP+", "mvp", "MVP",
             "legend", "Legend");
 
+    /** Every this many passes, everyone's checked again: someone may have left and rejoined. */
+    private static final int FULL_CHECK = 6;
+
     private final Accounts accounts;
     private final Stats stats;
     private final Bot bot;
-    /** What each Discord user was last given; "" for no rank. Empty after a restart, so everyone's checked once. */
-    private final Map<String, String> given = new HashMap<>();
+    /**
+     * The rank ("" for none) each Discord user's roles are known to match; set once
+     * Discord confirms, so a failed change is tried again on the next pass.
+     */
+    private final Map<String, String> synced = new ConcurrentHashMap<>();
+    private int passes;
 
     public RankRoles(Accounts accounts, Stats stats, Bot bot) {
         this.accounts = accounts;
@@ -40,20 +46,26 @@ public final class RankRoles {
             return;
         }
         Map<String, UUID> linked;
+        Map<UUID, String> ranks;
         try {
             linked = accounts.linked();
+            ranks = stats.supporters(linked.values());
         } catch (RuntimeException e) {
-            LOG.warn("Couldn't read linked accounts for rank roles: {}", e.getMessage());
+            // Not "nobody has a rank": leave everyone's roles as they are until it can be read.
+            LOG.warn("Couldn't read linked accounts' ranks for Discord roles: {}", e.getMessage());
             return;
         }
+        if (passes++ % FULL_CHECK == 0) {
+            synced.clear();
+        }
         for (Map.Entry<String, UUID> each : linked.entrySet()) {
-            String rank = Objects.requireNonNullElse(stats.supporter(each.getValue()), "");
-            if (!rank.equals(given.get(each.getKey()))) {
-                bot.rank(each.getKey(), ROLES.get(rank));
-                given.put(each.getKey(), rank);
+            String discordId = each.getKey();
+            String rank = ranks.getOrDefault(each.getValue(), "");
+            if (!rank.equals(synced.get(discordId))) {
+                bot.sync(discordId, ROLES.get(rank), () -> synced.put(discordId, rank));
             }
         }
         // Unlinked since: forget them, so linking again checks them again.
-        given.keySet().retainAll(linked.keySet());
+        synced.keySet().retainAll(linked.keySet());
     }
 }

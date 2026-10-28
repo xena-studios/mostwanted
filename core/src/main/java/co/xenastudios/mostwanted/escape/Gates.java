@@ -9,6 +9,7 @@ import co.xenastudios.mostwanted.storage.GameLog;
 import co.xenastudios.mostwanted.zone.Zone;
 import co.xenastudios.mostwanted.zone.ZoneKind;
 import co.xenastudios.mostwanted.zone.ZoneStore;
+import java.io.File;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.Bukkit;
@@ -57,9 +59,10 @@ public final class Gates implements Listener {
     private final EscapeSettings settings;
     private final Clock clock;
     private final Map<String, Open> open = new HashMap<>();
+    private final BlockBackup backup;
 
     public Gates(ZoneStore zones, PlayerStore players, Keycards keycards, Messages messages, GameLog gameLog,
-            EscapeSettings settings, Clock clock) {
+            EscapeSettings settings, Clock clock, File saved, Logger log) {
         this.zones = zones;
         this.players = players;
         this.keycards = keycards;
@@ -67,6 +70,12 @@ public final class Gates implements Listener {
         this.gameLog = gameLog;
         this.settings = settings;
         this.clock = clock;
+        this.backup = new BlockBackup(saved, "gate", log);
+    }
+
+    /** At startup: closes any gate a crash left open. */
+    public void restoreSaved() {
+        backup.restore();
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -96,11 +105,9 @@ public final class Gates implements Listener {
         openGate(gate);
         if (!guard) {
             gameLog.record("escape.keycard", player.getUniqueId(), null, Map.of("gate", gate.name()));
-            for (Player other : Bukkit.getOnlinePlayers()) {
-                if (players.get(other.getUniqueId()).map(s -> s.role() == Role.GUARD).orElse(false)) {
-                    messages.send(other, "escape.keycard-alert", Messages.value("gate", gate.name()),
-                            Messages.value("player", player.getName()));
-                }
+            for (Player other : players.online(Role.GUARD)) {
+                messages.send(other, "escape.keycard-alert", Messages.value("gate", gate.name()),
+                        Messages.value("player", player.getName()));
             }
         }
     }
@@ -129,6 +136,9 @@ public final class Gates implements Listener {
             }
         }
         open.put(gate.name(), new Open(was, clock.instant().plus(settings.gateOpen())));
+        // Now, not on the next tick: a gate is open for seconds, and a crash in them would leave a hole.
+        backup.changed();
+        backup.flush(this::was);
         playAt(world, gate, OPEN);
     }
 
@@ -148,13 +158,23 @@ public final class Gates implements Listener {
                 }
             });
             it.remove();
+            backup.changed();
         }
+        backup.flush(this::was);
+    }
+
+    private Map<Location, BlockData> was() {
+        Map<Location, BlockData> was = new HashMap<>();
+        open.values().forEach(gate -> was.putAll(gate.was));
+        return was;
     }
 
     /** Shuts everything: on shutdown, so no gate is left open. */
     public void closeAll() {
         open.values().forEach(Gates::close);
         open.clear();
+        backup.changed();
+        backup.flush(Map::of);
     }
 
     private static void close(Open gate) {

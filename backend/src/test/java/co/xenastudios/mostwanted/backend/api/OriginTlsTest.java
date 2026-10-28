@@ -83,7 +83,7 @@ class OriginTlsTest {
     void cloudflaresCertificateGetsThrough() throws Exception {
         HttpResponse<String> response = get(strict, client("cloudflare"));
         assertEquals(404, response.statusCode());
-        assertEquals("{\"error\":\"no such board\"}", response.body(), "the request reached the API");
+        assertEquals("{\"error\":\"There's no such board.\"}", response.body(), "the request reached the API");
     }
 
     @Test

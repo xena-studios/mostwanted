@@ -76,14 +76,14 @@ Each stat is a counter or a record in PostgreSQL, keyed by **UUID** (the player'
 
 - **All-time, monthly and weekly.** `core` keeps a counter per stat per period, so weekly boards reset cleanly without recounting.
 - Boards: **Most Wanted** (highest bounty right now), **Top Escapers**, **Fastest Escapes**, **Top Guards** (arrests), **Biggest Heists**, **Richest** (cash earned), **Most Time Served**.
-- On the website now: **Most Wanted**, **Top Escapers**, **Top Guards**, **Top Robbers**, **Bounty Hunters** (bounty collected) and **Most Arrested**, the boards the API serves (`backend/.../stats/Board.java`). Fastest Escapes, Biggest Heists, Richest and Most Time Served join when core records them.
+- On the website now: **Most Wanted**, **Top Escapers**, **Top Guards**, **Top Robbers**, **Bounty Hunters** (bounty collected) and **Most Arrested**, the boards the API serves (`common/.../Board.java`, shared with the boards in game). Fastest Escapes, Biggest Heists, Richest and Most Time Served join when core records them.
 - In-game holograms (FancyHolograms) show the same boards, read from PostgreSQL.
 
 ### Player pages
 
 - `/player/<name>`: their head (skin), current role, rank, all stats, records, and where they place on each board.
 - **Skins:** from a public skin service by UUID. Bedrock players coming through Minehut may not have a Java skin; show a default head for them.
-- **Opt-out:** a `/stats private` command hides a player's page and removes them from the website boards (not from in-game ones).
+- **Opt-out:** a `/stats private` command hides a player's page and removes them from every board, on the website and in game.
 - Staff in vanish, and banned players, don't appear.
 
 ## Accounts and the API
@@ -126,7 +126,7 @@ Browser ──▶ mostwantedmc.com (Astro on a Cloudflare Worker)
   3. **Authenticated Origin Pulls:** Cloudflare presents its client certificate and the backend refuses any connection without it, in the TLS handshake ([backend/README.md](../backend/README.md#https-and-authenticated-origin-pulls)). With Cloudflare's own certificate (the dashboard toggle) that proves the request came through Cloudflare, but not through *our* zone: the certificate is the same for every customer. Uploading our own client certificate to the zone (Cloudflare's API) closes that too; it's a follow-up after launch ([launch](12-launch.md#6-cloudflare-10-min)).
 - **Sessions:** cookies for `.mostwantedmc.com` that scripts can't read (`HttpOnly`, `Secure`, `SameSite=Lax`). The site calls the API cross-origin, so the API only allows `https://mostwantedmc.com`.
 - **Tebex** sends purchases to `api.mostwantedmc.com/tebex`; the backend checks each one's signature.
-- **Load can't lag the game:** Cloudflare rate-limits the API, Turnstile guards every form, the API rate-limits per user and IP, and public pages are cached.
+- **Load can't lag the game:** Cloudflare rate-limits the API, Turnstile will guard every form once forms are built, the API rate-limits per user and IP, and public pages are cached.
 
 Before sign-in goes live: **Terms** and **Privacy** pages on the site (Discord shows them when signing in, Tebex requires them). Collect as little as possible: many players are kids.
 
