@@ -72,7 +72,7 @@ const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month:
         }
       </div>
       <ul class="badges" aria-label="About the server">
-        <li class="badge"><span class:list={["dot", { live: site.open }]} aria-hidden="true"></span>{site.open ? "Online now" : "Opening soon"}</li>
+        <li class="badge"><span class:list={["dot", { live: site.gameOpen }]} aria-hidden="true"></span>{site.gameOpen ? "Open now" : "Opening soon"}</li>
         <li class="badge">Java + Bedrock</li>
         <li class="badge">One world, no resets</li>
         <li class="badge">Never pay to win</li>

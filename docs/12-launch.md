@@ -140,7 +140,12 @@ Follow [store: setting up Tebex](11-store.md#setting-up-tebex-whats-left-for-you
 
 ## 11. Open the doors
 
-1. **Website**, in a pull request: `open: true` and the permanent Discord invite in `discord` in [`website/src/site.ts`](../website/src/site.ts). Merging deploys it (the website workflow), with the Tebex token from step 10.
+1. **Website**, in a pull request, in [`website/src/site.ts`](../website/src/site.ts):
+   - `open: true` turns on sign-in and accounts, player pages, the leaderboards, Support and Apply. **On since 2026-10-28**, ahead of the game, so people can sign up and apply first. "Sign in with Discord" shows itself once the API has its client secret (step 8).
+   - `gameOpen: true` once the game is open to everyone: the header then shows live whether the server is up and how many are playing (`/v1/status`), instead of "Opening soon".
+   - `discord`: the permanent invite.
+
+   Merging deploys it (the website workflow), with the Tebex token from step 10.
 2. **Game**, in a pull request: `white-list=false` and `enforce-whitelist=false` in [`server/files/server.properties`](../server/files/server.properties). Once it's merged and the server release has run, **Reinstall** the game server in Raptor and start it. (`whitelist off` in the console works at once, but the next update would turn it back on without the PR.)
 
 ## 12. Smoke test

@@ -4,9 +4,12 @@
 export const site = {
   name: "MostWanted",
   address: "play.mostwantedmc.com",
-  // Until launch, live features (player search, leaderboards, sign-in) show
-  // their "starts when the server opens" state.
-  open: false,
+  // Live features: sign-in and accounts, player search, leaderboards, Support and
+  // Apply. Open since 2026-10-28, ahead of the game's own launch.
+  open: true,
+  // The game itself, open to everyone (the whitelist off, Minehut set up): the header
+  // then shows whether it's up and how many are playing, live from the API.
+  gameOpen: false,
   discord: null as string | null,
   // Tebex's public webstore token (creator.tebex.io > Developers > API keys), set as
   // the TEBEX_PUBLIC_TOKEN repository variable. Without it the store shows its

@@ -145,15 +145,15 @@ const structured = [
         </details>
 
         <div class="right">
-          <span class="status" title={site.open ? "Server online" : "The server isn't open yet"}>
-            <span class:list={["dot", { live: site.open }]} aria-hidden="true"></span>
-            <span class="pixel">{site.open ? "Online" : "Opening soon"}</span>
+          <span class="status" title={site.gameOpen ? "The server" : "The server isn't open yet"} data-status data-live={String(site.gameOpen)} data-api={site.api}>
+            <span class="dot" aria-hidden="true" data-status-dot></span>
+            <span class="pixel" data-status-text>{site.gameOpen ? "Online" : "Opening soon"}</span>
           </span>
           <a class="store-link" href="/store" aria-current={current("/store") ? "page" : undefined}>
             <ShoppingCart aria-hidden="true" /> Store
           </a>
-          <a class="signin" href="/login" aria-current={current("/login") ? "page" : undefined}>
-            <LogIn aria-hidden="true" /> Sign in
+          <a class="signin" href="/login" aria-current={current("/login") || current("/account") ? "page" : undefined} data-signin>
+            <LogIn aria-hidden="true" /> <span data-signin-label>Sign in</span>
           </a>
         </div>
       </div>
@@ -207,7 +207,36 @@ const structured = [
         <p>Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
       </div>
     </footer>
-  </body>
+    <script>
+    // Signed in on this device (api.ts remembers it): the header goes to the account page.
+    try {
+      if (localStorage.getItem("mw-signed-in")) {
+        const link = document.querySelector<HTMLAnchorElement>("[data-signin]");
+        if (link) {
+          link.href = "/account";
+          link.querySelector("[data-signin-label]")!.textContent = "Account";
+        }
+      }
+    } catch {
+      // No storage: it stays "Sign in", which still works.
+    }
+
+    // Once the game is open: up or down, and how many are playing, from the API (cached ~30 s).
+    const status = document.querySelector<HTMLElement>("[data-status]");
+    if (status?.dataset.live === "true") {
+      const dot = status.querySelector<HTMLElement>("[data-status-dot]")!;
+      const text = status.querySelector<HTMLElement>("[data-status-text]")!;
+      fetch(`${status.dataset.api}/v1/status`, { signal: AbortSignal.timeout(8000) })
+        .then((response) => response.json())
+        .then((server: { online: boolean; players: number }) => {
+          dot.classList.toggle("live", server.online);
+          text.textContent = server.online ? `Online · ${server.players} playing` : "Offline";
+          status.title = server.online ? "The server is up" : "The server is down right now";
+        })
+        .catch(() => {});
+    }
+  </script>
+</body>
 </html>
 
 <style>

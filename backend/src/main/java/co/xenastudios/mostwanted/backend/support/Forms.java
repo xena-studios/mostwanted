@@ -40,7 +40,7 @@ public final class Forms {
     public static final int SUBJECT_MAX = 100;
     public static final int BODY_MAX = 4000;
 
-    private static final String AVAILABILITY = "When can you play? Days, hours and your time zone.";
+    private static final String AVAILABILITY = "Days, hours and your time zone.";
 
     /** Each application's questions, in order. */
     public static final Map<String, List<Question>> APPLICATIONS = Map.of(
