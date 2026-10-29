@@ -46,8 +46,14 @@ log="$dir/console.log"
 
 # ---- the server jar, verified against its published checksum ----
 mkdir -p "$cache"
-if [[ $project == leaf ]]; then
-  # Leaf publishes each Minecraft version as a release tagged ver-<version>,
+manifest="$root/server/manifest.json"
+if [[ $project == leaf && $(jq -r .minecraft "$manifest") == "$version" ]]; then
+  # The Leaf build the live server runs, pinned in server/manifest.json.
+  url=$(jq -r .server.url "$manifest")
+  sha=$(jq -r .server.sha256 "$manifest")
+elif [[ $project == leaf ]]; then
+  # Another version (a new Minecraft): the newest build. Leaf publishes each
+  # Minecraft version as a release tagged ver-<version>,
   # with the newest build's jar attached as leaf-<version>-<build>.jar.
   release=$(curl -fsS ${GH_TOKEN:+-H "Authorization: Bearer $GH_TOKEN"} \
     "https://api.github.com/repos/Winds-Studio/Leaf/releases/tags/ver-$version")

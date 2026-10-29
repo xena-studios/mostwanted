@@ -33,4 +33,9 @@ public record Zone(String name, ZoneKind kind, String world, int minX, int minY,
     public String size() {
         return (maxX - minX + 1) + "×" + (maxY - minY + 1) + "×" + (maxZ - minZ + 1);
     }
+
+    /** How many blocks the box holds. */
+    public long volume() {
+        return (long) (maxX - minX + 1) * (maxY - minY + 1) * (maxZ - minZ + 1);
+    }
 }

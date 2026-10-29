@@ -8,8 +8,16 @@ import cactus from "../brand/scene-cactus.png";
 const ways = [
   { icon: Flag, title: "Report a player", body: "Cheating, abusing a bug, or a guard breaking the code. Open a ticket with a screenshot or clip." },
   { icon: Bug, title: "Report a bug", body: "Something broken? Tell us what happened and how to make it happen again. Exploits go to staff privately, never in public chat." },
-  { icon: Gavel, title: "Appeal a punishment", body: "Think a mute or ban was a mistake? Open an appeal ticket with your username and what happened." },
-  { icon: MessageCircle, title: "Ask a question", body: "Most answers are in the wiki. Still stuck? Open a ticket, or ask in the Discord." },
+  {
+    icon: Gavel,
+    title: "Appeal a punishment",
+    body: `Think a mute or ban was a mistake? Open an appeal ticket with your username and what happened. Banned, so no code from /website? Sign in with Discord, or email ${site.email}.`,
+  },
+  {
+    icon: MessageCircle,
+    title: "Ask a question",
+    body: `Most answers are in the wiki. Still stuck? Open a ticket${site.discord ? ", or ask in the Discord" : ""}.`,
+  },
 ];
 ---
 <Base title="Support" description="Report a player or a bug, appeal a punishment, or get help on MostWanted.">

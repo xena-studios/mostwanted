@@ -84,6 +84,6 @@ For maintainers. Bump the plugin's `version` in its `build.gradle.kts`, rename `
 
 ## Dependency updates
 
-[Renovate](https://docs.renovatebot.com) opens PRs on Monday mornings ([`renovate.json`](renovate.json), on top of the org's shared settings in [`xena-studios/.github`](https://github.com/xena-studios/.github/blob/main/renovate-config.json)). Minor and patch updates merge themselves once CI passes; majors wait for a review. The Paper version is never touched by Renovate.
+[Renovate](https://docs.renovatebot.com) opens PRs on Monday mornings ([`renovate.json`](renovate.json), on top of the org's shared settings in [`xena-studios/.github`](https://github.com/xena-studios/.github/blob/main/renovate-config.json)). Minor and patch updates merge themselves once CI passes; majors wait for a review. A merge rebuilds the server release, but the live server only takes it at its next reinstall. The Paper version is never touched by Renovate.
 
 New Minecraft versions come from [`minecraft.yml`](.github/workflows/minecraft.yml), which runs on Mondays or by hand from the Actions tab (**New Minecraft** → **Run workflow**). When Paper has a stable build of a newer version, it opens a PR that builds and boots the plugins on it. Merge it once the live server can move too: Leaf, the plugins in the server stack, and Minehut.

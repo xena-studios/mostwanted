@@ -51,7 +51,7 @@ public final class Combat implements Listener {
     private final Clock clock;
     /** When each player last hit or was hit by another player. */
     private final Map<UUID, Instant> lastFight = new HashMap<>();
-    /** Whether a riot is on: set once riots are built. */
+    /** Whether a riot is on: Riots sets it once it starts. */
     private BooleanSupplier riot = () -> false;
 
     public Combat(PlayerStore players, ZoneTracker tracker, Arrests arrests, Handcuffs handcuffs, Messages messages,

@@ -39,6 +39,7 @@ command:
     no-world: "<error>✖</error> the world <value><world></value> isn't loaded."
     created: "<success>✔</success> created the <value><kind></value> zone <value><zone></value>, <value><size></value> blocks."
     redefined: "<success>✔</success> moved <value><zone></value> to your selection, <value><size></value> blocks."
+    gate-too-big: "<error>✖</error> that's <value><size></value>: a gate is the gate itself, up to <value><max></value> blocks. select just the gate."
     spawn-set: "<success>✔</success> <value><zone></value>'s spawn is where you're standing."
     deleted: "<success>✔</success> deleted <value><zone></value>."
     list: "<info>ⓘ</info> zones: <value><count></value>"

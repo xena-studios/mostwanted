@@ -177,6 +177,9 @@ public final class AccountRoutes {
         } catch (RuntimeException e) {
             throw new Api.Failure(HttpStatus.BAD_REQUEST, "Send {\"code\": \"...\"}.");
         }
+        if (body == null) {
+            throw new Api.Failure(HttpStatus.BAD_REQUEST, "Send {\"code\": \"...\"}.");
+        }
         String code = LoginCode.normalize(body.get("code") instanceof String s ? s : null);
         if (code == null) {
             throw new Api.Failure(HttpStatus.BAD_REQUEST, "Codes are 6 letters and numbers, from /website in game.");

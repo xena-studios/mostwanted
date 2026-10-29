@@ -58,9 +58,9 @@ Bedrock players ──┘    (Geyser, DDoS protection,        └─ Leaf 26.3 g
 
 **Fitting it in 16 GB:**
 - Leaf game server: **10 GB heap** (`-Xms` = `-Xmx`, Paper's recommended flags), plus ~1–1.5 GB Java uses outside the heap: 11.5 GB in the panel
-- PostgreSQL: ~1 GB (`shared_buffers` 512 MB)
+- PostgreSQL: 1 GB, a managed database in the panel (`shared_buffers` 256 MB)
 - OS + Calagopus (panel, node agent, database agent): ~1–1.5 GB
-- backend (website API + Discord bot): ~0.5 GB in the panel (256 MB heap)
+- backend (website API + Discord bot): 512 MB in the panel (256 MB heap, ~300–400 MB used)
 - What's left (~1.5 GB) is the system's file cache. **Staging runs on your own PC**, not the VPS.
 
 **What to expect:** dedicated cores, so no neighbour slows us down, but EPYC cores clock lower than a desktop Ryzen, and Minecraft's main thread is one core. Rough guess: **~20–40 players**. Run spark during the first playtest.
@@ -174,7 +174,7 @@ Decided 2026-10-26. **Java, like `core`**, so the game, the API and the bot shar
 
 ## How `core` stays fast
 
-`core` runs everything for up to 100 players on one shared CPU core, so speed is a rule, not a hope. These are checked in review ([CONTRIBUTING.md](../CONTRIBUTING.md#what-a-change-has-to-keep-true)) and measured before launch.
+`core` runs everything for up to 100 players on the main thread, one CPU core, so speed is a rule, not a hope. These are checked in review ([CONTRIBUTING.md](../CONTRIBUTING.md#what-a-change-has-to-keep-true)) and measured before launch.
 
 **Do nothing until something happens**
 - Event-driven: no loop that runs every tick over every player. The few timers (robberies, riots, jail time, walls and gates) run once a second, not every tick, and are cheap when nothing is going on; the scoreboard runs twice a second and only redraws what changed.
@@ -208,15 +208,15 @@ Decided 2026-10-26. **Java, like `core`**, so the game, the API and the bot shar
 
 - **Minehut External confirmed** before anything else (see the ⚠️ above).
 - **Mojang EULA + Minehut rules.** Real-money store = cosmetics only, no gameplay advantages. No gambling mechanics in-game.
-- **Staff tools.** Punishments (LibertyBans), anti-cheat alerts (Grim), block logs (CoreProtect), and reports. Guards are players with power over others, so staff need to be able to review guard abuse too. Minehut staff can't moderate external servers for us.
+- **Staff tools.** Punishments (LibertyBans), anti-cheat alerts (Grim), game logs (core's own), and reports. Guards are players with power over others, so staff need to be able to review guard abuse too. Minehut staff can't moderate external servers for us.
 - **Backups and a recovery drill.** The panel's nightly backups: the world files (saved first) and a dump of the managed PostgreSQL, in Cloudflare R2, plus netcup snapshots. Actually test restoring one.
 - **Monitoring.** spark for lag spikes; the bot alerts 🔒│admin when the game, API or database goes down or the server lags.
 - **Before launch** (the step-by-step is [launch](12-launch.md)):
-  - Terms and Privacy pages, and a "delete my account" button (collect as little as possible: many players are kids).
+  - ~~Terms and Privacy pages, and a "delete my account" button~~ (done 2026-10-27; collect as little as possible: many players are kids).
   - VPS hardening: SSH keys only, automatic security updates, the database and the panel's internals listening only inside the machine, secrets only in the panel, netcup's firewall blocking everything not listed, and the API refusing anything without Cloudflare's client certificate ([12-launch.md](12-launch.md)).
   - 2FA on Cloudflare, GitHub, netcup, Discord, Tebex and Minehut.
   - `support@mostwantedmc.com` through Cloudflare Email Routing.
-  - A 100-bot stress test (the VPS estimate is 15–30 players; the server has 100 slots).
+  - A 100-bot stress test (the VPS estimate is ~20–40 players; the server has 100 slots).
 
 ## Build order
 

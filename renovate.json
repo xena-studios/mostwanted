@@ -14,7 +14,7 @@
       "pinDigests": true
     },
     {
-      "description": "CI builds, tests and boots the plugin, and merging releases nothing, so small updates merge themselves once it passes. Majors wait for a review.",
+      "description": "CI builds, tests and boots everything, so small updates merge themselves once it passes. Merging rebuilds the server release, but nothing reaches the live server until it's reinstalled. Majors wait for a review.",
       "matchUpdateTypes": ["minor", "patch", "digest"],
       "automerge": true
     }

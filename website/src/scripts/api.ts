@@ -13,7 +13,16 @@ export type Me = {
 
 /** A path on this site to go to after signing in: only our own pages, never another site. */
 export function afterSignIn(next: string | null): string {
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/account";
+  if (!next) return "/account";
+  // Resolved the way the browser will: "/\\evil.com" and "/%09/evil.com" look like
+  // paths but go to another site.
+  try {
+    const url = new URL(next, location.origin);
+    if (url.origin === location.origin) return url.pathname + url.search + url.hash;
+  } catch {
+    // Not a URL at all.
+  }
+  return "/account";
 }
 
 /** Remembers on this device whether someone's signed in, for the header's link. */

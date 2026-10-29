@@ -8,7 +8,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 /**
  * config.yml, read once on start. On the server it's rendered from
- * server/files/plugins/MostWanted/config.yml.tmpl, so the password comes from .env.
+ * server/files/plugins/MostWanted/config.yml.tmpl, so the password comes from the
+ * server's Startup tab in the panel (or .env).
  *
  * @param saveEvery how often changed players are written to the database
  * @param zone the clock on the scoreboard; one zone for everyone, so screenshots match the logs
@@ -46,7 +47,7 @@ public record Settings(DatabaseConfig database, Duration saveEvery, ZoneId zone,
             throw new IllegalArgumentException("save-every-seconds must be at least 1");
         }
         return new Settings(database, Duration.ofSeconds(saveSeconds),
-                ZoneId.of(config.getString("clock.timezone", "America/New_York")),
+                zone(config.getString("clock.timezone", "America/New_York")),
                 config.getString("clock.label", "ET"),
                 Rules.read(config.getConfigurationSection("rules")),
                 RobberySettings.read(config.getConfigurationSection("robberies")),
@@ -55,5 +56,13 @@ public record Settings(DatabaseConfig database, Duration saveEvery, ZoneId zone,
                 RiotSettings.read(config.getConfigurationSection("riots")),
                 PackSettings.read(config.getConfigurationSection("resource-pack")),
                 StoreSettings.read(config.getConfigurationSection("store")));
+    }
+
+    private static ZoneId zone(String id) {
+        try {
+            return ZoneId.of(id);
+        } catch (java.time.DateTimeException e) {
+            throw new IllegalArgumentException("clock.timezone \"" + id + "\" isn't a time zone, like America/New_York");
+        }
     }
 }

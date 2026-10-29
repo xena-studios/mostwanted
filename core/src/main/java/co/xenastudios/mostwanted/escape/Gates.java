@@ -118,11 +118,15 @@ public final class Gates implements Listener {
             return;
         }
         Map<Location, BlockData> was = new HashMap<>();
+        scan:
         for (int x = gate.minX(); x <= gate.maxX(); x++) {
             for (int y = gate.minY(); y <= gate.maxY(); y++) {
                 for (int z = gate.minZ(); z <= gate.maxZ(); z++) {
+                    if (was.size() >= MAX_BLOCKS) {
+                        break scan;
+                    }
                     Block block = world.getBlockAt(x, y, z);
-                    if (block.getType().isAir() || was.size() >= MAX_BLOCKS) {
+                    if (block.getType().isAir()) {
                         continue;
                     }
                     was.put(block.getLocation(), block.getBlockData());

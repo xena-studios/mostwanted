@@ -33,6 +33,11 @@ while IFS= read -r -d '' template; do
       echo "${template#./} needs $name: set it on the server's Startup tab (or in .env)" >&2
       exit 1
     fi
+    # The templates put values in single quotes, so a ' would end the string early.
+    if [[ ${!name} == *"'"* ]]; then
+      echo "$name has a ' in it, which the configs can't hold: change it (reset the password, for the database)" >&2
+      exit 1
+    fi
     text=${text//"\${$name}"/"${!name}"}
   done
   printf '%s\n' "$text" >"${template%.tmpl}"

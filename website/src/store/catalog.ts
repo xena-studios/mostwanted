@@ -122,7 +122,7 @@ export const support: Package[] = [
     category: "support",
     price: 4.99,
     icon: "/store/server-boost.png",
-    blurb: "Fireworks over the whole map and a thank-you from everyone online. Helps pay for the server.",
+    blurb: "Fireworks over the whole map and a thank-you broadcast to everyone online. Helps pay for the server.",
     commands: ["mostwanted boost {username}"],
   },
   {

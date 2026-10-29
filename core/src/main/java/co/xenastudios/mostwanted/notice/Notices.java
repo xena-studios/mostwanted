@@ -7,7 +7,9 @@ import static co.xenastudios.mostwanted.common.db.Tables.RANK_GRANTS;
 import co.xenastudios.mostwanted.common.Notifications;
 import co.xenastudios.mostwanted.message.Messages;
 import co.xenastudios.mostwanted.storage.Storage;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -35,6 +37,9 @@ public final class Notices implements Listener {
     private final String website;
     private final Logger log;
     private Notifications.Listener listener;
+    // Main thread only: players a delivery is under way for, and those to check again after it.
+    private final Set<UUID> delivering = new HashSet<>();
+    private final Set<UUID> again = new HashSet<>();
 
     public Notices(Plugin plugin, Storage storage, Messages messages, String website, Logger log) {
         this.plugin = plugin;
@@ -50,7 +55,7 @@ public final class Notices implements Listener {
                     if (channel.equals(Notifications.RANK_GRANTS)) {
                         grants();
                     } else {
-                        Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getOnlinePlayers().forEach(this::deliver));
+                        inbox(payload);
                     }
                 });
     }
@@ -67,6 +72,34 @@ public final class Notices implements Listener {
         Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getOnlinePlayers().forEach(this::deliver));
     }
 
+    /** The INBOX payload is the account told something: only its player, if online, has anything new. */
+    private void inbox(String payload) {
+        long accountId;
+        try {
+            accountId = Long.parseLong(payload);
+        } catch (NumberFormatException e) {
+            return;
+        }
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            UUID uuid;
+            try {
+                uuid = storage.sql().select(ACCOUNTS.MINECRAFT_UUID).from(ACCOUNTS).where(ACCOUNTS.ID.eq(accountId))
+                        .fetchOne(ACCOUNTS.MINECRAFT_UUID);
+            } catch (RuntimeException e) {
+                log.warning("Couldn't read notifications: " + e.getMessage());
+                return;
+            }
+            if (uuid != null) {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    Player player = Bukkit.getPlayer(uuid);
+                    if (player != null) {
+                        deliver(player);
+                    }
+                });
+            }
+        });
+    }
+
     @EventHandler
     public void join(PlayerJoinEvent event) {
         Player player = event.getPlayer();
@@ -74,37 +107,60 @@ public final class Notices implements Listener {
         Bukkit.getScheduler().runTaskLater(plugin, () -> deliver(player), 60);
     }
 
-    /** Shows them anything not yet shown in game, marking it shown. Reads off the main thread. */
+    /**
+     * Shows them anything not yet shown in game. Read off the main thread; marked shown
+     * only once it's actually in their chat, so someone who leaves in between sees it
+     * next time. One delivery per player at a time: a nudge during one runs another after.
+     */
     private void deliver(Player player) {
+        UUID uuid = player.getUniqueId();
         if (!player.isOnline()) {
             return;
         }
-        UUID uuid = player.getUniqueId();
+        if (!delivering.add(uuid)) {
+            again.add(uuid);
+            return;
+        }
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             List<Record3<Long, String, String>> rows;
             try {
-                rows = storage.sql().transactionResult(tx -> {
-                    var found = tx.dsl().select(NOTIFICATIONS.ID, NOTIFICATIONS.TEXT, NOTIFICATIONS.LINK)
-                            .from(NOTIFICATIONS).join(ACCOUNTS).on(ACCOUNTS.ID.eq(NOTIFICATIONS.ACCOUNT_ID))
-                            .where(ACCOUNTS.MINECRAFT_UUID.eq(uuid)).and(NOTIFICATIONS.SHOWN_IN_GAME_AT.isNull())
-                            .orderBy(NOTIFICATIONS.ID)
-                            .limit(10)
-                            .forUpdate().of(NOTIFICATIONS).skipLocked()
-                            .fetch();
-                    tx.dsl().update(NOTIFICATIONS).set(NOTIFICATIONS.SHOWN_IN_GAME_AT, DSL.currentOffsetDateTime())
-                            .where(NOTIFICATIONS.ID.in(found.getValues(NOTIFICATIONS.ID)))
-                            .execute();
-                    return found;
-                });
+                rows = storage.sql().select(NOTIFICATIONS.ID, NOTIFICATIONS.TEXT, NOTIFICATIONS.LINK)
+                        .from(NOTIFICATIONS).join(ACCOUNTS).on(ACCOUNTS.ID.eq(NOTIFICATIONS.ACCOUNT_ID))
+                        .where(ACCOUNTS.MINECRAFT_UUID.eq(uuid)).and(NOTIFICATIONS.SHOWN_IN_GAME_AT.isNull())
+                        .orderBy(NOTIFICATIONS.ID)
+                        .limit(10)
+                        .fetch();
             } catch (RuntimeException e) {
                 log.warning("Couldn't read notifications: " + e.getMessage());
-                return;
+                rows = List.of();
             }
-            if (rows.isEmpty()) {
-                return;
-            }
-            Bukkit.getScheduler().runTask(plugin, () -> rows.forEach(row -> show(player, row.value2(), row.value3())));
+            List<Record3<Long, String, String>> found = rows;
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (found.isEmpty() || !player.isOnline()) {
+                    done(player);
+                    return;
+                }
+                found.forEach(row -> show(player, row.value2(), row.value3()));
+                List<Long> ids = found.stream().map(Record3::value1).toList();
+                storage.write("notifications shown", sql -> sql.update(NOTIFICATIONS)
+                                .set(NOTIFICATIONS.SHOWN_IN_GAME_AT, DSL.currentOffsetDateTime())
+                                .where(NOTIFICATIONS.ID.in(ids)).execute())
+                        .whenComplete((ok, error) -> {
+                            if (plugin.isEnabled()) {
+                                Bukkit.getScheduler().runTask(plugin, () -> done(player));
+                            }
+                        });
+            });
         });
+    }
+
+    /** A delivery finished: run the one asked for meanwhile, if any. */
+    private void done(Player player) {
+        UUID uuid = player.getUniqueId();
+        delivering.remove(uuid);
+        if (again.remove(uuid)) {
+            deliver(player);
+        }
     }
 
     private void show(Player player, String text, String link) {

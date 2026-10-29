@@ -1,6 +1,8 @@
 package co.xenastudios.mostwanted.backend.accounts;
 
+import static co.xenastudios.mostwanted.common.db.Tables.NOTIFICATIONS;
 import static co.xenastudios.mostwanted.common.db.Tables.SESSIONS;
+import static co.xenastudios.mostwanted.common.db.Tables.TICKETS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -70,6 +72,24 @@ class AccountsTest {
         assertTrue(accounts.get(minecraftOnly).isEmpty(), "folded into the linked account");
         assertEquals(id, accounts.signInWithDiscord("1001", "New name"));
         assertEquals("New name", accounts.get(id).orElseThrow().discordName());
+    }
+
+    @Test
+    void foldingKeepsTheFoldedAccountsTicketsAndNotifications() {
+        UUID uuid = db.player("Keeper", "inmate", 0, false);
+        db.code(uuid, "FFFFF2", Duration.ofMinutes(10));
+        long minecraftOnly = accounts.signInWithCode("FFFFF2").orElseThrow();
+        var sql = db.database.sql();
+        sql.insertInto(TICKETS).set(TICKETS.ACCOUNT_ID, minecraftOnly).set(TICKETS.CATEGORY, "appeal")
+                .set(TICKETS.SUBJECT, "Unban me").execute();
+        sql.insertInto(NOTIFICATIONS).set(NOTIFICATIONS.ACCOUNT_ID, minecraftOnly).set(NOTIFICATIONS.TEXT, "Hi").execute();
+
+        long id = accounts.signInWithDiscord("1101", "Keeper#1");
+        db.code(uuid, "FFFFF3", Duration.ofMinutes(10));
+        assertEquals(Accounts.Link.LINKED, accounts.linkMinecraft(id, "FFFFF3"));
+        assertTrue(accounts.get(minecraftOnly).isEmpty(), "folded in");
+        assertEquals(1, sql.fetchCount(TICKETS, TICKETS.ACCOUNT_ID.eq(id)), "the ticket moved");
+        assertEquals(1, sql.fetchCount(NOTIFICATIONS, NOTIFICATIONS.ACCOUNT_ID.eq(id)), "the notification moved");
     }
 
     @Test

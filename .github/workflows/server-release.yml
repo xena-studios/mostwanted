@@ -18,6 +18,12 @@ on:
       - "gradle/**"
       - "*.gradle.kts"
       - ".github/workflows/server-release.yml"
+      # Not in either bundle.
+      - "!**.md"
+      - "!server/eggs/**"
+      - "!server/panel/**"
+      - "!server/setup/**"
+      - "!backend/discord-setup/**"
   workflow_dispatch:
 
 permissions:
