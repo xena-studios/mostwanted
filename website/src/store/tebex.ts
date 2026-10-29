@@ -77,14 +77,39 @@ export async function checkout(token: string, username: string, idents: string[]
     `${API}/accounts/${token}/baskets/${basket.ident}/auth?returnUrl=${encodeURIComponent(`${back}?checkout=${basket.ident}`)}`,
   ).catch(() => []);
   if (Array.isArray(auth) && auth.length > 0) {
+    // Only this basket may continue to payment when Tebex sends the buyer back.
+    try {
+      sessionStorage.setItem(PENDING, basket.ident);
+    } catch {
+      // No storage: coming back just shows the store, and they check out again.
+    }
     location.assign(auth[0].url);
     return;
   }
   await toPayment(token, basket.ident);
 }
 
-/** After Tebex's sign-in: on to payment for that basket. */
-export async function toPayment(token: string, basketIdent: string) {
+const PENDING = "mw-checkout";
+
+/**
+ * Back from Tebex's sign-in: on to payment, but only for the basket this browser
+ * just made. A ?checkout= link from anyone else (a basket for their username) is
+ * ignored, so nobody can be tricked into paying for someone else.
+ */
+export async function resumeCheckout(token: string, basketIdent: string) {
+  let pending: string | null = null;
+  try {
+    pending = sessionStorage.getItem(PENDING);
+    sessionStorage.removeItem(PENDING);
+  } catch {
+    // No storage: nothing to resume.
+  }
+  if (pending !== basketIdent) return;
+  await toPayment(token, basketIdent);
+}
+
+/** On to payment for that basket. */
+async function toPayment(token: string, basketIdent: string) {
   const { data } = await call<{ data: Basket }>(`${API}/accounts/${token}/baskets/${basketIdent}`);
   if (!data.links?.checkout) {
     throw new Error("That basket has already been paid for.");

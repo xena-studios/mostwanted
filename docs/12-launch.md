@@ -206,6 +206,7 @@ In the [Minehut panel](https://minehut.com), on our server ([tech](04-tech.md#ho
 1. Plan: **External**.
 2. External Server Settings: IP `VPS_IP`, proxy type **Other**, DNS record type **Port**, port **25565**, TCPShield **Not Configured**.
 3. Back in our panel, the game server's **Join through Minehut** to `true`, and restart.
+4. **`play.mostwantedmc.com`**, the address players type: point it at **Minehut**, not the VPS (Minehut's custom-domain settings say which record; in Cloudflare it's **DNS only**). Pointed at the VPS, the server refuses the connection, since it only takes players who come through Minehut.
 
 The server speaks Minehut's PROXY protocol and checks logins with Minehut, so direct connections can't join. Ask Minehut for their IP ranges (so netcup's firewall can limit 25565 to them) and how Bedrock players are marked.
 

@@ -30,8 +30,4 @@ final class RateLimits {
     void sweep() {
         buckets.values().removeIf(bucket -> bucket.getAvailableTokens() >= perMinute);
     }
-
-    int size() {
-        return buckets.size();
-    }
 }

@@ -58,13 +58,13 @@ import { site } from "../site";
   }
 
   /** Buttons for each state; the chosen one is pressed. */
-  function filters(box: HTMLElement, states: Record<string, string>, chosen: string, pick: (state: string) => void) {
+  function filters(box: HTMLElement, states: Record<string, string>, chosen: string, pick: (state: string) => Promise<void>) {
     box.replaceChildren(
       ...Object.entries(states).map(([state, label]) => {
         const button = el("button", "button small", label);
         button.type = "button";
         button.setAttribute("aria-pressed", String(state === chosen));
-        button.addEventListener("click", () => pick(state));
+        button.addEventListener("click", () => pick(state).catch((e) => fail((e as Error).message)));
         return button;
       }),
     );

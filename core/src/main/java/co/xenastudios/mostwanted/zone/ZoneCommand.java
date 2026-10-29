@@ -22,6 +22,9 @@ import org.bukkit.entity.Player;
 /** {@code /mostwanted zone}: marking zones out with a FAWE selection. Changes go in the game log. */
 public final class ZoneCommand {
 
+    /** The biggest box a gate may be: room for a wide double door and its frame. */
+    static final int GATE_MAX_VOLUME = 2048;
+
     private final ZoneStore zones;
     private final ZoneTracker tracker;
     private final Messages messages;
@@ -119,6 +122,9 @@ public final class ZoneCommand {
             return 0;
         }
         Zone zone = selection.toZone(name, kind, null);
+        if (tooBig(player, zone)) {
+            return 0;
+        }
         save(player, zone, "create");
         messages.send(player, "command.zone.created", Messages.value("zone", name), Messages.value("kind", kind.key()),
                 Messages.value("size", zone.size()));
@@ -136,10 +142,26 @@ public final class ZoneCommand {
             return 0;
         }
         Zone zone = selection.toZone(old.name(), old.kind(), old.spawn());
+        if (tooBig(player, zone)) {
+            return 0;
+        }
         save(player, zone, "redefine");
         messages.send(player, "command.zone.redefined", Messages.value("zone", zone.name()),
                 Messages.value("size", zone.size()));
         return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * Gates open block by block on the main thread whenever a guard uses one, so a
+     * gate is the gate itself, not a whole yard.
+     */
+    private boolean tooBig(Player player, Zone zone) {
+        if (zone.kind() != ZoneKind.GATE || zone.volume() <= GATE_MAX_VOLUME) {
+            return false;
+        }
+        messages.send(player, "command.zone.gate-too-big", Messages.value("size", zone.size()),
+                Messages.value("max", GATE_MAX_VOLUME));
+        return true;
     }
 
     private int spawn(CommandContext<CommandSourceStack> context) {

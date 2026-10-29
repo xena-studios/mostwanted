@@ -1,11 +1,12 @@
 name: Build
 
-# Everything but Markdown and the website (website.yml builds that). Pull requests always run, so the `build-ok` check main
-# requires always reports; `changes` skips the rest when only Markdown changed.
+# The plugins and the backend: not Markdown, the website (website.yml), the game server (server.yml), the resource pack
+# (pack.yml) or art and tools. Pull requests always run, so the `build-ok` check main
+# requires always reports; `changes` skips the rest when none of that changed.
 on:
   push:
     branches: [main]
-    paths: ["**", "!**.md", "!website/**", "!.github/workflows/website.yml", "!server/**", "!backend/discord-setup/**", "!.github/workflows/server.yml"]
+    paths: ["**", "!**.md", "!website/**", "!.github/workflows/website.yml", "!server/**", "!backend/discord-setup/**", "!.github/workflows/server.yml", "!pack/**", "!.github/workflows/pack.yml", "!brand/**", "!tools/**", "!.github/workflows/playtest.yml", "!.github/ISSUE_TEMPLATE/**"]
   pull_request:
   workflow_dispatch:
 
@@ -36,7 +37,8 @@ jobs:
           code=false
           while read -r file; do
             case $file in
-              *.md | website/* | server/* | backend/discord-setup/* | .github/workflows/website.yml | .github/workflows/server.yml) ;;
+              *.md | website/* | server/* | backend/discord-setup/* | pack/* | brand/* | tools/* | .github/ISSUE_TEMPLATE/* \
+                | .github/workflows/website.yml | .github/workflows/server.yml | .github/workflows/pack.yml | .github/workflows/playtest.yml) ;;
               *) code=true ;;
             esac
           done <<< "$files"
@@ -55,6 +57,9 @@ jobs:
       - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
       # Compiles and runs the tests.
       - run: ./gradlew build
+      # Compiles against the newest Paper API, failing on anything it marks for
+      # removal, so a coming break shows up here before it reaches the server.
+      - run: ./gradlew compileJava -Pxena.newestPaper=26.3.build.223-stable
       - uses: actions/upload-artifact@v7
         with:
           name: jars
@@ -66,21 +71,6 @@ jobs:
             !common/build/libs/*
             !backend/build/libs/*
           if-no-files-found: error
-
-  # Compiles against the newest Paper API, failing on anything it marks for
-  # removal, so a coming break shows up here before it reaches the server.
-  newest-api:
-    needs: changes
-    if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-26.04
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: 25
-      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
-      - run: ./gradlew compileJava -Pxena.newestPaper=26.3.build.223-stable
 
   # Boots the plugins on real servers: Leaf, which the live server runs, and
   # Paper, so a failure on Leaf alone points at Leaf rather than at us.
@@ -134,7 +124,7 @@ jobs:
   # The one check main requires: passes when every job above passed or was
   # skipped because nothing they cover changed.
   build-ok:
-    needs: [changes, build, newest-api, boot]
+    needs: [changes, build, boot]
     if: always()
     runs-on: ubuntu-26.04
     steps:

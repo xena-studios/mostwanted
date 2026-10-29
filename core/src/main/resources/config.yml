@@ -1,5 +1,6 @@
 # MostWanted's settings. On the server this file is rendered from
-# server/files/plugins/MostWanted/config.yml.tmpl, with the password from .env.
+# server/files/plugins/MostWanted/config.yml.tmpl, with the password from the
+# server's Startup tab in the panel (or .env).
 # Changes need a restart.
 
 # PostgreSQL, shared with LuckPerms, LibertyBans and the backend. MostWanted

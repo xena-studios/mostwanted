@@ -1,6 +1,5 @@
 package co.xenastudios.mostwanted.cosmetic;
 
-import java.util.Locale;
 import org.bukkit.permissions.Permissible;
 
 /**
@@ -45,15 +44,6 @@ public enum Rank {
             String permission = "group." + ranks[i].group;
             if (player.isPermissionSet(permission) && player.hasPermission(permission)) {
                 return ranks[i];
-            }
-        }
-        return null;
-    }
-
-    public static Rank fromGroup(String group) {
-        for (Rank rank : values()) {
-            if (rank.group.equals(group.toLowerCase(Locale.ROOT))) {
-                return rank;
             }
         }
         return null;

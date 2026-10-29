@@ -69,15 +69,15 @@ const sections = [
               const worth = includedValue(r);
               return (
                 <li class:list={["panel rank", { featured: r === bestValue }]} data-rank={r.id}>
-                  {(r === bestValue ? "Best value" : r.ribbon) && <span class="ribbon pixel">{r === bestValue ? "Best value" : r.ribbon}</span>}
+                  {(r === bestValue ? "Best value" : r.ribbon) && (
+                    <span class="ribbon pixel" data-best={r === bestValue ? r.id : undefined}>{r === bestValue ? "Best value" : r.ribbon}</span>
+                  )}
                   <img class="icon" src={r.icon} alt="" width="80" height="80" />
                   <h3>{r.name}</h3>
                   <p class="price" data-price={r.id}>{money(r.price)}</p>
-                  {worth > r.price ? (
-                    <p class="worth">Includes {money(worth)} of cosmetics</p>
-                  ) : (
-                    <p class="worth muted">{r.includes!.length} cosmetic{r.includes!.length === 1 ? "" : "s"} included</p>
-                  )}
+                  <p class:list={["worth", { muted: worth <= r.price }]} data-worth={r.id}>
+                    {worth > r.price ? `Includes ${money(worth)} of cosmetics` : `${r.includes!.length} cosmetic${r.includes!.length === 1 ? "" : "s"} included`}
+                  </p>
                   <p class="blurb">{r.blurb}</p>
                   <ul class="perks">
                     {r.perks!.map((perk) => (
@@ -289,7 +289,7 @@ const sections = [
 <script>
   import { advise } from "../store/advice";
   import { read, toggle, write } from "../store/cart";
-  import { checkout, loadLive, toPayment, type Live } from "../store/tebex";
+  import { checkout, loadLive, resumeCheckout, type Live } from "../store/tebex";
 
   type Item = { id: string; name: string; category: string; price: number; icon: string; includes?: string[] };
 
@@ -312,6 +312,39 @@ const sections = [
   function showError(message: string) {
     errorBox.textContent = message;
     errorBox.hidden = false;
+  }
+
+  /**
+   * "Includes $X of cosmetics" and "Best value" are worked out from the catalogue's
+   * US prices when the site is built. Redo them from the live prices, in the buyer's
+   * currency, so they stay true; a rank whose cosmetics aren't all on sale makes no claim.
+   */
+  function valueLabels(loaded: Live) {
+    const live = (id: string) => loaded.prices.get(byId.get(id)!.name);
+    const worth = (rank: Item) => {
+      const prices = rank.includes!.map(live);
+      return prices.every((p) => p !== undefined) ? prices.reduce((sum, p) => sum! + p!, 0)! : null;
+    };
+    $$("worth").forEach((el) => {
+      const rank = byId.get(el.dataset.worth!)!;
+      const w = worth(rank);
+      const p = live(rank.id);
+      const shown = w !== null && p !== undefined && w > p;
+      const n = rank.includes!.length;
+      el.textContent = shown ? `Includes ${format(w!)} of cosmetics` : `${n} cosmetic${n === 1 ? "" : "s"} included`;
+      el.classList.toggle("muted", !shown);
+    });
+    const ratio = (rank: Item) => {
+      const w = worth(rank);
+      const p = live(rank.id);
+      return w !== null && p ? w / p : 0;
+    };
+    const best = items.filter((i) => i.includes?.length).reduce((b, r) => (ratio(r) > ratio(b) ? r : b));
+    $$("best").forEach((el) => {
+      if (el.dataset.best === best.id && ratio(best) > 0) return;
+      el.hidden = true;
+      el.closest(".rank")?.classList.remove("featured");
+    });
   }
 
   /** Everything that depends on what's in the cart. */
@@ -494,10 +527,14 @@ const sections = [
           const name = byId.get(el.dataset.price!)!.name;
           el.textContent = loaded.prices.has(name) ? format(loaded.prices.get(name)!) : "Unavailable";
         });
+        valueLabels(loaded);
         render();
         // Back from Tebex's sign-in: on to payment.
         const basket = params.get("checkout");
-        if (basket) toPayment(token, basket).catch((e) => showError((e as Error).message));
+        if (basket) {
+          history.replaceState(null, "", "/store");
+          resumeCheckout(token, basket).catch((e) => showError((e as Error).message));
+        }
       },
       () => showError("Couldn't reach the store just now. Try again in a minute."),
     );

@@ -22,3 +22,9 @@ pack/out/
 backend/tls/
 # Playtest bots
 tools/playtest/node_modules/
+# The panel's local files on the VPS (server/panel/): the agent's token, origin
+# certificates, database dumps (migrations are .sql, so only the dump's name)
+server/panel/db-agent/config.yml
+*.pem
+/mostwanted.sql
+*.sql.gz

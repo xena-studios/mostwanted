@@ -30,6 +30,7 @@ On the VPS, through the panel: [docs/12-launch.md](../docs/12-launch.md) (the eg
 Outside the panel (your PC), with Java 25, `curl`, `jq` and `shasum`:
 
 ```sh
+mkdir -p /tmp/mw
 cp server/.env.example /tmp/mw/.env                      # then fill it in
 server/install.sh /tmp/mw
 echo eula=true > /tmp/mw/eula.txt                       # Minecraft's EULA: https://aka.ms/MinecraftEULA
@@ -49,7 +50,7 @@ Merge to `main`; the server release workflow builds it. Then **Reinstall** the s
 ## Test locally
 
 ```sh
-cp server/.env.example /tmp/mw/.env && sed -i '' 's/^LUCKPERMS_STORAGE=.*/LUCKPERMS_STORAGE=h2/; s/^LIBERTYBANS_DATABASE=.*/LIBERTYBANS_DATABASE=HSQLDB/; s/^DB_PASSWORD=.*/DB_PASSWORD=test/' /tmp/mw/.env
+mkdir -p /tmp/mw && cp server/.env.example /tmp/mw/.env && sed -i '' 's/^LUCKPERMS_STORAGE=.*/LUCKPERMS_STORAGE=h2/; s/^LIBERTYBANS_DATABASE=.*/LIBERTYBANS_DATABASE=HSQLDB/; s/^DB_PASSWORD=.*/DB_PASSWORD=test/' /tmp/mw/.env
 server/install.sh /tmp/mw && server/test.sh /tmp/mw
 ```
 

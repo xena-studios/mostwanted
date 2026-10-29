@@ -34,7 +34,7 @@ Approved 2026-10-26. The rule: **get a plugin where it's a hard, solved problem;
 | **FancyHolograms** | 2.12.0 | Static floating text. Live leaderboards are `core`'s own (`/mw board`, vanilla text displays). |
 | **FastAsyncWorldEdit** | 2.16.1 | Building the map. Can come off the live server once it's built. |
 
-**Later:** the **Tebex** plugin when the store opens; **NuVotifier** only if we list on vote sites.
+**Later:** **NuVotifier**, only if we list on vote sites. (No Tebex plugin: core delivers purchases itself, [store](11-store.md).)
 
 ### What `core` does instead
 
@@ -52,7 +52,7 @@ Approved 2026-10-26. The rule: **get a plugin where it's a hard, solved problem;
 
 - **FancyHolograms** uses text display entities. Bedrock has no display entities, so Geyser fakes them, and they may look different or not show. Test early; important info (robbery open/closed, bounty) also goes in chat, the action bar or the scoreboard.
 - **FancyNpcs** shows NPCs as fake players, which Geyser handles well. Test skins and click actions on Bedrock.
-- Both log `[FancyAnalytics] Failed to create event` on start: their usage-statistics upload. Harmless, and there's no setting to turn it off.
+- Both would upload usage statistics through FancyAnalytics; that's off (`server/files/plugins/FancyAnalytics/config.json`).
 
 ## ⚠️ Bedrock players and GrimAC
 

@@ -27,7 +27,6 @@ final class SupportRoutes {
     static final int TICKETS_PER_HOUR = 3;
     private static final Set<String> TICKET_STATES = Set.of("open", "answered", "closed");
     private static final Set<String> APPLICATION_STATES = Set.of("pending", "accepted", "denied");
-    private static final Map<String, String> KINDS = Map.of("guard", "guard", "staff", "staff", "creator", "creator");
 
     private final AccountRoutes auth;
     private final Accounts accounts;
@@ -189,6 +188,11 @@ final class SupportRoutes {
                 throw new Api.Failure(HttpStatus.BAD_REQUEST, "Accept or deny.");
             }
             String note = text(body, "note", 1000);
+            Applications.Application application = applications.get(id(ctx))
+                    .orElseThrow(() -> new Api.Failure(HttpStatus.NOT_FOUND, "There's no such application."));
+            if (application.accountId() == who.account().id()) {
+                throw new Api.Failure(HttpStatus.FORBIDDEN, "Someone else decides your own application.");
+            }
             boolean accepted = decision.equals("accept");
             Applications.Application decided = applications.decide(id(ctx), accepted, note.isEmpty() ? null : note, who.name())
                     .orElseThrow(() -> new Api.Failure(HttpStatus.CONFLICT, "Someone already decided this one."));
@@ -203,7 +207,7 @@ final class SupportRoutes {
 
     /** What the player is told about a decision. */
     static String decision(Applications.Application application) {
-        String what = KINDS.get(application.kind());
+        String what = application.kind();
         if (application.status().equals("accepted")) {
             return application.kind().equals("guard")
                     ? "Your guard application was accepted! You're a guard: use /duty in game to go on duty."

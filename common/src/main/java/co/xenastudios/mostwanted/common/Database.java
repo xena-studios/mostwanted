@@ -102,10 +102,6 @@ public final class Database implements AutoCloseable {
         return sql;
     }
 
-    public DataSource dataSource() {
-        return pool;
-    }
-
     /**
      * A connection of its own, outside the pool, for holding open as long as needed
      * (as {@link Notifications.Listener} does). The caller closes it.

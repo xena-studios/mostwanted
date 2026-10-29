@@ -8,6 +8,8 @@ import java.time.Instant;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * What players are told: a staff reply, an application decided. Kept here for the
@@ -16,6 +18,8 @@ import org.jooq.impl.DSL;
  * otherwise as they join).
  */
 public final class Inbox {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Inbox.class);
 
     /** Sends a Discord DM. */
     @FunctionalInterface
@@ -40,20 +44,28 @@ public final class Inbox {
         this.dm = dm;
     }
 
-    /** Tells a player something, with a path on the site to see it. */
+    /**
+     * Tells a player something, with a path on the site to see it. Never throws: it
+     * runs after what it reports is saved, and a failure here mustn't make that look
+     * failed (the player would retry and post twice).
+     */
     public void tell(long accountId, String text, String link) {
-        sql.transaction(tx -> {
-            tx.dsl().insertInto(NOTIFICATIONS)
-                    .set(NOTIFICATIONS.ACCOUNT_ID, accountId)
-                    .set(NOTIFICATIONS.TEXT, text)
-                    .set(NOTIFICATIONS.LINK, link)
-                    .execute();
-            Notifications.publish(tx.dsl(), Notifications.INBOX, Long.toString(accountId));
-        });
-        String discord = sql.select(ACCOUNTS.DISCORD_ID).from(ACCOUNTS).where(ACCOUNTS.ID.eq(accountId))
-                .fetchOne(ACCOUNTS.DISCORD_ID);
-        if (discord != null) {
-            dm.send(discord, text + (link == null ? "" : "\n" + site + link));
+        try {
+            sql.transaction(tx -> {
+                tx.dsl().insertInto(NOTIFICATIONS)
+                        .set(NOTIFICATIONS.ACCOUNT_ID, accountId)
+                        .set(NOTIFICATIONS.TEXT, text)
+                        .set(NOTIFICATIONS.LINK, link)
+                        .execute();
+                Notifications.publish(tx.dsl(), Notifications.INBOX, Long.toString(accountId));
+            });
+            String discord = sql.select(ACCOUNTS.DISCORD_ID).from(ACCOUNTS).where(ACCOUNTS.ID.eq(accountId))
+                    .fetchOne(ACCOUNTS.DISCORD_ID);
+            if (discord != null) {
+                dm.send(discord, text + (link == null ? "" : "\n" + site + link));
+            }
+        } catch (RuntimeException e) {
+            LOG.warn("Couldn't notify account {}: {}", accountId, text, e);
         }
     }
 

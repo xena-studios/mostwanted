@@ -42,4 +42,6 @@ jobs:
 
           Merge when the checks pass **and** the server is ready to move: Leaf has a $VERSION build, the plugins in docs/07-server-stack.md support it, and Minehut does too. Until then, ViaVersion lets $VERSION clients join."
           # PRs opened with this workflow's token don't start other workflows, so start CI here.
-          gh workflow run build.yml --ref "$branch"
+          for workflow in build.yml server.yml playtest.yml; do
+            gh workflow run "$workflow" --ref "$branch"
+          done

@@ -1,8 +1,12 @@
 package co.xenastudios.mostwanted.backend.accounts;
 
 import static co.xenastudios.mostwanted.common.db.Tables.ACCOUNTS;
+import static co.xenastudios.mostwanted.common.db.Tables.APPLICATIONS;
 import static co.xenastudios.mostwanted.common.db.Tables.LOGIN_CODES;
+import static co.xenastudios.mostwanted.common.db.Tables.NOTIFICATIONS;
 import static co.xenastudios.mostwanted.common.db.Tables.PLAYERS;
+import static co.xenastudios.mostwanted.common.db.Tables.TICKETS;
+import static co.xenastudios.mostwanted.common.db.Tables.TICKET_MESSAGES;
 
 import co.xenastudios.mostwanted.common.db.tables.records.AccountsRecord;
 import java.util.LinkedHashMap;
@@ -119,7 +123,7 @@ public final class Accounts {
                 if (other.getDiscordId() != null) {
                     return Link.TAKEN;
                 }
-                other.delete();
+                fold(db, other, me);
             }
             me.setMinecraftUuid(uuid);
             me.store();
@@ -143,13 +147,28 @@ public final class Accounts {
                 if (other.getMinecraftUuid() != null) {
                     return Link.TAKEN;
                 }
-                other.delete();
+                fold(db, other, me);
             }
             me.setDiscordId(discordId);
             me.setDiscordName(name);
             me.store();
             return Link.LINKED;
         });
+    }
+
+    /**
+     * Moves another account's tickets, replies, applications and notifications to
+     * {@code into}, then deletes it: folding accounts together must not lose them
+     * (they'd cascade away with it).
+     */
+    private static void fold(DSLContext db, AccountsRecord other, AccountsRecord into) {
+        long from = other.getId();
+        long to = into.getId();
+        db.update(TICKETS).set(TICKETS.ACCOUNT_ID, to).where(TICKETS.ACCOUNT_ID.eq(from)).execute();
+        db.update(TICKET_MESSAGES).set(TICKET_MESSAGES.ACCOUNT_ID, to).where(TICKET_MESSAGES.ACCOUNT_ID.eq(from)).execute();
+        db.update(APPLICATIONS).set(APPLICATIONS.ACCOUNT_ID, to).where(APPLICATIONS.ACCOUNT_ID.eq(from)).execute();
+        db.update(NOTIFICATIONS).set(NOTIFICATIONS.ACCOUNT_ID, to).where(NOTIFICATIONS.ACCOUNT_ID.eq(from)).execute();
+        other.delete();
     }
 
     /** Deletes the account, its sessions and links. Game data stays (the privacy page: email us for that). */

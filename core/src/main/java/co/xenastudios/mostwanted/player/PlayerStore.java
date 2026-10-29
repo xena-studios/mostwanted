@@ -76,12 +76,18 @@ public final class PlayerStore {
             }
         }
         DSLContext sql = storage.sql();
+        // Bedrock players get Floodgate-style UUIDs, which start with 64 zero bits.
+        // (How Minehut marks them is still open, docs/05-open-questions.md; this is the
+        // standard, so the website shows them a default head rather than a Java skin.)
+        boolean bedrock = uuid.getMostSignificantBits() == 0;
         var row = sql.insertInto(PLAYERS)
                 .set(PLAYERS.UUID, uuid)
                 .set(PLAYERS.NAME, name)
+                .set(PLAYERS.BEDROCK, bedrock)
                 .onConflict(PLAYERS.UUID)
                 .doUpdate()
                 .set(PLAYERS.NAME, name)
+                .set(PLAYERS.BEDROCK, bedrock)
                 .set(PLAYERS.LAST_SEEN, DSL.currentOffsetDateTime())
                 .returning()
                 .fetchSingle();

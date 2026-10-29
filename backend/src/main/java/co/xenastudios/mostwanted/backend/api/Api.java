@@ -154,7 +154,7 @@ public final class Api {
             javalin.routes.exception(ValidationException.class, (e, ctx) -> {
                 String message = e.getErrors().values().stream().flatMap(List::stream)
                         .map(error -> error.getMessage()).findFirst().orElse("Bad query parameters.");
-                ctx.status(HttpStatus.BAD_REQUEST).json(Map.of("error", message));
+                ctx.header("Cache-Control", "no-store").status(HttpStatus.BAD_REQUEST).json(Map.of("error", message));
             });
             javalin.routes.exception(Exception.class, (e, ctx) -> {
                 if (e instanceof DataAccessException) {

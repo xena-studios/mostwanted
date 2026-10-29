@@ -53,7 +53,7 @@ public final class Hud {
     /** The tab footer and player count last sent, and who has them: only changes are sent. */
     private String lastTab = "";
     private final Set<UUID> tabSent = new HashSet<>();
-    /** Live events (a robbery, later a riot): a section everyone sees while they're on. */
+    /** Live events (a robbery, a riot): a section everyone sees while they're on. */
     private Supplier<List<Component>> live = List::of;
     private List<Component> lastLive = List.of();
     /** What follows a name in the tab list: a store rank's tag, or nothing. */

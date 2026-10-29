@@ -207,7 +207,7 @@
       "default_value": "tls/cloudflare-origin-pull-ca.pem",
       "user_viewable": true,
       "user_editable": true,
-      "rules": "required|string|max:128",
+      "rules": "nullable|string|max:128",
       "field_type": "text"
     }
   ]
