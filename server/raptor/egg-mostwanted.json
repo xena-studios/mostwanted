@@ -8,6 +8,9 @@
   "name": "MostWanted",
   "author": "contact@xenastudios.co",
   "description": "The MostWanted game server: Leaf, every plugin we use (pinned and checksummed), our configs and the core plugin, from the latest build of github.com/xena-studios/mostwanted. Reinstall to update. Needs a database on its Databases tab.",
+  "tags": [
+    "minecraft"
+  ],
   "features": [
     "eula",
     "java_version",
@@ -19,7 +22,7 @@
   "file_denylist": [],
   "startup": "bash start.sh",
   "config": {
-    "files": "{}",
+    "files": "{\"server.properties\": {\"parser\": \"properties\", \"find\": {\"server-ip\": \"\", \"server-port\": \"{{server.allocations.default.port}}\", \"query.port\": \"{{server.allocations.default.port}}\"}}}",
     "startup": "{\"done\": \")! For help, type \"}",
     "logs": "{}",
     "stop": "stop"
@@ -82,5 +85,29 @@
       "rules": "required|string|in:POSTGRES,HSQLDB",
       "field_type": "text"
     }
-  ]
+  ],
+  "x-raptor": {
+    "arch": [
+      "amd64",
+      "arm64"
+    ],
+    "backup": {
+      "pre": [
+        "save-off",
+        "save-all flush"
+      ],
+      "post": [
+        "save-on"
+      ],
+      "wait_for": "regex:Saved the (game|world)",
+      "timeout": "5m"
+    },
+    "health": {
+      "type": "port",
+      "protocol": "tcp"
+    },
+    "players": {
+      "query": "minecraft"
+    }
+  }
 }
