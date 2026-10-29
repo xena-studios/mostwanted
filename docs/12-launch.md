@@ -96,7 +96,7 @@ In the dashboard for **mostwantedmc.com**:
 
 1. **SSL/TLS → Origin Server → Create Certificate.** "Generate private key and CSR with Cloudflare", RSA (2048), hostnames `api.mostwantedmc.com`, validity 15 years, format **PEM**. Keep the page open: the **private key is shown once**.
 2. **SSL/TLS → Overview → Full (strict).** (The website is a Worker, so this only changes how Cloudflare talks to the VPS.)
-3. **SSL/TLS → Origin Server → Authenticated Origin Pulls: On.**
+3. **SSL/TLS → Origin Server → Authenticated Origin Pulls: On**, the **global** setting for the whole zone. Without it Cloudflare sends no client certificate, the API refuses the connection, and you get a 520.
 4. **DNS → Add record:** `A`, name `api`, IPv4 `VPS_IP`, **Proxied** (orange cloud).
 5. **Rules → Origin Rules → Create rule:** "api to 8443", when **Hostname equals `api.mostwantedmc.com`**, **Destination Port → Rewrite to 8443**. (Raptor gives servers ports from 1024 up, so the API can't take 443 itself.)
 6. **Caching → Cache Rules → Create rule:** "api stats", when **Hostname equals `api.mostwantedmc.com`** and **URI Path starts with `/v1/players/`** or **starts with `/v1/leaderboards/`**, **Eligible for cache**, Edge TTL **Use cache-control header if present**. Without it Cloudflare caches nothing from the API (it only caches file extensions by default), and every page view reaches the VPS.
