@@ -63,4 +63,4 @@ Discord ◀──▶ backend (API + bot) ──▶ PostgreSQL ◀── core ─
                      links, ranks, tickets, notifications (LISTEN/NOTIFY)
 ```
 
-It runs on the VPS as its own Raptor server with a small heap (~256 MB), so game restarts don't take it down. Each feature is its own class and can be switched off in config.
+It runs on the VPS as its own server in the panel with a small heap (~256 MB), so game restarts don't take it down. Each feature is its own class and can be switched off in config.

@@ -8,7 +8,7 @@ Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserM
 | --- | --- |
 | Minecraft version | **26.3** |
 | Game server | **Leaf 26.3** (Paper fork, Java 25), standalone, no proxy. Paper is the fallback |
-| Hosting | **netcup RS 2000** (Manassas, US East): 8 dedicated cores, 16 GB RAM, 256 GB NVMe. Managed with [Raptor](https://github.com/xena-studios/raptor) |
+| Hosting | **netcup RS 2000** (Manassas, US East): 8 dedicated cores, 16 GB RAM, 256 GB NVMe. Managed with [Calagopus](https://calagopus.com) |
 | Front door | **[Minehut External Server](https://support.minehut.com/hc/en-us/articles/33252734474899-How-to-Setup-a-Minehut-External-Hosted-Server)**: players join through Minehut's network |
 | Bedrock | **Minehut** handles it (their built-in Geyser) |
 | Database | **PostgreSQL** (small, on the same VPS) |
@@ -19,7 +19,7 @@ Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserM
 
 ```
 Java players ─────┐
-                  ├──▶ Minehut network ──────────────▶ netcup RS 2000 (US East, Raptor)
+                  ├──▶ Minehut network ──────────────▶ netcup RS 2000 (US East, Calagopus)
 Bedrock players ──┘    (Geyser, DDoS protection,        └─ Leaf 26.3 game server
                         server list, hides our IP)       └─ PostgreSQL
 ```
@@ -57,10 +57,10 @@ Bedrock players ──┘    (Geyser, DDoS protection,        └─ Leaf 26.3 g
 8 **dedicated** AMD EPYC cores, 16 GB RAM, 256 GB NVMe, in Manassas, Virginia (US East). Ordered 2026-10-28, on a 12-month term. OVH's VPS-3 was the first pick (2026-10-25), but OVH had nothing above VPS-1 in stock in any region.
 
 **Fitting it in 16 GB:**
-- Leaf game server: **10 GB heap** (`-Xms` = `-Xmx`, Paper's recommended flags), plus ~1–1.5 GB Java uses outside the heap: 11.5 GB in Raptor
+- Leaf game server: **10 GB heap** (`-Xms` = `-Xmx`, Paper's recommended flags), plus ~1–1.5 GB Java uses outside the heap: 11.5 GB in the panel
 - PostgreSQL: ~1 GB (`shared_buffers` 512 MB)
-- OS + Raptor: ~1–1.5 GB
-- backend (website API + Discord bot): ~0.5 GB in Raptor (256 MB heap)
+- OS + Calagopus (panel, node agent, database agent): ~1–1.5 GB
+- backend (website API + Discord bot): ~0.5 GB in the panel (256 MB heap)
 - What's left (~1.5 GB) is the system's file cache. **Staging runs on your own PC**, not the VPS.
 
 **What to expect:** dedicated cores, so no neighbour slows us down, but EPYC cores clock lower than a desktop Ryzen, and Minecraft's main thread is one core. Rough guess: **~20–40 players**. Run spark during the first playtest.
@@ -88,7 +88,7 @@ Prices checked 2026-10-25 and 2026-10-28. A DDR5/NVMe shortage has pushed many h
 
 **Risks and how we handle them:**
 - Async features can clash with plugins that touch entities in unusual ways. Our `core` plugin sticks to the normal Paper API. Every async option is a config toggle, so we turn off whatever causes trouble.
-- Leaf's own README says to back up before switching. Raptor does backups, and we test every update on **staging** first.
+- Leaf's own README says to back up before switching. The panel backs up nightly, and we test every update on **staging** first.
 - If Leaf ever causes problems we can't fix, swap the jar for Paper. Nothing else changes.
 
 **How sure are we?** Leaf is the best **drop-in** choice right now: the most-used performance fork, already on 26.3, and it runs Paper plugins. (DivineMC is similar but smaller and wasn't on 26.3 yet. Multithreaded forks like Canvas and ShreddedPaper split by region like Folia, so they have the same problem with a crowded city.) But the fork is a **small lever**. What decides whether 100 players run smoothly is mostly:
@@ -163,10 +163,10 @@ Decided 2026-10-26. **Java, like `core`**, so the game, the API and the bot shar
 | JSON | **Jackson** | Javalin's default. |
 | Sign-in | **The JDK's HTTP client** for Discord OAuth; our own sessions | Two calls to Discord. Session tokens are random, stored hashed, sent as `HttpOnly` cookies. No auth framework to trust. |
 | Rate limits | **Bucket4j**, in memory | Per IP and per account, behind Cloudflare's. |
-| Logs | **SLF4J + Logback** | Raptor shows the console; Logback keeps daily files. |
+| Logs | **SLF4J + Logback** | The panel shows the console; Logback keeps daily files. |
 | Tests | **JUnit + [Testcontainers](https://testcontainers.com)** | Database tests run against a real PostgreSQL in CI. |
 
-**Running it:** one jar as its own Raptor server, 256 MB heap with the Serial GC (the lightest for a small heap), ~300–400 MB in all. `/health` lets the bot alert 🔒│admin when the API is down.
+**Running it:** one jar as its own server in the panel, 256 MB heap with the Serial GC (the lightest for a small heap), ~300–400 MB in all. `/health` lets the bot alert 🔒│admin when the API is down.
 
 **`core` stays small:** it bundles `common` (our code only) and has Paper download jOOQ, Flyway, HikariCP and the PostgreSQL driver on first start (Paper's library loader), rather than shading them into the plugin jar.
 
@@ -209,11 +209,11 @@ Decided 2026-10-26. **Java, like `core`**, so the game, the API and the bot shar
 - **Minehut External confirmed** before anything else (see the ⚠️ above).
 - **Mojang EULA + Minehut rules.** Real-money store = cosmetics only, no gameplay advantages. No gambling mechanics in-game.
 - **Staff tools.** Punishments (LibertyBans), anti-cheat alerts (Grim), block logs (CoreProtect), and reports. Guards are players with power over others, so staff need to be able to review guard abuse too. Minehut staff can't moderate external servers for us.
-- **Backups and a recovery drill.** Raptor's backups: the world files and the database (Raptor's PostgreSQL, dumped with each backup), kept offsite too, plus netcup snapshots. Actually test restoring one.
+- **Backups and a recovery drill.** The panel's nightly backups: the world files (saved first) and a dump of the managed PostgreSQL, in Cloudflare R2, plus netcup snapshots. Actually test restoring one.
 - **Monitoring.** spark for lag spikes; the bot alerts 🔒│admin when the game, API or database goes down or the server lags.
 - **Before launch** (the step-by-step is [launch](12-launch.md)):
   - Terms and Privacy pages, and a "delete my account" button (collect as little as possible: many players are kids).
-  - VPS hardening: SSH keys only, automatic security updates, the database only on Raptor's network, secrets only in Raptor, Raptor's firewall blocking everything not listed, and the API refusing anything without Cloudflare's client certificate. All in Raptor ([12-launch.md](12-launch.md)); nothing of ours runs outside it.
+  - VPS hardening: SSH keys only, automatic security updates, the database and the panel's internals listening only inside the machine, secrets only in the panel, netcup's firewall blocking everything not listed, and the API refusing anything without Cloudflare's client certificate ([12-launch.md](12-launch.md)).
   - 2FA on Cloudflare, GitHub, netcup, Discord, Tebex and Minehut.
   - `support@mostwantedmc.com` through Cloudflare Email Routing.
   - A 100-bot stress test (the VPS estimate is 15–30 players; the server has 100 slots).
@@ -222,7 +222,7 @@ Decided 2026-10-26. **Java, like `core`**, so the game, the API and the bot shar
 
 Steps 2 to 6 are built (2026-10-28); next is the map, then step 1 and step 7 for launch ([12-launch.md](12-launch.md)).
 
-1. **Foundation:** confirm Minehut External; set up the VPS with Raptor; Leaf + the must-have plugins from [server stack](07-server-stack.md) + PostgreSQL; Minehut External settings; join from Java **and** Bedrock through Minehut.
+1. **Foundation:** confirm Minehut External; set up the VPS with Calagopus; Leaf + the must-have plugins from [server stack](07-server-stack.md) + PostgreSQL; Minehut External settings; join from Java **and** Bedrock through Minehut.
 2. **Core loop:** player state, combat rules, arrests, bounty, economy, one robbery. Playable on a test map.
 3. **Custom items + guns + resource pack** (Java first, then Bedrock if Minehut supports custom Bedrock packs).
 4. **Escapes, riots, shops, HUD.**

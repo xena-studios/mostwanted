@@ -1,0 +1,24 @@
+# Calagopus's database agent: runs the managed PostgreSQL the game and the API
+# use, each database in its own container, with dumps in the servers' backups.
+# It lives in /opt/calagopus-db-agent on the VPS (docs/12-launch.md, step 4).
+#
+# On the host's network, so its two listeners can sit on Docker's own bridges
+# and nowhere public (config.yml.example): the panel reaches its API on
+# 172.17.0.1, and the game servers its PostgreSQL proxy on 172.18.0.1.
+#
+# Update: docker compose pull && docker compose up -d
+services:
+  db-agent:
+    image: ghcr.io/calagopus/db-agent:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      TZ: America/New_York
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers/:/var/lib/docker/containers/
+      - ./config.yml:/etc/calagopus-db-agent/config.yml
+      # The databases' files.
+      - /var/lib/calagopus-db-agent/:/var/lib/calagopus-db-agent/
+      - /var/log/calagopus-db-agent/:/var/log/calagopus-db-agent/
+      - /run/calagopus-db-agent/:/run/calagopus-db-agent/

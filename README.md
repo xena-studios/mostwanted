@@ -15,7 +15,7 @@ core/          MostWanted, the game plugin: every system the server runs
 common/        the database tables and message style, shared by core and backend
 website/       the website, with the store built in (Astro, Tebex)
 pack/          the resource pack: item textures, built and published by CI
-server/        the game server: pinned plugins, install and start scripts, configs (no secrets)
+server/        the game server: pinned plugins, install and start scripts, configs (no secrets), the eggs and the panel setup
 backend/       the website API and the Discord bot in one Java app, and the Discord server's setup script
 brand/         the logo, key art and icons
 build-logic/   the Gradle conventions every module applies
@@ -52,7 +52,7 @@ Needs a JDK 25.
 
 ## Status
 
-The game is built: escapes, robberies, arrests, riots, guns, shops, menus, cosmetics and leaderboards, with the website, store, API and Discord bot. Next: a map, then launch on Raptor ([launch steps](docs/12-launch.md)).
+The game is built: escapes, robberies, arrests, riots, guns, shops, menus, cosmetics and leaderboards, with the website, store, API and Discord bot. Next: a map, then launch on our netcup VPS, run with Calagopus ([launch steps](docs/12-launch.md)).
 
 ## Help
 

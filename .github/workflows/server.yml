@@ -77,10 +77,30 @@ jobs:
           shellcheck --version | head -2
           git ls-files -z '*.sh' | xargs -0 shellcheck
 
-  # The check main can require: passes when the boot and shellcheck passed, or the
-  # boot was skipped because server/ didn't change.
+  # The eggs and the panel's files: every egg has what Calagopus needs to import
+  # it, its install script passes shellcheck, and the Compose files are valid.
+  # Seconds, so always.
+  panel:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      - run: |
+          command -v shellcheck >/dev/null || { sudo apt-get update -q && sudo apt-get install -y -q shellcheck; }
+          for egg in server/eggs/*.json; do
+            jq -e '(.name | length > 0) and (.author | length > 1) and (.startup | length > 0)
+              and (.docker_images | length > 0) and (.config.stop | length > 0)
+              and (.scripts.installation.script | length > 0)
+              and all(.variables[]; (.env_variable | test("^[A-Z0-9_]+$")) and (.rules | length > 0))' "$egg" >/dev/null \
+              || { echo "::error file=$egg::missing a field Calagopus needs"; exit 1; }
+            jq -r .scripts.installation.script "$egg" | shellcheck -s bash -
+          done
+          APP_ENCRYPTION_KEY=ci docker compose -f server/panel/compose.yml config -q
+          docker compose -f server/panel/db-agent/compose.yml config -q
+
+  # The check main can require: passes when the boot, shellcheck and panel passed,
+  # or the boot was skipped because server/ didn't change.
   server-ok:
-    needs: [changes, boot, shellcheck]
+    needs: [changes, boot, shellcheck, panel]
     if: always()
     runs-on: ubuntu-26.04
     steps:

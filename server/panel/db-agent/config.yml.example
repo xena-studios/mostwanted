@@ -1,0 +1,15 @@
+# /opt/calagopus-db-agent/config.yml on the VPS. The token is the one the panel
+# shows: Admin → Database Agent Hosts → the host → Configuration → Reveal.
+api:
+  # Docker's default bridge: the panel reaches it as host.docker.internal.
+  bind: 172.17.0.1:8090
+  token: PASTE_THE_TOKEN
+postgres:
+  # The servers' bridge (calagopus_nw): servers reach it as 172.18.0.1:5432.
+  bind: 172.18.0.1:5432
+mariadb:
+  enabled: false
+mongodb:
+  enabled: false
+redis:
+  enabled: false

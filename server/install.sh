@@ -10,9 +10,9 @@
 # Anything else in <server-dir> (the world, plugin data, other configs) is left alone.
 #
 # Secrets never live in this repo. Files ending in .tmpl are copied as they are:
-# start.sh fills them in at every start, from the server's environment (Raptor's
-# database and the egg's settings) or <server-dir>/.env (see server/.env.example).
-# Raptor runs this from the MostWanted egg's install (server/raptor/egg-mostwanted.json).
+# start.sh fills them in at every start, from the server's environment (the
+# egg's settings on the Startup tab) or <server-dir>/.env (see server/.env.example).
+# The panel runs this from the MostWanted egg's install (server/eggs/egg-mostwanted.json).
 #
 # Needs bash, curl, jq and shasum. Downloads are cached in <server-dir>/.cache/.
 set -euo pipefail
@@ -87,5 +87,5 @@ chmod +x "$dir/start.sh"
 
 echo
 echo "Installed $(wc -l <"$managed" | tr -d ' ') plugins and the configs in $dir."
-[[ -f $dir/eula.txt ]] || echo "Before the first start, accept Minecraft's EULA (https://aka.ms/MinecraftEULA): echo eula=true > $dir/eula.txt (Raptor does it for you)"
+[[ -f $dir/eula.txt ]] || echo "Before the first start, accept Minecraft's EULA (https://aka.ms/MinecraftEULA): echo eula=true > $dir/eula.txt (the panel asks for you)"
 echo "Start it with: (cd $dir && ./start.sh)"

@@ -1,0 +1,24 @@
+# The managed PostgreSQL the game and the API share: import it on Admin →
+# Database Agent Templates (docs/12-launch.md, step 4). Calagopus's own preset,
+# with room for MostWanted: 1 GB, 2 cores, 20 GB, and slow queries (over half
+# a second) written to its log.
+name: MostWanted PostgreSQL
+description: PostgreSQL 18 for MostWanted's game server and API.
+type: postgres
+deployment_enabled: true
+docker_images:
+  Postgres 18: postgres:18-alpine
+env:
+  # Only inside the container: the agent's proxy checks every password first.
+  POSTGRES_HOST_AUTH_METHOD: trust
+image_uid: 70
+image_gid: 70
+cmd: [postgres, -c, log_min_duration_statement=500ms]
+volumes:
+  data: /var/lib/postgresql
+socket_path: /var/run/postgresql/.s.PGSQL.5432
+memory: 1024
+swap: -1
+disk: 20480
+io_weight: null
+cpu: 200

@@ -35,7 +35,7 @@ tasks.jar {
 }
 
 tasks.shadowJar {
-    // One runnable jar for Raptor: backend/build/libs/backend.jar.
+    // One runnable jar for the panel's server: backend/build/libs/backend.jar.
     archiveFileName = "backend.jar"
     // Flyway, Jetty and JDA find their parts through service files: merge them, don't
     // overwrite. Shadow drops duplicates before its transformers see them unless they're

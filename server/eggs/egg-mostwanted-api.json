@@ -1,5 +1,5 @@
 {
-  "_comment": "MostWanted's website API and Discord bot (backend/), for Raptor. Import it on the Eggs page: docs/12-launch.md.",
+  "_comment": "MostWanted's website API and Discord bot (backend/), for Calagopus (or any Pterodactyl-style panel). The panel syncs it from this repo as an egg repository: docs/12-launch.md.",
   "meta": {
     "version": "PTDL_v2",
     "update_url": null
@@ -8,9 +8,6 @@
   "name": "MostWanted API",
   "author": "contact@xenastudios.co",
   "description": "The website's API and the Discord bot, one Java app, from the latest build of github.com/xena-studios/mostwanted. Reinstall to update. It uses the game server's database: its details go on the Startup tab.",
-  "tags": [
-    "java"
-  ],
   "features": [
     "java_version"
   ],
@@ -27,7 +24,7 @@
   },
   "scripts": {
     "installation": {
-      "script": "#!/bin/bash\n# MostWanted's API and Discord bot: the latest build (the \"server\" release, from\n# main). Reinstall in Raptor to update. tls/origin.pem and tls/origin.key are yours\n# to write (Files tab); they're never replaced here.\nset -euo pipefail\napt-get update -qq\napt-get install -y -qq curl ca-certificates >/dev/null\nwork=$(mktemp -d)\ncurl -fsSL -o \"$work/api.tar.gz\" \"https://github.com/xena-studios/mostwanted/releases/download/${RELEASE}/mostwanted-api.tar.gz\"\ntar -xzf \"$work/api.tar.gz\" -C \"$work\"\necho \"MostWanted build $(cat \"$work/COMMIT\")\"\ncp \"$work/backend.jar\" \"$work/start.sh\" /mnt/server/\nmkdir -p /mnt/server/tls\n# Cloudflare's Authenticated Origin Pulls CA: only Cloudflare gets through (docs/12-launch.md, step 6).\ncurl -fsSL -o /mnt/server/tls/cloudflare-origin-pull-ca.pem https://developers.cloudflare.com/ssl/static/authenticated_origin_pull_ca.pem\nrm -rf \"$work\"\necho \"Installed. Before the first start: the Startup tab's settings, and tls/origin.pem and tls/origin.key on the Files tab.\"\n",
+      "script": "#!/bin/bash\n# MostWanted's API and Discord bot: the latest build (the \"server\" release, from\n# main). Reinstall to update (Settings → Reinstall). tls/origin.pem and tls/origin.key are yours\n# to write (Files tab); they're never replaced here.\nset -euo pipefail\napt-get update -qq\napt-get install -y -qq curl ca-certificates >/dev/null\nwork=$(mktemp -d)\ncurl -fsSL -o \"$work/api.tar.gz\" \"https://github.com/xena-studios/mostwanted/releases/download/${RELEASE}/mostwanted-api.tar.gz\"\ntar -xzf \"$work/api.tar.gz\" -C \"$work\"\necho \"MostWanted build $(cat \"$work/COMMIT\")\"\ncp \"$work/backend.jar\" \"$work/start.sh\" /mnt/server/\nmkdir -p /mnt/server/tls\n# Cloudflare's Authenticated Origin Pulls CA: only Cloudflare gets through (docs/12-launch.md, step 6).\ncurl -fsSL -o /mnt/server/tls/cloudflare-origin-pull-ca.pem https://developers.cloudflare.com/ssl/static/authenticated_origin_pull_ca.pem\nrm -rf \"$work\"\necho \"Installed. Before the first start: the Startup tab's settings, and tls/origin.pem and tls/origin.key on the Files tab.\"\n",
       "container": "ghcr.io/pelican-eggs/installers:debian",
       "entrypoint": "bash"
     }
@@ -44,19 +41,19 @@
       "field_type": "text"
     },
     {
-      "name": "Game database host",
-      "description": "The game server's database's Host (its Databases tab), like mostwanted.db.raptor.",
-      "env_variable": "GAME_DB_HOST",
-      "default_value": "mostwanted.db.raptor",
+      "name": "Database host",
+      "description": "The managed PostgreSQL database's host, from the game server's Databases tab. 172.18.0.1 is the node itself, as seen from a server.",
+      "env_variable": "DB_HOST",
+      "default_value": "172.18.0.1",
       "user_viewable": true,
       "user_editable": true,
       "rules": "required|string|max:128",
       "field_type": "text"
     },
     {
-      "name": "Game database port",
-      "description": "Its port.",
-      "env_variable": "GAME_DB_PORT",
+      "name": "Database port",
+      "description": "The managed database's port.",
+      "env_variable": "DB_PORT",
       "default_value": "5432",
       "user_viewable": true,
       "user_editable": true,
@@ -64,33 +61,33 @@
       "field_type": "text"
     },
     {
-      "name": "Game database name",
-      "description": "The game server's database (its Databases tab), like s3e4f5a6b7c8d_mostwanted.",
-      "env_variable": "GAME_DB_NAME",
-      "default_value": "",
+      "name": "Database name",
+      "description": "The managed database's name: the game server's, which the API shares.",
+      "env_variable": "DB_NAME",
+      "default_value": "mostwanted",
       "user_viewable": true,
       "user_editable": true,
       "rules": "required|string|max:64",
       "field_type": "text"
     },
     {
-      "name": "Game database user",
-      "description": "Its user: the same as its name.",
-      "env_variable": "GAME_DB_USER",
+      "name": "Database user",
+      "description": "The managed database's user.",
+      "env_variable": "DB_USER",
       "default_value": "",
       "user_viewable": true,
       "user_editable": true,
-      "rules": "required|string|max:64",
+      "rules": "nullable|string|max:64",
       "field_type": "text"
     },
     {
-      "name": "Game database password",
-      "description": "Its password (Password on the game server's Databases tab). Reset it there? Put the new one here too.",
-      "env_variable": "GAME_DB_PASSWORD",
+      "name": "Database password",
+      "description": "The managed database's password. Shown once when the user is made: reset it there if it's lost.",
+      "env_variable": "DB_PASSWORD",
       "default_value": "",
       "user_viewable": true,
       "user_editable": true,
-      "rules": "required|string|max:128",
+      "rules": "nullable|string|max:128",
       "field_type": "text"
     },
     {
@@ -213,15 +210,5 @@
       "rules": "required|string|max:128",
       "field_type": "text"
     }
-  ],
-  "x-raptor": {
-    "arch": [
-      "amd64",
-      "arm64"
-    ],
-    "health": {
-      "type": "port",
-      "protocol": "tcp"
-    }
-  }
+  ]
 }

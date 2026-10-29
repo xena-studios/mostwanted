@@ -1,6 +1,6 @@
 # Server stack: everything we install
 
-The install list for the game server. **The source of truth is [`server/manifest.json`](../server/manifest.json)**: every version pinned with its checksum, installed by [`server/install.sh`](../server/install.sh) (which Raptor runs, through the MostWanted egg) and boot-tested on every change (see [server/README.md](../server/README.md)). This page explains the choices. Versions checked **2026-10-26** for Minecraft **26.3**.
+The install list for the game server. **The source of truth is [`server/manifest.json`](../server/manifest.json)**: every version pinned with its checksum, installed by [`server/install.sh`](../server/install.sh) (which the panel runs, through the MostWanted egg) and boot-tested on every change (see [server/README.md](../server/README.md)). This page explains the choices. Versions checked **2026-10-26** for Minecraft **26.3**.
 
 Why each choice was made is in [tech](04-tech.md).
 
@@ -9,9 +9,9 @@ Why each choice was made is in [tech](04-tech.md).
 | What | Version | Where to get it | Notes |
 | --- | --- | --- | --- |
 | **Leaf** (server) | `leaf-26.3-13.jar` | [Leaf's download API](https://api.leafmc.one/v2/projects/leaf/versions/26.3/builds) (keeps every build) / [leafmc.one](https://www.leafmc.one/download) | Paper fork. Fallback: [Paper 26.3](https://papermc.io/downloads/paper) (build 223, stable) |
-| **Java** | **25** | Raptor's Java 25 image / [Adoptium Temurin 25](https://adoptium.net) | Paper 26.3 requires Java 25+ |
-| **PostgreSQL** | Raptor's recommended | A database instance in Raptor ([12-launch.md](12-launch.md), step 3) | Our plugin's data (cash, bounty, stats) + LuckPerms + LibertyBans + the backend |
-| **Raptor** | latest | [raptorpanel.net](https://raptorpanel.net) | Runs the server on the VPS |
+| **Java** | **25** | The egg's Java 25 image (`ghcr.io/pelican-eggs/yolks:java_25`) / [Adoptium Temurin 25](https://adoptium.net) | Paper 26.3 requires Java 25+ |
+| **PostgreSQL** | 18 | A managed database in the panel ([12-launch.md](12-launch.md), step 4) | Our plugin's data (cash, bounty, stats) + LuckPerms + LibertyBans + the backend |
+| **Calagopus** | latest | [calagopus.com](https://calagopus.com) | Runs the servers and the database on the VPS ([`server/panel/`](../server/panel/)) |
 | **Minehut External** | | [Minehut panel](https://minehut.com) | Bedrock, DDoS, server list. Setup in [tech](04-tech.md#how-players-connect) |
 
 **Not needed:** Velocity, Geyser, Floodgate (Minehut does it), **spark** (built into Paper/Leaf: just run `/spark`), **DiscordSRV** (our own bot does linking and role sync: [Discord bot](10-discord-bot.md)).
@@ -66,7 +66,7 @@ Grim exempts Bedrock players from checks so they don't get false flags, but it f
 | --- | --- |
 | Leaf (all plugins) | 10 GB heap (`-Xms` = `-Xmx`) + ~1–1.5 GB outside the heap |
 | PostgreSQL | ~1 GB |
-| OS + Raptor | 1–1.5 GB |
+| OS + Calagopus | 1–1.5 GB |
 | backend (API + Discord bot) | ~0.4 GB (256 MB heap) |
 
 ## Start command, configs and setup
