@@ -1,6 +1,7 @@
 package co.xenastudios.mostwanted.backend.stats;
 
 import static co.xenastudios.mostwanted.common.db.Tables.PLAYERS;
+import static co.xenastudios.mostwanted.common.db.Tables.SERVER_STATUS;
 import static co.xenastudios.mostwanted.common.db.Tables.STATS;
 
 import co.xenastudios.mostwanted.common.Board;
@@ -182,6 +183,15 @@ public final class Stats {
         return IntStream.range(0, rows.size())
                 .mapToObj(i -> new Entry(i + 1, rows.get(i).value1(), rows.get(i).value2(), rows.get(i).value3()))
                 .toList();
+    }
+
+    /** The game server's player count, if it reported in the last two minutes (core writes it every 30 s). */
+    public record ServerState(boolean online, int players, int max) {}
+
+    public ServerState server() {
+        var row = sql.selectFrom(SERVER_STATUS).where(SERVER_STATUS.ID.eq((short) 1)).fetchOne();
+        boolean online = row != null && row.getUpdatedAt().toInstant().plusSeconds(120).isAfter(clock.instant());
+        return online ? new ServerState(true, row.getOnline(), row.getMaxPlayers()) : new ServerState(false, 0, 0);
     }
 
     /** For /health: true if a trivial query answers. */

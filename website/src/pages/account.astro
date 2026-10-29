@@ -30,8 +30,11 @@ import { site } from "../site";
           <h2 id="discord-title">Discord</h2>
           <p class="who" data-discord-linked hidden><strong data-discord-name></strong></p>
           <div data-discord-link hidden>
+            <p data-discord-soon hidden>Linking Discord opens soon: you'll get the Linked role and replies to your tickets as DMs.</p>
+            <div data-discord-ready>
             <p>Link Discord to get the Linked role and replies to your tickets as DMs.</p>
             <a class="button primary" href={`${site.api}/v1/auth/discord`}>Link Discord</a>
+            </div>
           </div>
         </section>
       </div>
@@ -118,6 +121,15 @@ import { site } from "../site";
     $("discord-linked").hidden = !me.discord;
     $("discord-link").hidden = !!me.discord;
     if (me.discord) $("discord-name").textContent = me.discord.name;
+    else
+      fetch(`${api}/health`, { signal: AbortSignal.timeout(8000) })
+        .then((response) => response.json())
+        .then((health) => {
+          const on = health.discordSignIn === "on";
+          $("discord-ready").hidden = !on;
+          $("discord-soon").hidden = on;
+        })
+        .catch(() => {});
     $("linked").hidden = !me.linked;
     $("staff").hidden = !me.staff;
   }
@@ -264,6 +276,11 @@ import { site } from "../site";
   .who strong,
   .linked strong {
     color: var(--text);
+  }
+
+  [data-discord-ready] {
+    display: grid;
+    gap: var(--s-3);
   }
 
   .field .input {

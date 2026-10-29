@@ -106,8 +106,14 @@ public final class Api {
                 body.put("status", database ? "ok" : "degraded");
                 body.put("database", database ? "up" : "down");
                 body.put("discord", discordUp == null ? "off" : discordUp.getAsBoolean() ? "up" : "down");
+                // Whether "Sign in with Discord" is set up (the OAuth client secret): the site shows its button then.
+                body.put("discordSignIn", config.discordClientSecret() == null ? "off" : "on");
                 ctx.header("Cache-Control", "no-store").status(database ? 200 : 503).json(body);
             });
+
+            // Whether the game is up, and how many are playing: the site's header. Cached briefly at Cloudflare.
+            javalin.routes.get("/v1/status", ctx ->
+                    ctx.header("Cache-Control", "public, max-age=30, s-maxage=30").json(stats.server()));
 
             javalin.routes.get("/v1/players/{name}", ctx -> {
                 String name = ctx.pathParam("name");

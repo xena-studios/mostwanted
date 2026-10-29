@@ -65,7 +65,7 @@ class ApiTest {
     void healthSaysWhatsUp() throws Exception {
         HttpResponse<String> response = get("/health", "1.1.1.1");
         assertEquals(200, response.statusCode());
-        assertEquals("{\"status\":\"ok\",\"database\":\"up\",\"discord\":\"off\"}", response.body());
+        assertEquals("{\"status\":\"ok\",\"database\":\"up\",\"discord\":\"off\",\"discordSignIn\":\"off\"}", response.body());
         assertEquals("no-store", response.headers().firstValue("Cache-Control").orElseThrow());
     }
 
@@ -80,6 +80,13 @@ class ApiTest {
         assertEquals(200, board.statusCode());
         assertTrue(board.body().startsWith("{\"board\":\"most-wanted\",\"period\":\"all\",\"entries\":[{\"rank\":1"),
                 board.body());
+    }
+
+    @Test
+    void statusSaysTheGameIsDownUntilItReports() throws Exception {
+        HttpResponse<String> status = get("/v1/status", "1.1.1.4");
+        assertEquals(200, status.statusCode());
+        assertEquals("{\"online\":false,\"players\":0,\"max\":0}", status.body());
     }
 
     @Test
