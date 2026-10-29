@@ -19,7 +19,7 @@ settings:
   player-shuffle: 0
   user-cache-size: 1000
   timeout-time: 60
-  restart-on-crash: false  # MostWanted: the panel (Raptor) restarts the server, not Spigot
+  restart-on-crash: false  # MostWanted: the panel restarts the server, not Spigot
   restart-script: ./start.sh
   netty-threads: 4
   attribute:

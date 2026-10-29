@@ -79,4 +79,4 @@ DB_PASSWORD=boot-test API_PORT=8081 java -jar backend/build/libs/backend.jar
 curl localhost:8081/v1/leaderboards/escapes
 ```
 
-Add `DISCORD_TOKEN` to run the bot too. On the VPS it's its own Raptor server: `backend.jar`, `start.sh`, `.env` and `tls/` in one folder, started with `./start.sh` ([docs/12-launch.md](../docs/12-launch.md)).
+Add `DISCORD_TOKEN` to run the bot too. On the VPS it's its own server in the panel: `backend.jar`, `start.sh` and `tls/` in one folder, its settings on the Startup tab, started with `./start.sh` ([docs/12-launch.md](../docs/12-launch.md)).

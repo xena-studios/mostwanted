@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # Starts the MostWanted game server. install.sh copies this next to server.jar;
-# Raptor runs it (the MostWanted egg, server/raptor/).
+# The panel runs it (the MostWanted egg, server/eggs/).
 #
 #   MEMORY=10G ./start.sh
 #
-# MEMORY is the Java heap. Unset, it's Raptor's memory setting for the server
-# (SERVER_MEMORY) less 1.5 GB, which Java needs outside the heap: 11.5 GB in Raptor
-# is a 10 GB heap (docs/04-tech.md). Without either, 10G.
+# MEMORY is the Java heap. Unset, it's the panel's memory setting for the server
+# (SERVER_MEMORY) less 1.5 GB, which Java needs outside the heap: 11.5 GB in the
+# panel is a 10 GB heap (docs/04-tech.md). Without either, 10G.
 #
-# First, every config template (*.tmpl) is filled in from the environment: Raptor
-# gives the database's DB_* from the server's Databases tab, and the egg's settings
-# (TEBEX_SECRET, ...); a .env file here (server/.env.example) does it elsewhere.
+# First, every config template (*.tmpl) is filled in from the environment: the
+# egg's settings on the server's Startup tab (DB_*, TEBEX_SECRET, ...); a .env
+# file here (server/.env.example) does it elsewhere.
 # A value that's missing stops the start: a half-filled config is worse than none.
 # The flags are Paper's recommended G1 set, plus Minehut's: players join through
 # Minehut's network, so the server checks logins with Minehut's session server
@@ -30,7 +30,7 @@ while IFS= read -r -d '' template; do
   # shellcheck disable=SC2016 # the ${...} is the literal text being searched for
   for name in $(grep -o '\${[A-Z0-9_]*}' "$template" | tr -d '${}' | sort -u); do
     if [[ -z ${!name:-} ]]; then
-      echo "${template#./} needs $name: on Raptor, the server's Databases tab gives DB_*, and its Startup tab the rest" >&2
+      echo "${template#./} needs $name: set it on the server's Startup tab (or in .env)" >&2
       exit 1
     fi
     text=${text//"\${$name}"/"${!name}"}
@@ -40,7 +40,7 @@ done < <(find . -name '*.tmpl' -not -path './.cache/*' -print0)
 
 # Players join through Minehut (MINEHUT=true, the default): the server takes only
 # connections that come with Minehut's PROXY header, and checks logins with
-# Minehut. MINEHUT=false (the egg's "Join through Minehut" on Raptor's Startup tab)
+# Minehut. MINEHUT=false (the egg's "Join through Minehut" on the Startup tab)
 # takes ordinary connections to the server's own address instead, for testing
 # before Minehut is set up. Never leave it off once Minehut is: anyone could
 # then join around Minehut, and Minehut's players couldn't join at all.

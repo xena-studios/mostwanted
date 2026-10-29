@@ -1,7 +1,7 @@
-# Publishes what Raptor installs to the "server" release on every change to main,
-# so a Reinstall in Raptor gets the latest: the game server's bundle (server/ with
+# Publishes what the panel installs to the "server" release on every change to
+# main, so a Reinstall gets the latest: the game server's bundle (server/ with
 # its install.sh, the server icon and the core plugin) and the API's (backend.jar
-# and start.sh). The eggs in server/raptor/ download these. main only ever has code
+# and start.sh). The eggs in server/eggs/ download these. main only ever has code
 # that passed CI (build-ok is required).
 name: server release
 
@@ -45,7 +45,7 @@ jobs:
         run: |
           mkdir -p out/server/brand/out out/api
           cp -r server out/server/
-          rm -rf out/server/server/setup
+          rm -rf out/server/server/setup out/server/server/eggs out/server/server/panel
           cp brand/out/server-icon.png out/server/brand/out/
           cp core/build/libs/core-*.jar out/server/core.jar
           echo "$GITHUB_SHA" > out/server/COMMIT
@@ -59,6 +59,6 @@ jobs:
         run: |
           if ! gh release view server >/dev/null 2>&1; then
             gh release create server --title "Server builds" --latest=false --target "$GITHUB_SHA" \
-              --notes "What Raptor installs, rebuilt from main on every change: mostwanted-server.tar.gz for the game server and mostwanted-api.tar.gz for the API (server/raptor/ has the eggs). Each has a COMMIT file saying which commit it is."
+              --notes "What the panel installs, rebuilt from main on every change: mostwanted-server.tar.gz for the game server and mostwanted-api.tar.gz for the API (server/eggs/ has the eggs). Each has a COMMIT file saying which commit it is."
           fi
           gh release upload server mostwanted-server.tar.gz mostwanted-api.tar.gz --clobber

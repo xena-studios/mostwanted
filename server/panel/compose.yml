@@ -1,0 +1,82 @@
+# The Calagopus panel with its node agent (Wings) built in: the all-in-one
+# image, Calagopus's compose.aio.yml set up for MostWanted's node. It lives in
+# /opt/calagopus on the VPS (docs/12-launch.md, step 3). The encryption key is
+# in .env next to this file (.env.example): never in the repo, and never lost,
+# or the panel can't read its own stored secrets.
+#
+# Update: docker compose pull && docker compose up -d
+services:
+  web:
+    image: ghcr.io/calagopus/panel:aio
+    restart: unless-stopped
+    environment:
+      - TZ=America/New_York
+      - REDIS_URL=redis://cache
+      - DATABASE_URL=postgresql://panel:panel@db/panel
+      - DATABASE_MIGRATE=true
+      - PORT=8000
+      - AIO_BASE_WINGS_CONFIGURATION=/wings-config.yml
+      - APP_DEBUG=false
+      - APP_LOG_DIRECTORY=/var/log/calagopus
+      - APP_PRIMARY=true
+      # The browser reaches the node through the panel, so Wings needs no port of its own.
+      - APP_ENABLE_WINGS_PROXY=true
+      - APP_ENCRYPTION_KEY=${APP_ENCRYPTION_KEY:?set it in .env}
+      - APP_USE_DECRYPTION_CACHE=true
+      - APP_USE_INTERNAL_CACHE=true
+      # Caddy, on the VPS itself, reaches the panel through this network's gateway.
+      - APP_TRUSTED_PROXIES=172.30.0.1
+    dns:
+      - 1.1.1.1
+      - 9.9.9.9
+    volumes:
+      - ./data:/var/lib/calagopus
+      - ./logs:/var/log/calagopus
+      - ./wings-config.yml:/wings-config.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers/:/var/lib/docker/containers/
+      - /etc/calagopus-wings/:/etc/calagopus-wings/
+      # Server files, file history, local backups and install scripts.
+      - /var/lib/calagopus-wings/:/var/lib/calagopus-wings/
+      - /var/log/calagopus-wings/:/var/log/calagopus-wings/
+    ports:
+      # Only Caddy talks to the panel; it does the HTTPS.
+      - 127.0.0.1:8000:8000
+      # SFTP to the servers' files.
+      - 2022:2022
+    extra_hosts:
+      # The database agent, which runs on the host's network (db-agent/compose.yml).
+      - host.docker.internal:host-gateway
+    depends_on:
+      - db
+      - cache
+
+  # The panel's own database (users, servers, settings), not the game's: that's a
+  # managed database, run by the database agent.
+  db:
+    image: ghcr.io/calagopus/pgautoupgrade:18-alpine
+    restart: unless-stopped
+    environment:
+      - TZ=America/New_York
+      - POSTGRES_USER=panel
+      - POSTGRES_PASSWORD=panel
+      - POSTGRES_DB=panel
+      - PGDATA=/data
+    volumes:
+      - ./postgres:/data
+
+  cache:
+    image: ghcr.io/calagopus/valkey:latest
+    restart: unless-stopped
+    command: --protected-mode no --save 60 1
+    environment:
+      TZ: America/New_York
+    volumes:
+      - ./cache:/data
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+          gateway: 172.30.0.1
