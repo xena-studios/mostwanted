@@ -7,13 +7,14 @@ src/             the app: Javalin for the API, JDA for the bot, common for the t
 discord-setup/   builds the Discord server (roles, channels, posts, AutoMod) from a layout in code
 ```
 
-## What's in it so far
+## What it does
 
 **The API**, JSON only. Stats responses can be cached by Cloudflare for two minutes. Players who chose `/stats private` aren't found.
 
 | Route | What it returns |
 | --- | --- |
 | `GET /health` | Whether the database and the bot are up. 503 if the database is down. |
+| `GET /v1/status` | Whether the game is up, and how many are playing: the site's header. Cached for 30 seconds. |
 | `GET /v1/players/{name}` | A player's role, bounty, first and last seen, and every stat all-time, this month and this week. Case doesn't matter. |
 | `GET /v1/leaderboards/{board}?period=all\|month\|week&limit=1-50` | The top players on a board: `most-wanted` (bounty right now), `escapes`, `guards` (arrests), `robberies`, `bounty-earned`, `most-arrested`. |
 

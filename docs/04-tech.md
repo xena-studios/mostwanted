@@ -1,19 +1,18 @@
 # Tech
 
-Decided 2026-10-25. Plugin versions checked against Modrinth / PaperMC / GeyserMC the same day.
+Decided 2026-10-25. Plugin versions checked against Modrinth, PaperMC and GeyserMC the same day.
 
 ## Summary
 
 | Layer | Choice |
 | --- | --- |
-| Minecraft version | **26.3** |
-| Game server | **Leaf 26.3** (Paper fork, Java 25), standalone, no proxy. Paper is the fallback |
-| Hosting | **netcup RS 2000** (Manassas, US East): 8 dedicated cores, 16 GB RAM, 256 GB NVMe. Managed with [Calagopus](https://calagopus.com) |
-| Front door | **[Minehut External Server](https://support.minehut.com/hc/en-us/articles/33252734474899-How-to-Setup-a-Minehut-External-Hosted-Server)**: players join through Minehut's network |
-| Bedrock | **Minehut** handles it (their built-in Geyser) |
-| Database | **PostgreSQL** (small, on the same VPS) |
-| Game logic | **One custom Java plugin**, MostWanted (the `core` module), built like [xena-studios/plugins](https://github.com/xena-studios/plugins) |
-| Custom items | **Our own**, using Paper's item model components. No ItemsAdder / Nexo |
+| Minecraft | **26.3** |
+| Game server | **Leaf 26.3** (a Paper fork, Java 25), standalone, no proxy. Paper is the fallback |
+| Hosting | **netcup RS 2000** (Manassas, US East), managed with [Calagopus](https://calagopus.com) |
+| Front door | **[Minehut External Server](https://support.minehut.com/hc/en-us/articles/33252734474899-How-to-Setup-a-Minehut-External-Hosted-Server)**: players join through Minehut's network, which also handles Bedrock |
+| Database | **PostgreSQL**, on the same VPS |
+| Game logic | **One custom Java plugin**, MostWanted (`core`), built like [xena-studios/plugins](https://github.com/xena-studios/plugins) |
+| Custom items | **Our own**, with Paper's item model components. No ItemsAdder or Nexo |
 
 ## How players connect
 
@@ -24,15 +23,17 @@ Bedrock players ──┘    (Geyser, DDoS protection,        └─ Leaf 26.3 g
                         server list, hides our IP)       └─ PostgreSQL
 ```
 
-**Minehut External Server gives us:**
-- **Bedrock support.** Minehut translates Bedrock players for us, so no Geyser/Floodgate to run.
-- **DDoS protection** and a **hidden server IP.** Players connect to Minehut, not to our VPS.
-- **Minehut's server list, lobby ads and events.** This solves "how do people find us".
+**What Minehut External gives us:**
+
+- **Bedrock support:** Minehut translates Bedrock players, so we run no Geyser or Floodgate.
+- **DDoS protection and a hidden IP:** players connect to Minehut, not the VPS.
+- **Discovery:** Minehut's server list, lobby ads and events.
 - A free `<name>.minehut.gg` address, or our own domain.
 
-**Cost:** the External plan is paid in Minehut credits. A third-party wiki says **800 credits/mo (≈ $5 with a credit subscription)**. Check in the dashboard. ⚠️ One source says Minehut **paused new External plan purchases** except for partners. Minehut's own guide doesn't mention that, but **confirm we can actually select "External" before building around it.**
+**Cost:** paid in Minehut credits. A third-party wiki says **800 credits/mo (≈ $5 with a credit subscription)**; check in the dashboard. ⚠️ One source says Minehut **paused new External purchases** except for partners. Minehut's own guide doesn't say so, but **confirm "External" can be selected before building around it.**
 
-**Setup (standalone Leaf, from Minehut's guide):**
+**Setup** (standalone Leaf, from Minehut's guide):
+
 1. `config/paper-global.yml` → `proxies` → `proxy-protocol: true`
 2. `server.properties` → `enforce-secure-profile=false`
 3. Start flags:
@@ -43,200 +44,204 @@ Bedrock players ──┘    (Geyser, DDoS protection,        └─ Leaf 26.3 g
    -Dminecraft.api.profiles.host=https://api.mojang.com/
    -Dminecraft.api.session.host=https://api.minehut.com/mitm/proxy
    ```
-4. Minehut panel → server plan **External** → External Server Settings: VPS IP, proxy type **Other**, DNS record type **Port**, port **25565**, TCPShield **Not Configured**.
-5. **Firewall** the VPS so port 25565 only accepts connections from Minehut, if Minehut publishes its IP ranges (ask in their Discord). Then nobody can attack or bypass Minehut by hitting the VPS directly.
+4. Minehut panel → plan **External** → External Server Settings: VPS IP, proxy type **Other**, DNS record type **Port**, port **25565**, TCPShield **Not Configured**.
+5. **Firewall** port 25565 to Minehut's IP ranges, if they publish them (ask in their Discord), so nobody can go around Minehut.
 
-**Minehut rules we must follow (external servers):**
+**Minehut's rules for external servers:**
+
 - All Minehut community rules apply.
-- **No server-made gambling mechanics.** No crates/loot boxes or betting cash. Robbery payouts must be fixed or skill-based, not a spin.
+- **No gambling:** no crates, loot boxes or betting cash. Robbery payouts are fixed or skill-based, never a spin.
 - Don't tell players to leave Minehut and join our IP directly.
 - One Minehut listing per game server.
 
 ## Hosting: netcup RS 2000
 
-8 **dedicated** AMD EPYC cores, 16 GB RAM, 256 GB NVMe, in Manassas, Virginia (US East). Ordered 2026-10-28, on a 12-month term. OVH's VPS-3 was the first pick (2026-10-25), but OVH had nothing above VPS-1 in stock in any region.
+8 **dedicated** AMD EPYC cores, 16 GB RAM, 256 GB NVMe, in Manassas, Virginia. Ordered 2026-10-28 on a 12-month term. OVH's VPS-3 was the first pick (2026-10-25), but OVH had nothing above VPS-1 in stock anywhere.
 
 **Fitting it in 16 GB:**
-- Leaf game server: **10 GB heap** (`-Xms` = `-Xmx`, Paper's recommended flags), plus ~1–1.5 GB Java uses outside the heap: 11.5 GB in the panel
-- PostgreSQL: 1 GB, a managed database in the panel (`shared_buffers` 256 MB)
-- OS + Calagopus (panel, node agent, database agent): ~1–1.5 GB
-- backend (website API + Discord bot): 512 MB in the panel (256 MB heap, ~300–400 MB used)
-- What's left (~1.5 GB) is the system's file cache. **Staging runs on your own PC**, not the VPS.
 
-**What to expect:** dedicated cores, so no neighbour slows us down, but EPYC cores clock lower than a desktop Ryzen, and Minecraft's main thread is one core. Rough guess: **~20–40 players**. Run spark during the first playtest.
+| | Memory |
+| --- | --- |
+| Leaf game server | **10 GB heap** (`-Xms` = `-Xmx`, Paper's flags) + ~1–1.5 GB outside the heap: 11.5 GB in the panel |
+| PostgreSQL | 1 GB, a managed database in the panel (`shared_buffers` 256 MB) |
+| OS + Calagopus (panel, node agent, database agent) | ~1–1.5 GB |
+| Backend (API + Discord bot) | 512 MB in the panel (256 MB heap, ~300–400 MB used) |
+| Left over | ~1.5 GB of file cache |
 
-**Upgrade path** (when we're regularly at ~20–25 players, or MSPT stays above ~40 at peak). Restore the backups on the new box and update the IP in Minehut's External settings. Players don't notice.
+**Staging runs on your own PC**, not the VPS.
+
+**What to expect:** dedicated cores, so no noisy neighbours, but EPYC clocks lower than a desktop Ryzen, and Minecraft's main thread is one core. Rough guess: **~20–40 players**. Run spark during the first playtest.
+
+**Upgrade** when we're regularly at ~20–25 players, or MSPT stays above ~40 at peak: restore the backups on the new box and update the IP in Minehut. Players don't notice.
 
 | Next | Server | Specs | Price |
 | --- | --- | --- | --- |
-| 1 | netcup RS 4000 | 12 dedicated cores, 32 GB | check netcup |
+| 1 | netcup RS 4000 | 12 dedicated cores, 32 GB | Check netcup |
 | 2 | OVH RISE-S (dedicated) | Ryzen 7 9700X, 64 GB DDR5: much faster per core | ~$77/mo + setup |
 
-Prices checked 2026-10-25 and 2026-10-28. A DDR5/NVMe shortage has pushed many hosts' 2026 prices up a lot, so re-check before upgrading.
+Prices checked 2026-10-25 and 2026-10-28. A DDR5/NVMe shortage has pushed 2026 prices up a lot, so re-check before upgrading.
 
 ## Server software: Leaf
 
 | Option | Verdict |
 | --- | --- |
-| **Leaf** | ✅ **Pick.** Paper fork built for performance. Runs pathfinding, mob spawning and the **entity tracker** off the main thread. The entity tracker gets expensive fast as player count grows, so this is exactly the work that hurts at 100 players. It also includes Purpur's config options. Has a 26.3 build. |
-| Purpur | 🟡 Good, lots of gameplay config, but its speedups are small. Leaf already includes Purpur's options. |
-| Paper | 🟡 **Fallback.** The most stable, but leaves performance on the table at 100 players. Leaf runs Paper plugins, so switching back is a jar swap. |
-| Folia | ❌ Multi-threads by **map region**. Our players are packed into one prison and one city, which is mostly the same region, so Folia gains little and breaks many plugins (WorldGuard, for one). |
-| Spigot / Bukkit | ❌ Slower, and Paper-based servers are drop-in replacements. |
+| **Leaf** | ✅ **Pick.** A performance fork of Paper. Runs pathfinding, mob spawning and the **entity tracker** off the main thread; the tracker is what gets expensive as players grow. Includes Purpur's options, and has a 26.3 build. |
+| Purpur | 🟡 Lots of gameplay config, small speedups. Leaf already includes its options. |
+| Paper | 🟡 **Fallback.** The most stable, but slower at 100 players. Leaf runs Paper plugins, so switching back is a jar swap. |
+| Folia | ❌ Threads by **map region**. Our players are packed into one prison and one city, so it gains little and breaks many plugins. |
+| Spigot / Bukkit | ❌ Slower, and Paper is a drop-in replacement. |
 
-**Updating late is fine.** Leaf/Purpur can trail Paper on new Minecraft versions, but **ViaVersion** lets newer clients join until the server catches up. 
+- **Updating late is fine:** Leaf can trail Paper on new versions, and ViaVersion lets newer clients join meanwhile.
+- **Async features can clash** with plugins that touch entities oddly. `core` sticks to the Paper API, and every async option is a config toggle.
+- **Back up before switching** (Leaf's README says so). The panel backs up nightly, and updates are tested on staging first.
+- **If Leaf causes problems we can't fix,** swap the jar for Paper. Nothing else changes.
 
-**Risks and how we handle them:**
-- Async features can clash with plugins that touch entities in unusual ways. Our `core` plugin sticks to the normal Paper API. Every async option is a config toggle, so we turn off whatever causes trouble.
-- Leaf's own README says to back up before switching. The panel backs up nightly, and we test every update on **staging** first.
-- If Leaf ever causes problems we can't fix, swap the jar for Paper. Nothing else changes.
+**How sure are we?** Leaf is the best drop-in choice: the most-used performance fork, already on 26.3, and Paper-compatible. (DivineMC is similar but smaller and wasn't on 26.3. Canvas and ShreddedPaper split by region like Folia.) But the fork is a small lever. What decides whether 100 players run smoothly is:
 
-**How sure are we?** Leaf is the best **drop-in** choice right now: the most-used performance fork, already on 26.3, and it runs Paper plugins. (DivineMC is similar but smaller and wasn't on 26.3 yet. Multithreaded forks like Canvas and ShreddedPaper split by region like Folia, so they have the same problem with a crowded city.) But the fork is a **small lever**. What decides whether 100 players run smoothly is mostly:
-
-1. **Our own plugin.** No heavy work every tick, hitscan guns, caching, database calls off the main thread.
-2. **Entity count.** Few mobs, limited dropped items, no redstone farms.
-3. **View and simulation distance** tuned for a city.
+1. **Our plugin:** no heavy per-tick work, hitscan guns, caching, async database calls.
+2. **Entity count:** few mobs, limited dropped items, no redstone farms.
+3. **View and simulation distance**, tuned for a city.
 4. **The machine's single-core speed.**
 
-So the final call is made with data: in the load test, run the same 100-bot test on **Leaf and Paper** and keep whichever has better MSPT (milliseconds per tick; under 50 = no lag).
+So the final call uses data: run the same 100-bot load test on **Leaf and Paper**, and keep whichever has better MSPT (milliseconds per tick; under 50 means no lag).
 
-## Plugins we use
+## Plugins
 
-The full install list, with versions, links, start command and config checklist, is in **[server stack](07-server-stack.md)**.
+The full install list, with versions and reasons, is in **[server stack](07-server-stack.md)**. What `core` does instead of WorldGuard, TAB, PlaceholderAPI, CoreProtect, Plan, Chunky, VaultUnlocked, PacketEvents and DiscordSRV is [there too](07-server-stack.md#what-core-does-instead).
 
 ### Deliberately not using
 
-- **EssentialsX:** xUtilities covers it, and Essentials' economy/kits/homes would fight our game.
-- **ItemsAdder / Oraxen / Nexo:** we only need a known set of items, and we need control over how they show on Bedrock. Paper's item model components + our own pack build are enough.
-- **Gun plugins (WeaponMechanics etc.):** we need guns that feel fair on Bedrock touch controls. Ours will be simple hitscan.
-- **Citizens:** FancyNpcs covers our NPCs (shopkeepers, armory, info). Revisit only if we need NPCs that walk around or fight.
-- **DecentHolograms:** FancyHolograms instead.
-- **NeoSkript / Skript:** fine for quick tests, but the core game is too big and too performance-sensitive for scripts at 100 players.
-- **Velocity, Geyser, Floodgate:** Minehut does the proxy and Bedrock for us.
-- **xLimbo:** needs a proxy to send players back. Not needed without one.
-- **WorldEdit:** FastAsyncWorldEdit replaces it.
-- **spark (plugin):** already built into Paper/Leaf.
-- **WorldGuard, TAB, PlaceholderAPI, CoreProtect, Plan, Chunky, VaultUnlocked, PacketEvents, DiscordSRV:** `core` or our bot covers each, or it isn't needed. Why, one by one: [server stack](07-server-stack.md#what-core-does-instead).
+| Not using | Because |
+| --- | --- |
+| EssentialsX | xUtilities covers it, and its economy, kits and homes would fight our game |
+| ItemsAdder, Oraxen, Nexo | We have a known set of items and need control over how they show on Bedrock |
+| Gun plugins (WeaponMechanics etc.) | Guns have to feel fair on Bedrock touch controls: ours are simple hitscan |
+| Citizens | FancyNpcs covers our NPCs. Revisit only for NPCs that walk or fight |
+| DecentHolograms | FancyHolograms instead |
+| NeoSkript / Skript | Fine for quick tests, but the game is too big and too performance-sensitive for scripts |
+| Velocity, Geyser, Floodgate | Minehut does the proxy and Bedrock |
+| xLimbo | Needs a proxy to send players back |
+| WorldEdit | FastAsyncWorldEdit replaces it |
+| spark (plugin) | Built into Paper and Leaf |
 
 ## What we build ourselves
 
-One plugin, **MostWanted** (the `core` module), in **Java 25**, built with Gradle like [xena-studios/plugins](https://github.com/xena-studios/plugins) (reuse its `build-logic` conventions and CI boot tests). Each system is a module inside it:
+One plugin, **MostWanted** (`core`), in **Java 25**, built with Gradle like [xena-studios/plugins](https://github.com/xena-studios/plugins) (its `build-logic` conventions and CI boot tests). Each system is a package inside it:
 
 | # | System | What it does |
 | --- | --- | --- |
-| 1 | **Player state** | Inmate / criminal / guard (on/off duty), saved in PostgreSQL. |
-| 1b | **Zones** | The prison boundary, safe zones, robbery spots and hideouts, marked with a FAWE selection and stored in PostgreSQL. A chunk-indexed lookup tells the other systems when a player crosses one (instead of WorldGuard). |
-| 2 | **Combat rules** | Who can damage who (the table in [gameplay](02-gameplay.md#combat)), safe zones, death = arrest. |
-| 3 | **Arrests** | Handcuffs, taser, jail time based on bounty, losing unbanked cash. |
-| 4 | **Bounty** | Goes up from robberies and killing guards. Paid to the guard who makes the arrest. |
-| 5 | **Economy** | Cash (unbanked vs. banked at a criminal base), guard salary, all stored in PostgreSQL. |
-| 6 | **Robberies** | Locations, open/close timers, announcements, alarms, payouts scaled by guards online. |
-| 7 | **Escapes** | Breakable walls that regenerate, keycard doors, vents/sewers. |
-| 8 | **Riots** | Start conditions, prison PvP on during a riot, alerts, end conditions, cooldown. |
-| 9 | **Guns** | Hitscan guns, ammo, reload, damage, cooldowns. Same feel on Java and Bedrock. |
-| 10 | **Custom items** | Registry of every custom item (guns, food, tools, contraband) using item model components. Each is a vanilla item underneath. |
-| 11 | **Shops** | Criminal base shop, guard armory. Chest GUIs for everyone (no Floodgate forms, see [Java + Bedrock](#java--bedrock)). |
-| 12 | **Indirect criminal kills** | Traps, snitching, stealing, sabotage (once we pick which). |
-| 13 | **Guard duty** | On/off duty, guard loadout, guards-online count. The guard rank itself comes from LuckPerms, synced from Discord by our bot ([Discord bot](10-discord-bot.md)). |
-| 14 | **HUD** | Bounty, cash, wanted level, robbery status: boss bar, action bar and sidebar scoreboard. Name tags and the tab list in each role's colour (guards blue, wanted criminals red), updated when the state changes (instead of TAB). Layout: [scoreboard and tab list](09-brand.md#scoreboard-and-tab-list). |
-| 14b | **Messages** | One place that sends every message in the [message style](09-brand.md#messages): ✔ ✖ ★ ⚑ ⓘ one-liners, and banners with a title and sound for big moments. |
-| 14c | **Game log** | Arrests, robberies, riots, purchases and staff actions, written to PostgreSQL for staff and the website (instead of CoreProtect). |
-| 14d | **Bedrock support** | Detects Bedrock players (once Minehut tells us how they're marked) and exempts them from GrimAC's checks. |
-| 15 | **Stats & leaderboards** | Escapes, arrests, cash earned, robberies, per period. Holograms in game; the website reads them from PostgreSQL through the API (see [player stats](08-website.md#player-stats)). |
+| 1 | **Player state** | Inmate, criminal or guard (on or off duty), saved in PostgreSQL |
+| 1b | **Zones** | Prison boundary, safe zones, robbery spots and hideouts, marked with a FAWE selection. A chunk-indexed lookup tells the other systems when a player crosses one |
+| 2 | **Combat rules** | Who can hurt who ([gameplay](02-gameplay.md#combat)), safe zones, death = arrest |
+| 3 | **Arrests** | Handcuffs, taser, jail time from bounty, losing unbanked cash |
+| 4 | **Bounty** | Rises from robberies and killing guards; paid to the arresting guard |
+| 5 | **Economy** | Cash (unbanked vs. banked at a criminal base), guard salary |
+| 6 | **Robberies** | Locations, open/close timers, announcements, alarms, payouts scaled by guards online |
+| 7 | **Escapes** | Breakable walls that grow back, keycard doors, vents and sewers |
+| 8 | **Riots** | Start conditions, prison PvP during a riot, alerts, end conditions, cooldown |
+| 9 | **Guns** | Hitscan, ammo, reload, damage, cooldowns. Same feel on Java and Bedrock |
+| 10 | **Custom items** | Every custom item (guns, food, tools, contraband), each a vanilla item underneath |
+| 11 | **Shops** | Criminal base shop and guard armory, as chest GUIs |
+| 12 | **Indirect criminal kills** | Traps, snitching, stealing, sabotage (once we pick which) |
+| 13 | **Guard duty** | On/off duty, loadout, guards-online count. The rank itself is a LuckPerms group, synced with Discord ([Discord bot](10-discord-bot.md)) |
+| 14 | **HUD** | Bounty, cash, wanted level and robbery status on the boss bar, action bar and sidebar. Name tags and tab list in role colours, updated on change ([layout](09-brand.md#scoreboard-and-tab-list)) |
+| 14b | **Messages** | Every message in the [message style](09-brand.md#messages) |
+| 14c | **Game log** | Arrests, robberies, riots, purchases and staff actions, in PostgreSQL |
+| 14d | **Bedrock support** | Detects Bedrock players (once Minehut says how they're marked) and exempts them from GrimAC |
+| 15 | **Stats and leaderboards** | Escapes, arrests, cash earned, robberies, per period. Boards in game; the website reads them through the API ([player stats](08-website.md#player-stats)) |
 
-Outside the plugin:
+**Outside the plugin:**
 
-- **Resource pack pipeline:** source art + models in this repo → build the Java pack → host it on **GitHub releases** (Minehut only accepts packs from approved hosts). Bedrock pack depends on what Minehut allows, see [resource pack](06-resource-pack.md). Automate it in CI. See [resource pack](06-resource-pack.md).
-- **The backend** in [`backend/`](../backend/): one Java app with the website's API (`api.mostwantedmc.com`: accounts, linking, tickets, applications, the staff panel, stats) and the Discord bot (rank sync, DMs, alerts). See [accounts and the API](08-website.md#accounts-and-the-api) and [Discord](10-discord-bot.md).
-- **`common`:** the database tables, migrations, connection pool and message style shared by `core` and `backend` ([below](#the-backend-and-common)).
+- **Resource pack:** source art in this repo → the Java pack, built and published to **GitHub releases** by CI (Minehut only accepts packs from approved hosts). A Bedrock pack depends on Minehut ([resource pack](06-resource-pack.md)).
+- **[`backend/`](../backend/):** one Java app with the website's API (`api.mostwantedmc.com`: accounts, linking, tickets, applications, the staff panel, stats) and the Discord bot ([API](08-website.md#accounts-and-the-api), [Discord](10-discord-bot.md)).
+- **[`common/`](../common/):** the tables, migrations, connection pool and message style, shared by `core` and `backend`.
 
 ## The backend and `common`
 
-Decided 2026-10-26. **Java, like `core`**, so the game, the API and the bot share one module, [`common`](../common/), for the tables. Change a column and the build fails everywhere it's used, instead of the live server. That's worth more than the memory a lighter language (Go) would save.
+Decided 2026-10-26. **Java, like `core`**, so the game, API and bot share the tables through `common`: change a column and the build fails everywhere it's used, not the live server. That's worth more than the memory a lighter language (Go) would save.
 
 | Part | Pick | Why |
 | --- | --- | --- |
-| Runtime | **Java 25, virtual threads** | A thread per request costs nearly nothing, so the code stays plain. |
-| API | **[Javalin](https://javalin.io)** on Jetty | Small and explicit (a route is a function), quick to start, light on memory. Jetty serves HTTPS with the Origin CA certificate and checks Cloudflare's client certificate itself, so no nginx. |
-| Discord | **[JDA](https://github.com/discord-jda/JDA)** | The main Java Discord library. |
-| Database | **PostgreSQL, HikariCP, [Flyway](https://flywaydb.org), [jOOQ](https://www.jooq.org)** (in `common`) | Flyway brings the tables up to date on start; jOOQ's classes are generated from the migrations, so queries are checked by the compiler. LISTEN/NOTIFY tells `core` and `backend` when something changed. |
-| JSON | **Jackson** | Javalin's default. |
-| Sign-in | **The JDK's HTTP client** for Discord OAuth; our own sessions | Two calls to Discord. Session tokens are random, stored hashed, sent as `HttpOnly` cookies. No auth framework to trust. |
-| Rate limits | **Bucket4j**, in memory | Per IP and per account, behind Cloudflare's. |
-| Logs | **SLF4J + Logback** | The panel shows the console; Logback keeps daily files. |
-| Tests | **JUnit + [Testcontainers](https://testcontainers.com)** | Database tests run against a real PostgreSQL in CI. |
+| Runtime | **Java 25, virtual threads** | A thread per request costs nearly nothing, so the code stays plain |
+| API | **[Javalin](https://javalin.io)** on Jetty | Small and explicit, quick to start, light on memory. Jetty serves HTTPS and checks Cloudflare's client certificate itself, so no nginx |
+| Discord | **[JDA](https://github.com/discord-jda/JDA)** | The main Java Discord library |
+| Database | **PostgreSQL, HikariCP, [Flyway](https://flywaydb.org), [jOOQ](https://www.jooq.org)** | Flyway migrates on start; jOOQ's classes are generated from the migrations, so queries are compiler-checked. LISTEN/NOTIFY tells `core` and `backend` when something changed |
+| JSON | **Jackson** | Javalin's default |
+| Sign-in | **The JDK's HTTP client** for Discord OAuth; our own sessions | Two calls to Discord. Random tokens, stored hashed, sent as `HttpOnly` cookies. No auth framework |
+| Rate limits | **Bucket4j**, in memory | Per IP and per account, behind Cloudflare's |
+| Logs | **SLF4J + Logback** | The panel shows the console; Logback keeps daily files |
+| Tests | **JUnit + [Testcontainers](https://testcontainers.com)** | Database tests against a real PostgreSQL in CI |
 
-**Running it:** one jar as its own server in the panel, 256 MB heap with the Serial GC (the lightest for a small heap), ~300–400 MB in all. `/health` lets the bot alert 🔒│admin when the API is down.
-
-**`core` stays small:** it bundles `common` (our code only) and has Paper download jOOQ, Flyway, HikariCP and the PostgreSQL driver on first start (Paper's library loader), rather than shading them into the plugin jar.
-
-**Not used:** Spring Boot (heavy and slow to start for a few dozen routes), Quarkus and Micronaut (more framework than we need), Hibernate (hides the SQL it runs; jOOQ keeps it visible).
+- **Running it:** one jar as its own server in the panel, 256 MB heap with the Serial GC, ~300–400 MB in all. `/health` lets the bot alert 🔒│admin when the API is down.
+- **`core` stays small:** it bundles `common` (our code only), and Paper's library loader downloads jOOQ, Flyway, HikariCP and the PostgreSQL driver on first start.
+- **Not used:** Spring Boot (heavy and slow to start), Quarkus and Micronaut (more framework than we need), Hibernate (hides its SQL; jOOQ keeps it visible).
 
 ## How `core` stays fast
 
-`core` runs everything for up to 100 players on the main thread, one CPU core, so speed is a rule, not a hope. These are checked in review ([CONTRIBUTING.md](../CONTRIBUTING.md#what-a-change-has-to-keep-true)) and measured before launch.
+`core` runs everything for up to 100 players on one main thread, so speed is a rule. These are checked in review ([CONTRIBUTING.md](../CONTRIBUTING.md#rules-every-change-keeps)) and measured before launch.
 
 **Do nothing until something happens**
-- Event-driven: no loop that runs every tick over every player. The few timers (robberies, riots, jail time, walls and gates) run once a second, not every tick, and are cheap when nothing is going on; the scoreboard runs twice a second and only redraws what changed.
-- Movement is the hottest event. Its handler returns immediately unless the player changed block, and zone checks only run when they changed chunk or crossed a zone edge.
+- Event-driven: no per-tick loop over every player. The few timers (robberies, riots, jail time, walls and gates) run once a second and are cheap when idle. The scoreboard runs twice a second and only redraws what changed.
+- Movement is the hottest event. Its handler returns unless the player changed block, and zone checks run only on a chunk change or zone edge.
 
 **Keep the hot path in memory**
-- Each online player's state (role, cash, bounty, zone) lives in memory, loaded once on join. Gameplay never waits on the database.
-- Zones are indexed by chunk: finding "which zone am I in" looks at the few zones touching that chunk, not all of them.
-- Config, messages and item definitions are parsed once at startup, never per event (changing them takes a restart).
+- Each online player's state (role, cash, bounty, zone) is loaded once on join. Gameplay never waits on the database.
+- Zones are indexed by chunk, so a lookup only checks the few zones touching that chunk.
+- Config, messages and items are parsed once at startup (changes need a restart).
 
 **Database off the main thread, in batches**
-- PostgreSQL through a small HikariCP pool (a handful of connections). Every query runs async.
-- Changes are written behind: stats and cash changes collect in memory and save in batches every few seconds, and on quit and shutdown. Nothing is lost on a clean stop; a crash loses seconds, not sessions.
+- A small HikariCP pool; every query runs async.
+- Changes collect in memory and save every few seconds, and on quit and shutdown. A crash loses seconds, not sessions.
 
-**Cheap updates for 100 players**
-- Name tags, tab list and scoreboard update only what changed, for the players who can see it. Nothing redraws every second.
-- Guns are hitscan (one ray trace per shot through the Paper API), not projectile entities.
-- Holograms and NPCs are packet-based (FancyHolograms, FancyNpcs): no real entities to tick.
+**Cheap updates**
+- Name tags, tab list and scoreboard update only what changed, for those who can see it.
+- Guns are one ray trace per shot, not projectile entities.
+- Holograms and NPCs are packet-based: no real entities to tick.
 
 **Robust**
-- Paper API only: no NMS or reflection into server internals, so it keeps running on Leaf and through Paper updates.
-- Each system is its own package, wired together in `MostWanted.java`; the parts that talk to the outside (store delivery, the resource pack) can be switched off in config.
-- Players are stored by UUID. Bedrock players (through Minehut) included.
+- Paper API only: no NMS or reflection, so it survives Leaf and Paper updates.
+- Each system is its own package, wired together in `MostWanted.java`. The parts that talk to the outside (store delivery, the resource pack) can be switched off in config.
+- Players are stored by UUID, Bedrock players included.
 
 **Measured**
 - Unit tests for the rules (who can hurt who, bounty maths, zone lookups); boot checks on Leaf and Paper in CI.
-- spark profiles on a full playtest, and a 100-bot load test before launch: the target is a steady 20 TPS with MSPT under 30.
-- A jar size budget in CI, like the plugins repo, so a library shaded in by mistake fails the build.
+- spark on a full playtest, and a 100-bot load test before launch. Target: a steady 20 TPS with MSPT under 30.
+- A jar size budget in CI, so a library shaded in by mistake fails the build.
 
-## Other things we need
+## Before launch
 
-- **Minehut External confirmed** before anything else (see the ⚠️ above).
-- **Mojang EULA + Minehut rules.** Real-money store = cosmetics only, no gameplay advantages. No gambling mechanics in-game.
-- **Staff tools.** Punishments (LibertyBans), anti-cheat alerts (Grim), game logs (core's own), and reports. Guards are players with power over others, so staff need to be able to review guard abuse too. Minehut staff can't moderate external servers for us.
-- **Backups and a recovery drill.** The panel's nightly backups: the world files (saved first) and a dump of the managed PostgreSQL, in Cloudflare R2, plus netcup snapshots. Actually test restoring one.
-- **Monitoring.** spark for lag spikes; the bot alerts 🔒│admin when the game, API or database goes down or the server lags.
-- **Before launch** (the step-by-step is [launch](12-launch.md)):
-  - ~~Terms and Privacy pages, and a "delete my account" button~~ (done 2026-10-27; collect as little as possible: many players are kids).
-  - VPS hardening: SSH keys only, automatic security updates, the database and the panel's internals listening only inside the machine, secrets only in the panel, netcup's firewall blocking everything not listed, and the API refusing anything without Cloudflare's client certificate ([12-launch.md](12-launch.md)).
-  - 2FA on Cloudflare, GitHub, netcup, Discord, Tebex and Minehut.
-  - `support@mostwantedmc.com` through Cloudflare Email Routing.
-  - A 100-bot stress test (the VPS estimate is ~20–40 players; the server has 100 slots).
+The step-by-step is in [launch](12-launch.md).
+
+- **Confirm Minehut External** before anything else (see the ⚠️ above).
+- **Mojang's EULA and Minehut's rules:** the store is cosmetics only, and nothing in game is gambling.
+- **Staff tools:** punishments (LibertyBans), anti-cheat alerts (Grim), game logs (core) and reports. Guards have power over other players, so staff must be able to review guard abuse too. Minehut staff can't moderate external servers for us.
+- **Backups and a restore drill:** the panel's nightly world backups and PostgreSQL dumps, in Cloudflare R2, plus netcup snapshots. Actually test a restore.
+- **Monitoring:** spark for lag spikes; the bot alerts 🔒│admin when the game, API or database goes down or lags.
+- **Hardening:** SSH keys only, automatic security updates, the database and panel internals listening only inside the machine, secrets only in the panel, netcup's firewall blocking everything not listed, and the API refusing anything without Cloudflare's client certificate.
+- **2FA** on Cloudflare, GitHub, netcup, Discord, Tebex and Minehut.
+- `support@mostwantedmc.com` through Cloudflare Email Routing.
+- A 100-bot stress test (the VPS estimate is ~20–40 players; the server has 100 slots).
+- ✅ Terms and Privacy pages and a "delete my account" button (done 2026-10-27). Collect as little as possible: many players are kids.
 
 ## Build order
 
-Steps 2 to 6 are built (2026-10-28); next is the map, then step 1 and step 7 for launch ([12-launch.md](12-launch.md)).
+Steps 2–6 are built (2026-10-28). Next is the map, then steps 1 and 7 at [launch](12-launch.md).
 
-1. **Foundation:** confirm Minehut External; set up the VPS with Calagopus; Leaf + the must-have plugins from [server stack](07-server-stack.md) + PostgreSQL; Minehut External settings; join from Java **and** Bedrock through Minehut.
-2. **Core loop:** player state, combat rules, arrests, bounty, economy, one robbery. Playable on a test map.
-3. **Custom items + guns + resource pack** (Java first, then Bedrock if Minehut supports custom Bedrock packs).
+1. **Foundation:** confirm Minehut External; set up the VPS with Calagopus, Leaf, the [server stack](07-server-stack.md) and PostgreSQL; join from Java **and** Bedrock through Minehut.
+2. **Core loop:** player state, combat rules, arrests, bounty, economy, one robbery, on a test map.
+3. **Custom items, guns and the resource pack** (Java first, Bedrock if Minehut allows).
 4. **Escapes, riots, shops, HUD.**
-5. **Website accounts and backend:** sign-in, linking, guard rank sync, tickets, applications, notifications. (The Discord server itself is built.)
+5. **Website accounts and backend:** sign-in, linking, guard rank sync, tickets, applications, notifications.
 6. **Polish:** stats, leaderboards, indirect kills, more robberies.
-7. **Playtest at the VPS's limit**, fix what spark shows, launch, then upgrade the box as players grow.
+7. **Playtest at the VPS's limit**, fix what spark shows, launch, then upgrade as players grow.
 
 ## Java + Bedrock
 
-Both editions can join (decided). Minehut translates Bedrock players. Things to keep in mind:
+Both editions can join, with Minehut translating Bedrock. Keep in mind:
 
-- **No Floodgate on our server**, so no native Bedrock forms. Use **chest GUIs for everyone**, kept simple and big-button friendly for touch.
-- **Detecting Bedrock players:** find out how Minehut marks them (name prefix? UUID format?). We need this for gun balance and tests.
-- **Custom items / resource packs:** Java packs don't work on Bedrock. **Ask Minehut whether external servers can supply a Bedrock pack + Geyser custom item mappings.** If not, Bedrock players see the vanilla base item (that's why every custom item is a renamed vanilla item). See [resource pack](06-resource-pack.md).
-- **Combat:** Java and Bedrock PvP feel different (attack cooldown, reach, touch controls). Test fights between a Java player and a Bedrock player early.
+- **No Floodgate**, so no Bedrock forms: **chest GUIs for everyone**, simple and touch-friendly.
+- **Detecting Bedrock players:** find out how Minehut marks them (name prefix? UUID format?). Needed for gun balance, GrimAC and tests.
+- **Resource packs:** Java packs don't work on Bedrock. **Ask Minehut whether external servers can supply a Bedrock pack and Geyser item mappings.** If not, Bedrock players see the vanilla base items ([resource pack](06-resource-pack.md)).
+- **Combat feels different** on each (attack cooldown, reach, touch controls). Test Java-vs-Bedrock fights early.
 - **Store players by UUID, never by name.**
-- **Test everything on both**, phone and console included, not just PC.
+- **Test on both**, phones and consoles included.

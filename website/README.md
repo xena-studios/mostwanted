@@ -53,7 +53,7 @@ Player search, the leaderboards and sign-in show a "starts when the server opens
 
 ## Look
 
-From [docs/09-brand.md](../docs/09-brand.md) and MostWanted's section in [xena-studios/brand](https://github.com/xena-studios/brand#mostwanted): the blurred pixel desert behind the block wordmark, Desert Orange `#FF9933` on dusk, chunky bevelled panels and buttons like blocks in the game. **Lilita One** for headings, **Rubik** for text and **VT323** (a pixel face) for labels, all self-hosted from Fontsource. Icons are [Lucide](https://lucide.dev), inlined as SVG at build time.
+From [docs/09-brand.md](../docs/09-brand.md) and MostWanted's guide in [xena-studios/brand](https://github.com/xena-studios/brand/blob/main/docs/mostwanted.md): the blurred pixel desert behind the block wordmark, Desert Orange `#FF9933` on dusk, chunky bevelled panels and buttons like blocks in the game. **Lilita One** for headings, **Rubik** for text and **VT323** (a pixel face) for labels, all self-hosted from Fontsource. Icons are [Lucide](https://lucide.dev), inlined as SVG at build time.
 
 ## Checks
 

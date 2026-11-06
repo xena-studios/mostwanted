@@ -1,17 +1,15 @@
 # Resource pack
 
-We want custom textures and items.
-
 **Built (2026-10-27): the Java pack**, in [`pack/`](../pack/): textures for the guns, ammo, taser, handcuffs and keycard, in vanilla's style and colours. Each item is a vanilla item carrying a custom model data string; the pack overrides the vanilla item to show ours, and falls back to vanilla otherwise, so the game looks plain but works without the pack. CI publishes it to the `pack` GitHub release (an approved Minehut host), and `core` sends it to Java players on join, reading its SHA-1 from the release. Bedrock is still the open question below.
 
 > ⚠️ **Open question for Minehut:** Bedrock players reach us through Minehut's Geyser, not our own. Can an external server give Minehut a Bedrock pack and custom item mappings? If not, Bedrock players see the vanilla base items, and the game still works (see below). Ask in the Minehut Discord before making Bedrock art.
 
-**Hosting the Java pack:** Minehut only accepts packs from approved hosts. GitHub (`raw.githubusercontent.com`, `github.com/…/releases/download/…`) is on the list, so we publish the pack as a **GitHub release** from this repo. The catch: **Java and Bedrock use different resource pack formats**, so a Java pack does nothing for Bedrock players. The plan is to make two packs from one source.
+**Hosting:** Minehut only accepts packs from approved hosts, and GitHub (`raw.githubusercontent.com`, `github.com/…/releases/download/…`) is one, so the pack is a **GitHub release**. **Java and Bedrock use different pack formats**, so the plan is two packs from one source.
 
 ## How it works
 
 ```
-                    ┌─▶ Java pack ──────▶ server.properties resource-pack= (hosted on GitHub releases)
+                    ┌─▶ Java pack ──────▶ GitHub release, sent by core on join
  our art + models ──┤
                     └─▶ Bedrock pack ──▶ Minehut's Geyser, IF Minehut lets external servers supply one
                                            + Geyser "mappings" that tell it which Java item = which Bedrock item
@@ -20,7 +18,7 @@ We want custom textures and items.
 1. **Build the Java pack first.** It's the source of truth.
 2. **Convert it to a Bedrock pack.** GeyserMC has tools for this (look at **Rainbow** and **java2bedrock.sh**). Check which one fits our Minecraft version.
 3. **Custom items need mappings.** On Java, a custom item is a vanilla item with a custom model (e.g. a stick with an `item_model` / custom model data). Geyser needs a mapping file to turn that into a real custom item on Bedrock. The converter tools can generate these.
-4. **Make the Java pack required** so every Java player sees the same thing.
+4. **Java pack:** core sends it on join, required (`resource-pack.required` in `config.yml`). Built.
 5. **Test on Bedrock**: phone, console and Windows.
 
 ## What translates well, and what doesn't

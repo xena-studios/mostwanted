@@ -1,6 +1,6 @@
 # Open questions
 
-Decisions we need to make. When one gets answered, write the answer and move it to "Decided."
+What's decided, and what's still open. When a question is answered, write the answer and move it to **Decided**, with the date.
 
 ## Open
 
@@ -10,8 +10,7 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 
 ## Decided
 
-- **Riots:** 3 inmates press the alarm within 30 seconds, with at least 1 guard on duty; it lasts 5 minutes or until every rioter is caught; 30 minutes before the next. All in `config.yml` under `riots`. (2026-10-27)
-- **Guards:** a LuckPerms guard rank (`mostwanted.guard`), applied for on the website (`/apply`); `/duty` switches on and off duty, and off duty they play as an inmate with their own money. (2026-10-27)
+Oldest first.
 
 - **Name:** **MostWanted**, domain **mostwantedmc.com**. Repo renamed to `xena-studios/mostwanted`, plugin to MostWanted. (2026-10-25)
 - **Genre:** escape game, like Roblox Jailbreak. Not classic mine-and-rank-up prison. (2026-10-25)
@@ -27,20 +26,22 @@ Decisions we need to make. When one gets answered, write the answer and move it 
 - **Custom items:** guns, food, tools, and more through the resource pack. (2026-10-25)
 - **Version:** Minecraft 26.3. (2026-10-25)
 - **Size:** up to 100 players at once. (2026-10-25)
-- **Tech stack:** Leaf 26.3 standalone on a VPS managed with Calagopus (a netcup RS 2000 in Manassas since 2026-10-28; OVH was out of stock), connected through Minehut External Server (Bedrock, DDoS, server list). PostgreSQL, one custom Java plugin. Full list in [tech](04-tech.md). (2026-10-25)
 - **Guns:** our own hitscan guns, no gun plugin. (2026-10-25)
 - **Custom items:** our own plugin + pack pipeline, no ItemsAdder/Nexo. (2026-10-25)
 - **Website and store:** Astro on Cloudflare, store through Tebex Headless, cosmetics only. See [website](08-website.md). (2026-10-25)
 - **Brand:** orange `#ff9933`, desert theme, blocky Minecraft-style logo. In-game colours only from the 24-hue `hsl(h, 100%, 60%)` palette. See [brand](09-brand.md). (2026-10-25)
-- **Player stats on the website:** served by our API from PostgreSQL, cached at Cloudflare. Replaces the earlier Worker + D1 copy. (2026-10-26)
 - **Repo layout:** `core/`, `website/`, `server/` alongside the docs. (2026-10-25) The resource pack is `pack/` (2026-10-27).
+- **Player stats on the website:** served by our API from PostgreSQL, cached at Cloudflare. Replaces the earlier Worker + D1 copy. (2026-10-26)
 - **Server plugins (approved):** LuckPerms, ViaVersion, GrimAC, LibertyBans, xUtilities, zChat, FancyNpcs, FancyHolograms, FastAsyncWorldEdit. `core` handles zones, name tags/tab/scoreboard, game logs and stats instead of WorldGuard, TAB, PlaceholderAPI, CoreProtect and Plan. See [server stack](07-server-stack.md). (2026-10-26)
 - **Discord:** our own bot, not DiscordSRV. See [Discord bot](10-discord-bot.md). (2026-10-26)
 - **Messages:** coloured symbols for everyday messages, banners for big moments. See [brand](09-brand.md#messages). (2026-10-26)
 - **Server setup:** pinned in `server/manifest.json`, installed by `server/install.sh`, boot-tested in CI. (2026-10-26)
-- **Everything through Calagopus:** the game server, the API and bot, the managed PostgreSQL, backups (to Cloudflare R2), schedules and alerts all run from the panel at panel.mostwantedmc.com. The machine gets only Docker, the panel, its database agent and Caddy, set up once from `server/panel/`. The eggs in `server/eggs/` install the latest build of `main` (the `server` release), and the panel syncs them from this repo, so egg changes are an **Update** click, not a re-import; settings live on each server's Startup tab; updating is Reinstall. Moved from Raptor, which isn't ready for production yet; we'll go back once it is, and the eggs stay Pterodactyl-format for that. (2026-10-28)
 - **Website accounts:** sign in with Discord or a Minecraft code, no passwords. Tickets, applications and purchases live on the website, with a staff panel; notifications on the site, Discord and in game. See [accounts and the API](08-website.md#accounts-and-the-api). (2026-10-26)
 - **Backend:** one Java app (`backend/`) with the API and the Discord bot (JDA), sharing `common` with `core`; one PostgreSQL database. Served at `api.mostwantedmc.com`, proxied by Cloudflare, with an Origin CA certificate and Authenticated Origin Pulls: the API refuses any connection without Cloudflare's client certificate. (2026-10-26)
 - **Discord server:** built from `backend/discord-setup/build.py` on a reused, wiped server; one Discord app for the bot and website sign-in; no third-party bots. See [Discord](10-discord-bot.md). (2026-10-26)
 - **Backend and `common` stack:** Java 25 on virtual threads; Javalin (Jetty) for the API, JDA for the bot; PostgreSQL through HikariCP, with Flyway migrations and jOOQ queries generated from them, in `common`. No Spring or Hibernate. See [tech](04-tech.md#the-backend-and-common). (2026-10-26)
 - **Memory:** 10 GB heap for the game server, leaving room for PostgreSQL, the panel and the backend on 16 GB (8 GB of 12 on the OVH plan first chosen). Backups through the panel, to Cloudflare R2. (2026-10-26)
+- **Riots:** 3 inmates press the alarm within 30 seconds, with at least 1 guard on duty; it lasts 5 minutes or until every rioter is caught; 30 minutes before the next. All in `config.yml` under `riots`. (2026-10-27)
+- **Guards:** a LuckPerms guard rank (`mostwanted.guard`), applied for on the website (`/apply`); `/duty` switches on and off duty, and off duty they play as an inmate with their own money. (2026-10-27)
+- **Tech stack:** Leaf 26.3 standalone on a VPS managed with Calagopus (a netcup RS 2000 in Manassas since 2026-10-28; OVH was out of stock), connected through Minehut External Server (Bedrock, DDoS, server list). PostgreSQL, one custom Java plugin. Full list in [tech](04-tech.md). (2026-10-25)
+- **Everything through Calagopus:** the game server, the API and bot, the managed PostgreSQL, backups (to Cloudflare R2), schedules and alerts all run from the panel at panel.mostwantedmc.com. The machine gets only Docker, the panel, its database agent and Caddy, set up once from `server/panel/`. The eggs in `server/eggs/` install the latest build of `main` (the `server` release), and the panel syncs them from this repo, so egg changes are an **Update** click, not a re-import; settings live on each server's Startup tab; updating is Reinstall. Moved from Raptor, which isn't ready for production yet; we'll go back once it is, and the eggs stay Pterodactyl-format for that. (2026-10-28)

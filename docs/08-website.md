@@ -1,35 +1,35 @@
-# Website and store
+# Website
 
-Decided 2026-10-25. **Built** in [`website/`](../website/): home (explore cards, player search, how it plays, news), news, wiki, leaderboards, player lookup, rules, staff, creators, apply, support, store and sign-in. Player search, leaderboards and sign-in show a "starts when the server opens" state until the stats feed and Discord sign-in exist.
+Decided 2026-10-25, built in [`website/`](../website/). Sign-in, accounts, player pages, leaderboards, Support and Apply are open since 2026-10-28, ahead of the game.
 
 ## Stack
 
 | Piece | Choice |
 | --- | --- |
-| Site | **[Astro](https://astro.build)** in [`website/`](../website/), same as [xenastudios.co](https://github.com/xena-studios/website) and the plugin docs |
-| Hosting | **Cloudflare** (Workers static assets), free tier |
+| Site | **[Astro](https://astro.build)**, like [xenastudios.co](https://github.com/xena-studios/website) and the plugin docs |
+| Hosting | **Cloudflare** (a Worker with static assets), free tier |
 | Store | **[Tebex](https://tebex.io)**, through its [Headless API](https://docs.tebex.io/developers/headless-api/overview) |
-| Delivery | Core asks Tebex's command queue and runs the commands for each purchase (no Tebex plugin; [11-store.md](11-store.md)) |
-| Domain | **mostwantedmc.com**: the site at the root, `play.` for the server address, `store.` if the store needs its own |
+| Delivery | `core` reads Tebex's command queue and runs each purchase's commands (no Tebex plugin; [store](11-store.md)) |
+| Domain | **mostwantedmc.com**: the site at the root, `play.` for the server, `api.` for the backend |
 
 ## Pages
 
 | Page | What's on it |
 | --- | --- |
-| **Home** | What the server is, a trailer/screenshots, **how to join** (Java and Bedrock addresses), Discord link |
-| **Store** | Packages from Tebex, styled like the rest of the site. Cart and checkout handled by Tebex |
-| **Rules** | Server rules, including guard conduct |
-| **Become a guard** | What guards do, requirements, and a link to the Discord application |
-| **Vote** | Server list links, and what voting gives you |
-| **Status** | Online or not, player count |
-| **Leaderboards** | Top escapers, top guards, most wanted, richest. All-time, monthly and weekly. See [player stats](#player-stats) |
-| **Player pages** | `/player/<name>`: one player's stats, records and recent activity. See [player stats](#player-stats) |
+| **Home** | What the server is, explore cards, player search, how it plays, news |
+| **News**, **Wiki** | Markdown in `website/src/content/` |
+| **Store** | Ranks, cosmetics and support packages, with a cart and Tebex checkout ([store](11-store.md)) |
+| **Leaderboards**, **Player pages** | Stats from the API ([player stats](#player-stats)) |
+| **Rules**, **Staff**, **Creators** | Server rules (including guard conduct), the team, the creator program |
+| **Apply**, **Support**, **Account**, **Ticket** | Signed-in forms and pages ([accounts](#accounts-and-the-api)) |
+| **Panel** | Staff only: tickets and applications |
+| **Login**, **Terms**, **Privacy** | Sign-in with Discord or a game code; the legal pages |
 
-Mostly static pages with no JavaScript. Only the store's cart and the status widget need a little.
+The header shows live whether the server is up and how many are playing (`/v1/status`) once `gameOpen` is set in `website/src/site.ts`. JavaScript is small and per page: the address copy button, player lookup, sign-in, the account pages and the store's cart. **Later:** a vote page, if we list on vote sites.
 
 ## How the store works
 
-**Built (2026-10-28):** the store page, its catalogue and Tebex checkout. What's sold, why, and the Tebex setup steps are in [docs/11-store.md](11-store.md). The flow below is Tebex's Headless API from the browser.
+Built 2026-10-28. What's sold, why, and setting up Tebex are in [store](11-store.md).
 
 ```
 Player on our site ──▶ Store page (our design, packages from Tebex's API)
@@ -43,19 +43,17 @@ Player on our site ──▶ Store page (our design, packages from Tebex's API)
                                                    mostwanted boost <name>
 ```
 
-- Core connects **out** to Tebex, so Minehut sitting in front of the server doesn't matter.
-- Bedrock players buy with the username they play under (check how Minehut names them).
-- Tebex's secret key never goes in the repo. The site only uses the public token.
+- `core` connects **out** to Tebex, so Minehut in front of the server doesn't matter.
+- Bedrock players buy with the name they play under (check how Minehut names them).
+- The site only uses Tebex's public token. The secret key never goes in the repo.
 
 ## Player stats
 
-The site shows each player's stats (escapes, arrests, robberies and so on) and leaderboards.
-
 ### How the data gets to the site
 
-`core` writes stats to **PostgreSQL** on the VPS as they happen (in batches, off the main thread). The website reads them through the **API** at `api.mostwantedmc.com` ([below](#accounts-and-the-api)), the same database the game uses: no copy, no sync. Leaderboards and player pages are cached at Cloudflare for a minute or two, so most visits never reach the VPS. If the VPS is down, the site stays up and these pages say so.
+`core` writes stats to **PostgreSQL** as they happen (in batches, off the main thread). The site reads them through the **API** at `api.mostwantedmc.com` from the same database: no copy, no sync. Leaderboards and player pages are cached at Cloudflare for a minute or two, so most visits never reach the VPS. If the VPS is down, the site stays up and says so.
 
-**In game too:** staff put the same leaderboards up around the map with `/mw board add <board> [all|month|week]` (floating text, refreshed every minute, kept in `boards.yml`). Board ids are the website's: `most-wanted`, `escapes`, `guards`, `robberies`, `bounty-earned`, `most-arrested`. Players with private stats are left off them too.
+**In game too:** staff put boards up around the map with `/mw board add <board> [all|month|week]` (floating text, refreshed every minute, kept in `boards.yml`). Board ids match the website's: `most-wanted`, `escapes`, `guards`, `robberies`, `bounty-earned`, `most-arrested`. Private players are left off.
 
 ### What we track
 
@@ -65,57 +63,53 @@ The site shows each player's stats (escapes, arrests, robberies and so on) and l
 | Times arrested, longest time free | Criminals |
 | Robberies (per location), cash stolen, highest bounty | Criminals |
 | Arrests made, bounty collected, escapes stopped | Guards |
-| Kills and deaths, split by role | Everyone |
-| Riots started / joined / stopped | Inmates, guards |
-| Playtime, split by role; time on duty | Everyone, guards |
+| Kills and deaths, by role | Everyone |
+| Riots started, joined or stopped | Inmates, guards |
+| Playtime by role; time on duty | Everyone, guards |
 | First joined, last seen | Everyone |
 
-Each stat is a counter or a record in PostgreSQL, keyed by **UUID** (the player's latest name is stored next to it, so name changes don't lose stats).
+Each stat is a counter or record keyed by **UUID**, with the latest name stored next to it, so name changes keep stats.
 
 ### Leaderboards
 
-- **All-time, monthly and weekly.** `core` keeps a counter per stat per period, so weekly boards reset cleanly without recounting.
-- Boards: **Most Wanted** (highest bounty right now), **Top Escapers**, **Fastest Escapes**, **Top Guards** (arrests), **Biggest Heists**, **Richest** (cash earned), **Most Time Served**.
-- On the website now: **Most Wanted**, **Top Escapers**, **Top Guards**, **Top Robbers**, **Bounty Hunters** (bounty collected) and **Most Arrested**, the boards the API serves (`common/.../Board.java`, shared with the boards in game). Fastest Escapes, Biggest Heists, Richest and Most Time Served join when core records them.
-- In game, `core` shows the same boards: as floating text placed with `/mw board`, and in the `/leaderboards` menu.
+- **All-time, monthly and weekly.** `core` keeps a counter per stat per period, so weekly boards reset cleanly.
+- **Live now:** Most Wanted (bounty right now), Top Escapers, Top Guards (arrests), Top Robbers, Bounty Hunters (bounty collected) and Most Arrested. These are the API's boards (`common/.../Board.java`), shared with the game.
+- **Later,** once `core` records them: Fastest Escapes, Biggest Heists, Richest (cash earned), Most Time Served.
+- In game, the same boards show as floating text (`/mw board`) and in the `/leaderboards` menu.
 
 ### Player pages
 
-- `/player/<name>`: their head (skin), current role, rank, all stats, records, and where they place on each board.
-- **Skins:** from a public skin service by UUID. Bedrock players coming through Minehut may not have a Java skin; show a default head for them.
-- **Opt-out:** a `/stats private` command hides a player's page and removes them from every board, on the website and in game.
-- Staff in vanish, and banned players, don't appear.
+- `/player?name=…`: their head, role, rank, stats, records, and where they place on each board.
+- **Skins** come from a public skin service by UUID. Bedrock players may have no Java skin, so they get a default head.
+- **Opt-out:** `/stats private` hides a player's page and removes them from every board, on the site and in game.
+- Staff in vanish and banned players don't appear.
 
 ## Accounts and the API
 
-Decided 2026-10-26. **Players have website accounts**, and everything tied to a person lives there: support tickets, applications, purchases, linked accounts. People without Discord can get support, and people without the website can use Discord or the game.
+Decided 2026-10-26. **Players have website accounts**, and everything tied to a person lives there: tickets, applications, purchases and linked accounts. Players without Discord can still get support, and players who never open the site can use Discord or the game.
 
 **Signing in, no passwords:**
-- **Discord:** "Sign in with Discord" (the same Discord app as the bot, scope `identify` only).
-- **Minecraft:** `/website` in game shows a 6-character code to enter on the site. Works on Bedrock, where chat links can't be clicked. (Microsoft sign-in needs Mojang to approve our app; not worth the wait.)
+
+- **Discord:** "Sign in with Discord" (the bot's own Discord app, scope `identify` only).
+- **Minecraft:** `/website` in game shows a 6-character code to type on the site. Works on Bedrock, where chat links can't be clicked. (Microsoft sign-in needs Mojang to approve our app; not worth the wait.)
 - Signed in one way, link the other from your account page. No passwords or email means nothing to reset or leak.
 
-**Your account page:** tickets and replies, applications and their status, purchases (from Tebex), linked accounts, stats. A "delete my account" button.
+**Support and applications all land on the website:**
 
-**Support and applications can start anywhere, and all land on the website:**
+| From | How | Built |
+| --- | --- | --- |
+| Website | The Support and Apply forms | ✅ |
+| Discord | `/support`, `/apply`, or the buttons in 🎫│support and 📝│apply; an account is made from the Discord user if needed | Not yet |
+| Game | `/support <message>`; an account is made from the player if needed | Not yet |
 
-| From | How |
-| --- | --- |
-| Website | The support and apply forms |
-| Discord | `/support`, `/apply`, or the buttons in 🎫│support and 📝│apply. An account is made from the Discord user if needed |
-| Game | `/support <message>`. An account is made from the Minecraft player if needed |
+**What's built** (2026-10-28):
 
-**Notifications** (a staff reply, an application decision) arrive on the site, as a Discord DM if linked, and in game (immediately if online, otherwise on next join).
-
-**Staff panel:** a staff-only part of the site for tickets, applications and punishments. Access comes from the player's in-game rank.
-
-**Built (2026-10-28):** the website side, with notifications everywhere.
-- **Support** (`/support`): signed in, pick what it's about (report, appeal, bug, purchase, other), a subject and what happened; proof is links (YouTube, Imgur, Medal), no uploads. Up to 3 new tickets an hour. Each ticket has its page (`/ticket?id=…`): the conversation, a reply box, and Close.
-- **Apply** (`/apply`): guard, staff (helper, moderator or builder) and creator forms. The questions are the backend's (`backend/.../support/Forms.java`, served at `/v1/forms`), so they're written once. Needs Minecraft linked. One waiting at a time of each kind, and a week after a "no".
-- **Account page:** notifications, tickets and applications (with staff's note), and a link to the panel for staff.
-- **Staff panel** (`/panel`): helpers and up (LuckPerms `helper`, `moderator`, `admin`, `owner` on the linked Minecraft account, read from LuckPerms' table) see tickets by state and answer them on the ticket page; moderators and up accept or turn down applications, with a note. Accepting a **guard** gives the guard rank in game at once: core runs `lp user <uuid> parent add guard` (`rank_grants`, guard only). Staff and creator ranks are given by hand.
-- **Notifications:** a staff reply, a closed ticket and a decision go on the account page, as a Discord DM if Discord is linked, and in game (`✉` in chat, at once if online, otherwise as they join).
-- **Not yet:** starting from Discord (`/support`, `/apply`) or the game (`/support`), and punishments in the panel.
+- **Support** (`/support`): pick what it's about (report, appeal, bug, purchase, other), a subject and what happened. Proof is links (YouTube, Imgur, Medal), no uploads. Up to 3 new tickets an hour. Each ticket has a page (`/ticket?id=…`) with the conversation, a reply box and Close.
+- **Apply** (`/apply`): guard, staff (helper, moderator or builder) and creator forms. The questions come from the backend (`backend/.../support/Forms.java`, at `/v1/forms`). Needs Minecraft linked; one waiting per kind, and a week after a "no".
+- **Account page:** notifications, tickets, applications (with staff's note), linked accounts, a link to the panel for staff, and "delete my account". Purchases from Tebex are planned.
+- **Staff panel** (`/panel`): helpers and up (LuckPerms `helper`, `moderator`, `admin`, `owner` on the linked account) answer tickets; moderators and up accept or deny applications, with a note. Accepting a **guard** gives the rank in game at once (`core` runs `lp user <uuid> parent add guard`, from `rank_grants`, guard only). Staff and creator ranks are given by hand.
+- **Notifications** (a staff reply, a closed ticket, a decision) go on the account page, as a Discord DM if linked, and in game (`✉` in chat, at once or on next join).
+- **Not yet:** punishments in the panel.
 
 ### The API
 
@@ -126,55 +120,53 @@ Browser ──▶ mostwantedmc.com (Astro on a Cloudflare Worker)
                                          core (game) ──▶ PostgreSQL ◀── backend
 ```
 
-- **One Java app, `backend`:** the API and the Discord bot together ([Discord](10-discord-bot.md)). It shares the `common` module with `core`, so the API, bot and game use the same tables. Its own server in the panel: game restarts don't touch it.
-- **One database:** PostgreSQL holds accounts, links, tickets, applications, purchases, stats and game data. When staff reply, `core` and the bot hear about it instantly (`LISTEN/NOTIFY`) and tell the player in game and on Discord.
-- **Reaching the VPS without exposing it:** `api.mostwantedmc.com` is a **proxied** DNS record (Cloudflare's IP shows, not ours), and:
-  1. The API's port takes only TLS connections with **Cloudflare's client certificate** (Authenticated Origin Pulls, below); anything else is refused in the handshake, before a request is read. (A firewall limiting the port to [Cloudflare's IP ranges](https://www.cloudflare.com/ips/) would hide it from scanners too: a netcup firewall rule, once worth the upkeep.) The port is 8443, because 443 is the panel's; a Cloudflare Origin Rule sends `api` traffic there, so visitors still use 443.
-  2. A **Cloudflare Origin CA** certificate on the VPS, with SSL mode **Full (strict)**.
-  3. **Authenticated Origin Pulls:** Cloudflare presents its client certificate and the backend refuses any connection without it, in the TLS handshake ([backend/README.md](../backend/README.md#https-and-authenticated-origin-pulls)). With Cloudflare's own certificate (the dashboard toggle) that proves the request came through Cloudflare, but not through *our* zone: the certificate is the same for every customer. Uploading our own client certificate to the zone (Cloudflare's API) closes that too; it's a follow-up after launch ([launch](12-launch.md#6-cloudflare-for-the-api-10-min)).
-- **Sessions:** cookies for `.mostwantedmc.com` that scripts can't read (`HttpOnly`, `Secure`, `SameSite=Lax`). The site calls the API cross-origin, so the API only allows `https://mostwantedmc.com`.
-- **Load can't lag the game:** Cloudflare rate-limits the API, the API rate-limits per user and IP (tickets and applications need a signed-in account), and public pages are cached.
+- **One Java app, `backend`,** holds the API and the Discord bot ([Discord](10-discord-bot.md)), sharing `common` with `core`. It's its own server in the panel, so game restarts don't touch it.
+- **One database:** accounts, links, tickets, applications, purchases, stats and game data. When staff reply, `core` and the bot hear at once (`LISTEN/NOTIFY`) and tell the player.
+- **Sessions:** cookies for `.mostwantedmc.com` that scripts can't read (`HttpOnly`, `Secure`, `SameSite=Lax`). The API only accepts calls from `https://mostwantedmc.com`.
+- **Load can't lag the game:** Cloudflare rate-limits the API, the API rate-limits per user and IP, and public pages are cached.
 
-Before sign-in goes live: **Terms** and **Privacy** pages on the site (Discord shows them when signing in, Tebex requires them). Collect as little as possible: many players are kids.
+**Reaching the VPS without exposing it.** `api.mostwantedmc.com` is a **proxied** record (Cloudflare's IP shows, not ours), and:
+
+1. **A Cloudflare Origin CA certificate** on the VPS, with SSL mode **Full (strict)**.
+2. **Authenticated Origin Pulls:** the API only accepts TLS connections that present Cloudflare's client certificate, refused in the handshake before any request is read ([backend/README.md](../backend/README.md#https-and-authenticated-origin-pulls)). Cloudflare's certificate is the same for every customer, so it proves a request came through Cloudflare, not through *our* zone. Uploading our own client certificate to the zone closes that; it's a follow-up after launch ([launch](12-launch.md#6-cloudflare-for-the-api-10-min)).
+3. **Port 8443,** because 443 is the panel's. A Cloudflare Origin Rule sends `api` traffic there, so visitors still use 443.
+
+A netcup firewall rule limiting 8443 to [Cloudflare's IP ranges](https://www.cloudflare.com/ips/) would hide it from scanners too, once it's worth the upkeep.
 
 ## Protecting the interactive parts
 
-Decided 2026-10-26. **Bot Fight Mode is off** on mostwantedmc.com (and xenastudios.co). On the free plan it challenges every non-browser request with no way to exempt a path, which would break Tebex purchase webhooks, Discord sign-in and server-list vote callbacks. Its script was also blocked by our CSP, so it did nothing.
+Decided 2026-10-26. **Bot Fight Mode is off** on mostwantedmc.com (and xenastudios.co). On the free plan it challenges every non-browser request with no way to exempt a path, which breaks Tebex webhooks, Discord sign-in and vote callbacks. Our CSP blocked its script anyway.
 
 What protects the site instead, all on Cloudflare's free plan:
 
 | Threat | Protection |
 | --- | --- |
 | DDoS | Cloudflare's DDoS protection, always on |
-| Common attacks | Cloudflare's free managed WAF ruleset, on |
-| Spam on forms (sign-in, apply, support) | **Turnstile** on each form, when the forms are built |
+| Common attacks | Cloudflare's free managed WAF ruleset |
+| Form spam (sign-in, apply, support) | **Turnstile** on each form (not added yet) |
 | Flooding the API | A Cloudflare **rate-limiting rule** on `api.mostwantedmc.com`, plus per-user limits in the API |
-| Reaching the VPS directly | Firewall to Cloudflare's IPs only, Origin CA certificate, Authenticated Origin Pulls ([above](#the-api)) |
+| Reaching the VPS directly | Origin CA certificate and Authenticated Origin Pulls ([above](#the-api)) |
 | Fake purchases | Tebex webhooks are **signature-checked** |
-| Account abuse | **Discord sign-in** for anything tied to an account |
+| Account abuse | **Discord sign-in** or a game code for anything tied to an account |
 
 ## What we sell
 
-**Cosmetics only** (Mojang's EULA): no gameplay advantages.
+**Cosmetics only** (Mojang's EULA). The full catalogue is in [store](11-store.md).
 
 | ✅ OK | ❌ Not OK |
 | --- | --- |
-| Jumpsuit / uniform colours | Guns, ammo, armor |
+| Jumpsuit and uniform colours | Guns, ammo, armor |
 | Gun skins (same stats) | In-game cash |
-| Trails, particles, arrest/escape effects | Shorter jail time, faster escapes |
-| Chat tags, name colours | Getting the guard rank |
+| Trails, particles, arrest and escape effects | Shorter jail time, faster escapes |
+| Chat tags, name colours | The guard rank |
 | Cell decorations | Anything that wins fights or robberies |
-| Supporter ranks with cosmetic perks only | Loot boxes / random rewards (also against Minehut's no-gambling rule) |
+| Supporter ranks with cosmetic perks only | Loot boxes or random rewards (also against Minehut's rules) |
 
-## Checked
-
-- ✅ Minehut allows an external server to run its own store (confirmed with the user, 2026-10-25).
-- ✅ Tebex fees are acceptable (confirmed with the user, 2026-10-25).
+Checked 2026-10-25: Minehut allows an external server to run its own store, and Tebex's fees are acceptable.
 
 ## Still to do
 
-- [x] Pick the server name: **MostWanted**
-- [ ] Register **mostwantedmc.com** (Cloudflare Registrar)
-- [ ] Create the Tebex store and its packages
-- [ ] Build the site (separate PR)
-- [ ] Add Tebex to the [server stack](07-server-stack.md) once the store exists
+- [ ] Create the Tebex store and its packages ([launch, step 11](12-launch.md#11-tebex))
+- [ ] Turnstile on the forms
+- [ ] Support and applications from Discord and the game
+- [ ] Punishments in the staff panel

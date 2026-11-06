@@ -1,10 +1,10 @@
 # MostWanted (core)
 
-The game plugin: every system the server runs. What it will do is in [what we build](../docs/04-tech.md#what-we-build-ourselves).
+The game plugin: every system the server runs. The plan is in [what we build](../docs/04-tech.md#what-we-build-ourselves).
 
-Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
+Runs on Paper and Leaf 26.3, Java 25, with PostgreSQL.
 
-## What's in it so far
+## What it does
 
 - **Player state:** role (inmate, criminal, guard), cash, bank, bounty, jail time and stats, loaded as a player logs in and kept in memory. Changes are saved in the background every few seconds, and on quit and shutdown. If the database can't load someone, they're refused rather than playing on a blank state that would overwrite their real one.
 - **Messages** from `messages.yml`, in the [message style](../docs/09-brand.md#messages): plain text there becomes small caps when it loads.
@@ -19,12 +19,12 @@ Runs on Paper 26.3 and Leaf 26.3, Java 25, with PostgreSQL.
   | `hideout` | A criminal base: safe for criminals, and where they bank cash. |
   | `robbery` | A place to rob, such as the bank. Its zone name picks its settings in `config.yml`. |
   | `safe` | No fighting at all. |
-| `wall` | A weak spot. Inmates (or criminals breaking in) punch a block 20 times in a row to break it; guards are alerted; it grows back after 2 minutes. |
-| `gate` | Bars or doors that open for 5 seconds when a guard, or anyone holding a keycard, right-clicks them. |
-| `alarm` | The riot alarm, in the yard: enough inmates right-clicking inside it together start a riot. |
+  | `wall` | A weak spot. Inmates (or criminals breaking in) punch a block 20 times in a row to break it; guards are alerted; it grows back after 2 minutes. |
+  | `gate` | Bars or doors that open for 5 seconds when a guard, or anyone holding a keycard, right-clicks them. |
+  | `alarm` | The riot alarm, in the yard: enough inmates right-clicking inside it together start a riot. |
 
   Zones can overlap, such as cells inside the prison. Walking into one shows its name above the hotbar. Set a spawn (`/mw zone spawn`) on the prison, the police station and each cell: that's where players are sent.
-- **Combat:** guards and criminals fight; nobody else can hurt anyone (riots will change that). Nobody fights in a `safe` zone, guards are safe at the `police` station and criminals in a `hideout`, and neither can attack out of one.
+- **Combat:** guards and criminals fight; nobody else can hurt anyone, except guards and inmates during a riot. Nobody fights in a `safe` zone, guards are safe at the `police` station and criminals in a `hideout`, and neither can attack out of one.
 - **Arrests:** guards on duty carry handcuffs. One right-click on a criminal within 3 blocks arrests them for their whole bounty; killing them pays half; a criminal who dies any other way is arrested with nobody paid. They lose their unbanked cash and serve 1 minute plus 1 per $2,500 of bounty, up to 5, in the emptiest `cell`, then go to the `prison` spawn.
 - **Bounty:** +$500 for killing a guard on duty, and more for each robbery.
 - **Banking:** a criminal's cash is banked the moment they walk into a `hideout`. Unbanked cash is lost on arrest.

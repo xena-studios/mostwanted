@@ -1,6 +1,6 @@
 # Brand
 
-Started 2026-10-25. The server is **MostWanted** (`mostwantedmc.com`): orange, desert, Wild West wanted posters.
+Started 2026-10-25. **MostWanted** (`mostwantedmc.com`): orange, desert, Wild West wanted posters. Image files and the generated art are in [`brand/`](../brand/); MostWanted's entry in [xena-studios/brand](https://github.com/xena-studios/brand/blob/main/docs/mostwanted.md) covers how it sits among the studio's brands.
 
 ## Colour
 
@@ -231,10 +231,7 @@ Decided 2026-10-28: **menus are how players do things**, so nobody has to know a
 
 ## Look and feel
 
-**The files** (logos, key art, icons) are in [`brand/`](../brand/).
-
-
-The reference art (2026-10-25) sets the style:
+The files (logos, key art, icons) are in [`brand/`](../brand/). The reference art (2026-10-25) sets the style:
 
 - **Pixel art.** A desert at sunset: a big pale sun low on the horizon, a dusty pink-mauve sky with streaky clouds, red-brown mesas and rock steps, a sand road leading into the distance, saguaro cacti and scrub.
 - **The key art layout:** that scene, **blurred**, with the blocky orange wordmark centred on top. It works for the website hero, the Minehut listing banner, Discord, the server icon (logo only) and video thumbnails.
@@ -249,7 +246,7 @@ The reference is a chunky, Minecraft-style block wordmark:
 - A darker **extruded bottom face** (`#893500`) so the letters look like 3D blocks
 - A few **pixel notches** in a neighbouring shade, like worn sandstone
 
-The logo is the word **MOSTWANTED** in this style, plus an **MW** monogram for square and small spaces (server icon, avatars, favicon). Both are in [`brand/source/`](../brand/source/). Make it as a vector (SVG) so it works from favicon to banner, and keep a flat one-colour version for small sizes and Bedrock.
+The logo is the word **MOSTWANTED** in this style, plus an **MW** monogram for square and small spaces (server icon, avatars, favicon). Both are pixel art in [`brand/source/`](../brand/source/): always use the files, never retype the logo.
 
 ## Desert theme
 
