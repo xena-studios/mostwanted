@@ -1,5 +1,12 @@
-# MostWanted eggs
+# Eggs
 
-The game server (`egg-mostwanted.json`) and the website API with the Discord bot (`egg-mostwanted-api.json`). Each installs the latest build of `main` from the [`server` release](https://github.com/xena-studios/mostwanted/releases/tag/server); **Reinstall** a server to update it. Settings, the managed database's details included, go on the server's **Startup** tab.
+The two servers the panel creates:
 
-The panel syncs these from this repository as an egg repository, so a change here shows up as **Update Available** on the egg ([docs/12-launch.md](../../docs/12-launch.md)).
+| Egg | Server |
+| --- | --- |
+| `egg-mostwanted.json` | The game server |
+| `egg-mostwanted-api.json` | The website API and the Discord bot |
+
+Each installs the latest build of `main` from the [`server` release](https://github.com/xena-studios/mostwanted/releases/tag/server). **Reinstall** a server to update it. Settings, including the managed database's details, go on the server's **Startup** tab.
+
+The panel syncs these files from this repo, so a change here shows up as **Update Available** on the egg ([launch, step 5](../../docs/12-launch.md#5-the-eggs-2-min)).
