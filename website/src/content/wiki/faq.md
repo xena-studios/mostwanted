@@ -35,7 +35,7 @@ No. You get around on foot.
 
 ## How do I become a guard?
 
-Apply when applications open. See [Apply](/apply), then [Being a guard](/wiki/guards).
+Apply on the website: see [Apply](/apply). Then read [Being a guard](/wiki/guards).
 
 ## How do I hide my stats?
 
