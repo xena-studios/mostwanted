@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping build the server. Everyone follows the [code of conduct](CODE_OF_CONDUCT.md), and security problems go to [SECURITY.md](SECURITY.md), never a public issue.
+Thanks for helping build the server. Everyone follows the [code of conduct](https://github.com/xena-studios/.github/blob/main/CODE_OF_CONDUCT.md), and security problems go to [SECURITY.md](SECURITY.md), never a public issue.
 
 ## Issues
 
@@ -49,7 +49,7 @@ The server has to hold a lot of players in one world on modest hardware.
 2. Add a line to the plugin's `CHANGELOG.md` under `## Unreleased`.
 3. Run `./gradlew build` and open the PR.
 
-CI builds, tests, boot-tests on Leaf and Paper, compiles against the newest Paper, and runs CodeQL. The required check is `build-ok`. Markdown-only PRs skip the build, and PRs are labelled by folder automatically.
+CI builds, tests, boot-tests on Leaf and Paper, compiles against the newest Paper, and runs CodeQL. The required checks are `build-ok`, `server-ok` and `website-ok`; each passes on its own when its part didn't change, so Markdown-only PRs skip the builds. PRs are labelled by folder automatically.
 
 Commits follow [Conventional Commits](https://www.conventionalcommits.org), with the module as the scope: `feat(core): arrest a criminal with handcuffs`, `fix(core): ...`, `docs(tech): ...`, `build: ...`, `ci: ...`.
 

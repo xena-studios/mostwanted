@@ -46,21 +46,15 @@ Needs a JDK 25.
 ./gradlew :core:runServer      # a Paper server with the plugin (needs PostgreSQL: see core/README.md)
 ```
 
-[CONTRIBUTING.md](CONTRIBUTING.md) covers tests, the rules a change keeps, pull requests and releases.
-
 ## Status
 
 **Built:** escapes, robberies, arrests, riots, guns, shops, menus, cosmetics and leaderboards, plus the website, store, API and Discord bot.
 
 **Next:** the map, then launch on our netcup VPS, run with Calagopus ([launch steps](docs/12-launch.md)).
 
-## Help
+## Contributing
 
-- **Bugs and ideas:** [open an issue](https://github.com/xena-studios/mostwanted/issues/new/choose)
-- **Security:** privately, as [SECURITY.md](SECURITY.md) describes
-- **Anything else:** [contact@xenastudios.co](mailto:contact@xenastudios.co)
-
-Everyone follows the [code of conduct](CODE_OF_CONDUCT.md).
+[CONTRIBUTING.md](CONTRIBUTING.md) covers tests, the rules a change keeps, pull requests and releases. For bugs and ideas, [open an issue](https://github.com/xena-studios/mostwanted/issues/new/choose); for help, see [SUPPORT.md](SUPPORT.md); report security problems privately, as [SECURITY.md](SECURITY.md) describes.
 
 ## Licence
 
