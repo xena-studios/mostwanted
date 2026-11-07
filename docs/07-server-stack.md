@@ -60,14 +60,9 @@ Grim exempts Bedrock players from checks so they don't get false flags, but it f
 
 **Fix:** once we know how Minehut marks Bedrock players (name prefix or UUID format), `core` gives them the `grim.exempt` permission when they join. Until then, test Grim with a Bedrock player before enabling punishments.
 
-## RAM budget (netcup RS 2000, 16 GB)
+## Memory
 
-| | |
-| --- | --- |
-| Leaf (all plugins) | 10 GB heap (`-Xms` = `-Xmx`) + ~1–1.5 GB outside the heap |
-| PostgreSQL | ~1 GB |
-| OS + Calagopus | 1–1.5 GB |
-| backend (API + Discord bot) | ~0.4 GB (256 MB heap) |
+How the 16 GB is shared between the game server, PostgreSQL, the panel and the backend: [tech](04-tech.md#hosting-netcup-rs-2000).
 
 ## Start command, configs and setup
 

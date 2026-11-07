@@ -172,7 +172,7 @@ Decided 2026-10-26. **Java, like `core`**, so the game, API and bot share the ta
 | Logs | **SLF4J + Logback** | The panel shows the console; Logback keeps daily files |
 | Tests | **JUnit + [Testcontainers](https://testcontainers.com)** | Database tests against a real PostgreSQL in CI |
 
-- **Running it:** one jar as its own server in the panel, 256 MB heap with the Serial GC, ~300–400 MB in all. `/health` lets the bot alert 🔒│admin when the API is down.
+- **Running it:** one jar as its own server in the panel, 256 MB heap with the Serial GC, ~300–400 MB in all. `/health` says whether the database and the bot are up, for alerts.
 - **`core` stays small:** it bundles `common` (our code only), and Paper's library loader downloads jOOQ, Flyway, HikariCP and the PostgreSQL driver on first start.
 - **Not used:** Spring Boot (heavy and slow to start), Quarkus and Micronaut (more framework than we need), Hibernate (hides its SQL; jOOQ keeps it visible).
 
@@ -206,7 +206,7 @@ Decided 2026-10-26. **Java, like `core`**, so the game, API and bot share the ta
 **Measured**
 - Unit tests for the rules (who can hurt who, bounty maths, zone lookups); boot checks on Leaf and Paper in CI.
 - spark on a full playtest, and a 100-bot load test before launch. Target: a steady 20 TPS with MSPT under 30.
-- A jar size budget in CI, so a library shaded in by mistake fails the build.
+- To add: a jar size budget in CI, so a library shaded in by mistake fails the build.
 
 ## Before launch
 
@@ -225,7 +225,7 @@ The step-by-step is in [launch](12-launch.md).
 
 ## Build order
 
-Steps 2–6 are built (2026-10-28). Next is the map, then steps 1 and 7 at [launch](12-launch.md).
+Steps 2–6 are built (2026-10-28), apart from indirect kills, which are still an [open question](05-open-questions.md). Next is the map, then steps 1 and 7 at [launch](12-launch.md).
 
 1. **Foundation:** confirm Minehut External; set up the VPS with Calagopus, Leaf, the [server stack](07-server-stack.md) and PostgreSQL; join from Java **and** Bedrock through Minehut.
 2. **Core loop:** player state, combat rules, arrests, bounty, economy, one robbery, on a test map.

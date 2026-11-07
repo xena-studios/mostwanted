@@ -137,7 +137,7 @@ Only for robberies opening, riots, a new Most Wanted, and server events. Nothing
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
         ⚑ RIOT IN CELL BLOCK B ⚑
    ɪɴᴍᴀᴛᴇѕ ʜᴀᴠᴇ ᴛᴀᴋᴇɴ ᴛʜᴇ ʏᴀʀᴅ. ɢᴜᴀʀᴅѕ, ʀᴇѕᴘᴏɴᴅ!
-          ᴇɴᴅѕ ɪɴ 2:00 · /riot info
+                ᴇɴᴅѕ ɪɴ 2:00
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 ```
 

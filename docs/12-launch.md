@@ -1,6 +1,6 @@
 # Launch
 
-From "a fresh VPS" to "players can join and the API answers", in order. **[Calagopus](https://calagopus.com) runs everything**: the game server, the API and Discord bot, the database, backups and schedules, all from the panel at **panel.mostwantedmc.com**. The machine itself only gets Docker, the panel and Caddy, once (steps 1–4). About an hour and a half, most of it waiting for installs.
+From "a fresh VPS" to "players can join and the API answers", in order. **[Calagopus](https://calagopus.com) runs everything**: the game server, the API and Discord bot, the database, backups and schedules, all from the panel at **panel.mostwantedmc.com**. The machine itself only gets Docker, the panel, its database agent and Caddy, once (steps 1–4). About an hour and a half, most of it waiting for installs.
 
 Why the setup looks like this: [tech](04-tech.md), [server stack](07-server-stack.md), [the API](08-website.md#the-api). What the panel installs: [`server/eggs/`](../server/eggs/) (the eggs), built from `main` by the [server release](../.github/workflows/server-release.yml) workflow. The panel's own files: [`server/panel/`](../server/panel/).
 
@@ -8,7 +8,7 @@ Why the setup looks like this: [tech](04-tech.md), [server stack](07-server-stac
 
 | | Where it comes from |
 | --- | --- |
-| `VPS_IP` | netcup's Server Control Panel (the server's page, Network). Today `159.195.233.108`. |
+| `VPS_IP` | netcup's Server Control Panel (the server's page, Network). |
 | `YOU` | The user you made when installing Ubuntu (step 1) |
 
 Secrets (the panel's encryption key, the database password, the bot token, the OAuth secret, the TLS key, Tebex's secret key) only ever go on the VPS or in the panel: a server's **Startup** tab or its files. Never in the repo, a commit, a chat or a screenshot. Keep the encryption key and the database password in 1Password too.
@@ -39,7 +39,7 @@ The IP stays the same, so Cloudflare's `api` record and Minehut need no changes.
 The server is a netcup **RS 2000** in **Manassas, Virginia** (US East): 8 dedicated cores, 16 GB RAM, 256 GB NVMe.
 
 1. In netcup's Server Control Panel, **Media → Images**: **Ubuntu 24.04 UEFI amd64**, Minimal, one large partition, locale **en_US.UTF-8**, **create an additional user** with sudo and your **SSH public key**. No custom script.
-2. Your PC already has `ssh mostwanted` (in the dotfiles) as `root`; Ubuntu's image makes your own user instead, so set `User YOU` there, or log in as `YOU` until then. A reinstalled machine has a new host key: `ssh-keygen -R 159.195.233.108` first.
+2. Your PC already has `ssh mostwanted` (in the dotfiles) as `root`; Ubuntu's image makes your own user instead, so set `User YOU` there, or log in as `YOU` until then. A reinstalled machine has a new host key: `ssh-keygen -R VPS_IP` first.
 3. Log in, update, and turn on automatic security updates:
    ```sh
    ssh YOU@VPS_IP

@@ -35,7 +35,11 @@ Runs on Paper and Leaf 26.3, Java 25, with PostgreSQL.
 - **Escape routes:** breakable `wall` zones and keycard `gate` zones (above). Guards carry a keycard on duty and can't hand it over, but it drops half the time when they die; an inmate using one alerts the guards. Arrests take keycards. Broken walls are put back on shutdown, and after a crash on the next start. Vents and sewers are map building: wooden trapdoors open by hand in adventure mode. Numbers in `config.yml` under `escapes`.
 - **Riots:** 3 inmates pressing the alarm (right-click inside the `alarm` zone) within 30 seconds start a riot, if a guard is on duty and the last riot was over 30 minutes ago. For 5 minutes, guards and inmates can fight inside the prison and guards can cuff inmates there (a 1-minute sentence). Everyone is told, guards hear a horn, and the scoreboard shows a red RIOT section (before HEIST, if both are on). It ends on time, or once every rioter is caught. Numbers in `config.yml` under `riots`.
 - **Resource pack:** sent to Java players as they join, from the `pack` GitHub release ([`pack/`](../pack/)). Its SHA-1 is read from the release every 5 minutes, so a new pack needs no config change. Every item of ours carries a custom model data string for it; without the pack, items look like their vanilla base. `resource-pack` in `config.yml`.
-- **Privacy:** `/stats private` hides a player from the website and Discord. Server log files older than 90 days and game log entries older than 12 months are deleted at startup and daily, as the [privacy page](https://mostwantedmc.com/privacy) promises (`retention` in `config.yml`).
+- **Menus:** a nether star in the last hotbar slot (and `/menu`) opens the main menu: profile, settings, shop, cosmetics, store and leaderboards, all chest menus ([menus](../docs/09-brand.md#menus)). Players can only see and run their own commands (`commands.allowed` in `config.yml`); staff have `mostwanted.commands.all`.
+- **Store ranks and cosmetics:** rank tags, trails, escape and arrest effects, gun skins, chat colours, coloured names and join messages, all from LuckPerms permissions. Purchases are delivered from Tebex's command queue, only for commands matching `store.allowed-commands` ([store](../docs/11-store.md)).
+- **Leaderboards in the world:** `/mw board add` puts up floating text listing the top 10 of a board, refreshed every minute and kept in `boards.yml`.
+- **Notices from the website:** staff replies and application decisions arrive in chat, and an accepted guard application gives the guard rank.
+- **Privacy:** `/stats private` hides a player from the website, Discord and the leaderboards. Server log files older than 90 days and game log entries older than 12 months are deleted at startup and daily, as the [privacy page](https://mostwantedmc.com/privacy) promises (`retention` in `config.yml`).
 - **Admin commands** for testing, each written to the game log.
 
 ## Commands
@@ -50,7 +54,16 @@ Runs on Paper and Leaf 26.3, Java 25, with PostgreSQL.
 | `/mw tp <zone>` | `mostwanted.admin` | Teleports you to a zone's spawn, or its middle |
 | `/mw release <name>` | `mostwanted.admin` | Ends their sentence now |
 | `/mw save` | `mostwanted.admin` | Saves every changed player now |
-| `/stats private` · `public` | everyone | Hides your stats from the website and Discord, or shows them again. In-game boards still show you. |
+| `/mw board add <board> [all\|month\|week]` · `remove` · `list` | `mostwanted.admin` | Puts up a leaderboard where you stand, removes the nearest, or lists them |
+| `/mw boost <name>` | `mostwanted.admin` | The store's Server Boost: a title and fireworks for everyone (Tebex runs it) |
+| `/menu` | everyone | The main menu |
+| `/profile [name]` | everyone | Your stats, or another player's |
+| `/settings` | everyone | Public stats, scoreboard, server news and join announcements |
+| `/leaderboards` (`/lb`) | everyone | Every board, top 10, all time, this month or this week |
+| `/store` (`/buy`) | everyone | The website's store as a menu, with links to its cart |
+| `/cosmetics` | everyone | Chooses the trail, effects, gun skins and chat colour you own |
+| `/joinmessage [set <message>\|clear]` | `mostwanted.join-message` | Your join message (Legend rank) |
+| `/stats private` · `public` | everyone | Hides your stats from the website, Discord and every leaderboard (in game too), or shows them again |
 | `/shop` | everyone | Opens the shop where you stand (hideout for criminals, armory for guards) |
 | `/website` | everyone | A one-time code (10 minutes) to sign in on mostwantedmc.com or link this Minecraft account. Typed, not clicked, so it works on Bedrock. |
 | `/duty` | `mostwanted.guard` | Goes on duty as a guard (from the prison, as an inmate) or off duty |
@@ -63,7 +76,7 @@ Runs on Paper and Leaf 26.3, Java 25, with PostgreSQL.
 
 ## Config
 
-`plugins/MostWanted/config.yml`: the database, how often to save, the scoreboard clock's timezone, the gameplay numbers under `rules` (sentence length, kill share, guard-kill bounty, cuff range, combat tag), and each robbery spot under `robberies`. On the server it's rendered from [`server/files/plugins/MostWanted/config.yml.tmpl`](../server/files/plugins/MostWanted/config.yml.tmpl) with the password from `.env`. `messages.yml` holds every message, `guns.yml` every gun and ammo type, and `shops.yml` what each shop sells.
+`plugins/MostWanted/config.yml`: the database, how often to save, the scoreboard clock's timezone, the gameplay numbers under `rules` (sentence length, kill share, guard-kill bounty, cuff range, combat tag), each robbery spot under `robberies`, then `escapes`, `riots`, `retention`, `resource-pack`, `store` and `commands`. On the server it's rendered from [`server/files/plugins/MostWanted/config.yml.tmpl`](../server/files/plugins/MostWanted/config.yml.tmpl) with the password from `.env`. `messages.yml` holds every message, `guns.yml` every gun and ammo type, and `shops.yml` what each shop sells.
 
 FAWE is optional: without it the game runs, but zones can't be marked out.
 

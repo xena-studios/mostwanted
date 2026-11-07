@@ -17,7 +17,7 @@ There are two teams. The prisoner team has two states.
 | **Guards** | | Stop escapes, arrest criminals, collect bounties |
 
 - **Everyone starts as a prisoner** (decided). There's no team-select menu.
-- **Becoming a guard:** apply on the website (or with `/apply` in Discord). Staff review it, and approved players get the guard rank in-game. That makes guards a trusted, moderated role, which matters since they can arrest and shoot people.
+- **Becoming a guard:** apply on the website (a Discord `/apply` is planned). Staff review it, and approved players get the guard rank in-game. That makes guards a trusted, moderated role, which matters since they can arrest and shoot people.
 - **On/off duty** (decided 2026-10-27): guards (the `mostwanted.guard` permission, from the guard rank) use `/duty` in the prison to go on duty, and again to go off and play as an inmate. Guard money is kept separate: each switch swaps cash and bank with the other side's. Criminals can't go on duty, and guards can't go off duty mid-fight.
 - **Not enough guards:** with up to 100 players and guards coming only from applications, we need enough guards online at peak times. Options: recruit lots of guards, show "guards online" so prisoners know the risk, and scale robbery payouts with how many guards are on.
 - An inmate becomes a **criminal** once they cross the prison boundary.
@@ -61,9 +61,9 @@ Robbery spots around the map, each with its own risk and reward:
 ### Guards: arresting
 
 - **Handcuffs** (decided 2026-10-27): an item guards get on duty. One right-click on a criminal within 3 blocks arrests them, the same on Bedrock touch controls. Not in a hideout or safe zone.
-- **Taser**: slows or stuns for a short time. Needs a cooldown so it isn't oppressive.
+- **Taser** (built): slows a criminal for 3 seconds, with a 10-second recharge so it isn't oppressive. See [guns](#guns).
 - **Tools**: spike strips, roadblocks, maybe a police helicopter later.
-- **Rule:** guards can't arrest **inmates** still inside the prison who aren't escaping (or only inside certain zones). This stops spawn camping.
+- **Rule:** guards can't hurt or arrest **inmates** except during a riot, inside the prison. This stops spawn camping. (An inmate who gets out is a criminal at once.)
 - Arresting a criminal pays the guard the criminal's **bounty**.
 
 ### Combat
@@ -74,9 +74,9 @@ Criminals **can fight back** (decided). Guards vs. criminals is full PvP.
 
   | | Guard | Criminal | Inmate |
   | --- | --- | --- | --- |
-  | **Guard** | no | yes | only while escaping / in restricted zones |
+  | **Guard** | no | yes | only during a riot, inside the prison |
   | **Criminal** | yes | no direct damage (indirect ways only) | no |
-  | **Inmate** | only during a riot | no | no |
+  | **Inmate** | only during a riot, inside the prison | no | no |
 
 - **Weapons:** **custom guns** (decided), along with melee and vanilla gear. See [guns](#guns).
 - **Criminal vs. criminal:** criminals **can't damage each other directly** (decided), but can take each other out in other ways. Ideas (decide which ones):
@@ -93,8 +93,8 @@ Criminals **can fight back** (decided). Guards vs. criminals is full PvP.
 Inmates **can start a riot** (decided).
 
 - **How it starts** (built 2026-10-27): 3 inmates right-click inside the alarm zone in the yard within 30 seconds. Needs a guard on duty, and 30 minutes since the last riot.
-- **During a riot:** inmates and guards can fight inside the prison, and the "no arresting inmates who aren't escaping" protection is off.
-- **Announced** to all guards, maybe server-wide, so guards rush back from the city. That's a great distraction for escapes and robberies happening at the same time.
+- **During a riot:** inmates and guards can fight inside the prison, and guards can cuff inmates there.
+- **Announced** to the whole server, with a horn for guards (built), so guards rush back from the city. That's a great distraction for escapes and robberies happening at the same time.
 - **How it ends** (built): after 5 minutes, or as soon as every rioter (those who pressed the alarm, and any inmate who hits a guard) is arrested or gone. A guard cuffing an inmate in the prison during a riot gives a 1-minute sentence.
 - **Cooldown** so riots stay special and guards aren't stuck at the prison all day.
 

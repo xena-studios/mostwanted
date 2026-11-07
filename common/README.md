@@ -28,7 +28,7 @@ Queries are [jOOQ](https://www.jooq.org): SQL, checked by the compiler. The `PLA
 
 ### Changing the tables
 
-1. Add the next migration: `src/main/resources/db/migration/V2__what_it_does.sql`. **Never edit a migration once it's merged**: servers that already ran it would refuse to start.
+1. Add the next migration, numbered after the last one: `src/main/resources/db/migration/V10__what_it_does.sql`. **Never edit a migration once it's merged**: servers that already ran it would refuse to start.
 2. `./gradlew :common:build` regenerates the classes and runs the database tests.
 3. A table arrives with the code that uses it, not before.
 
