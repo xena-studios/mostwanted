@@ -1,6 +1,6 @@
 # Discord
 
-Decided 2026-10-26: **our own bot instead of DiscordSRV.** DiscordSRV is large, does a lot we don't use, and adds its own messages and commands to the server. Our bot does exactly what MostWanted needs, in the [message style](09-brand.md#messages). It's part of the [`backend`](../backend/) app with the website's API. Built so far: `/profile`, the **Linked** role, store rank roles, DMs for ticket replies and application decisions, and a custom status with the player count ("12 players on MostWanted · mostwantedmc.com", or "Server offline" when the game server stops writing it).
+Decided 2026-10-26: **our own bot instead of DiscordSRV.** DiscordSRV is large, does a lot we don't use, and adds its own messages and commands to the server. Our bot does exactly what MostWanted needs, in the [message style](09-brand.md#messages). It's part of the [`backend`](../backend/) app with the website's API. What's built so far is [below](#what-the-bot-does).
 
 ## The server
 
@@ -35,14 +35,18 @@ One Discord application, **MostWanted** (client id `1564123260562440303`), is bo
 
 Support, applications and account linking live on the **website** ([accounts](08-website.md#accounts-and-the-api)); staff handle tickets, applications and punishments in the website's staff panel. Discord is one more way in, and one more place notifications arrive.
 
-**At launch**
+**Built**
 - **Linking:** players link Discord and Minecraft on the website; the bot gives the **Linked** role straight away, takes it on unlinking, and gives it back within the hour to someone who left and rejoined.
 - **Store ranks:** a linked player with a store rank gets the role named after it, **VIP**, **VIP+**, **MVP** or **Legend** (exact names, in the rank's colour: `#99ff33`, `#33ffcc`, `#6633ff`, `#ff3366`), and loses the others. The bot checks every 10 minutes, reading the rank from LuckPerms like the website's supporter badge, and only sends changes; a change Discord turns down is tried again next time, and if LuckPerms can't be read, nobody's roles change. Unlinking takes the role away. Roles that don't exist on the server are skipped, so it does nothing until you make them (below the bot's own role, so it can give them).
-- **Rank sync:** Guard, Helper, Moderator, Admin and Creator follow the player's LuckPerms groups, both ways, within seconds (PostgreSQL `LISTEN/NOTIFY`, no polling).
 - **DMs:** ticket replies and application decisions, with a link to the page. If a player's DMs are closed, they still get it on the site and in game.
+- **`/profile`:** a player's stats card.
+- **Status:** the player count as the bot's custom status ("12 players on MostWanted · mostwantedmc.com", or "Server offline" when the game server stops writing it).
+
+**Still to build for launch**
+- **Rank sync:** Guard, Helper, Moderator, Admin and Creator follow the player's LuckPerms groups, both ways, within seconds (PostgreSQL `LISTEN/NOTIFY`, no polling).
 - **`/support` and `/apply`:** Discord forms that create the ticket or application on the website, for people who'd rather not open a browser.
-- **`/link`, `/profile`:** a link to the site; a player's stats card.
-- **Status:** one message in 🟢│server-status kept up to date, and the player count as the bot's status.
+- **`/link`:** a link to the site.
+- **Status message:** one message in 🟢│server-status kept up to date.
 - **Alerts:** robberies, riots and a new Most Wanted in 🚨│wanted, in the message style.
 - **Bot log:** every role change, link and unlink in 🧾│bot-log.
 - Optional: a ping in 💬│staff-chat with an "Open on website" button when a ticket or application arrives.
