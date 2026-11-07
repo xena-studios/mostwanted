@@ -1,6 +1,6 @@
 # Website
 
-[mostwantedmc.com](https://mostwantedmc.com): the server's website. A static [Astro](https://astro.build) site, served by Cloudflare as a Worker with static assets only, the same setup as [xenastudios.co](https://github.com/xena-studios/website). The plan, including the store and player stats still to come, is in [docs/08-website.md](../docs/08-website.md).
+[mostwantedmc.com](https://mostwantedmc.com): the server's website. A static [Astro](https://astro.build) site, served by Cloudflare as a Worker with static assets only, the same setup as [xenastudios.co](https://github.com/xena-studios/website). The plan is in [docs/08-website.md](../docs/08-website.md).
 
 ## Develop
 
@@ -35,7 +35,7 @@ src/
     rules, staff, creators, apply, support, login, account, terms, privacy, 404, sitemap.xml
   store/               the catalogue (catalog.ts), the cart and the Tebex client
   content/             news posts and wiki articles in Markdown: add a file to publish
-  components/          PageHero (the desert header on inner pages), CopyAddress
+  components/          PageHero (the desert header on inner pages), CopyAddress, LegalPage
   layouts/Base.astro   <head>, header, footer
   styles/global.css    tokens, panels, buttons, forms, long-form text
   brand/               synced from ../brand by npm run brand:sync: don't edit
@@ -47,9 +47,13 @@ public/                _headers (CSP and security headers), _redirects, robots.t
 
 Add a Markdown file to `src/content/news/` (`title`, `date`, `summary`) or `src/content/wiki/` (`title`, `summary`, `section`, `order`) and open a pull request. The sitemap picks it up on its own.
 
-## Before launch
+## Opening up
 
-Player search, the leaderboards and sign-in show a "starts when the server opens" state until `open` is set in `src/site.ts`; then they read the backend's API at `api.mostwantedmc.com` ([docs/08-website.md](../docs/08-website.md#player-stats)). `npm run dev` turns them on (`statsOpen`, `signInOpen`); point it at a local backend with `PUBLIC_API_URL=http://localhost:8080`. At launch, set `open`, `discord` and `store` in `src/site.ts`.
+Three switches in `src/site.ts`:
+
+- `open` turns on sign-in, accounts, player search, the leaderboards, Support and Apply, which read the backend's API at `api.mostwantedmc.com` ([docs/08-website.md](../docs/08-website.md#player-stats)). On since 2026-10-28, ahead of the game. `npm run dev` turns these on whatever it says (`statsOpen`, `signInOpen`); point it at a local backend with `PUBLIC_API_URL=http://localhost:8080`.
+- `gameOpen`, at launch: the header shows whether the server is up and how many are playing.
+- `discord`, at launch: the permanent invite.
 
 ## Look
 

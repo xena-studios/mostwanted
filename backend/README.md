@@ -76,8 +76,8 @@ Setting it up step by step, with the Cloudflare clicks: [docs/12-launch.md](../d
 Locally, against the dev server's database (core's README has the `docker run` line):
 
 ```sh
-DB_PASSWORD=boot-test API_PORT=8081 java -jar backend/build/libs/backend.jar
-curl localhost:8081/v1/leaderboards/escapes
+DB_PASSWORD=boot-test java -jar backend/build/libs/backend.jar   # API_PORT defaults to 8080
+curl localhost:8080/v1/leaderboards/escapes
 ```
 
 Add `DISCORD_TOKEN` to run the bot too. On the VPS it's its own server in the panel: `backend.jar`, `start.sh` and `tls/` in one folder, its settings on the Startup tab, started with `./start.sh` ([docs/12-launch.md](../docs/12-launch.md)).
