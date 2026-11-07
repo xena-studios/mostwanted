@@ -146,7 +146,7 @@ What protects the site instead, all on Cloudflare's free plan:
 | Form spam (sign-in, apply, support) | **Turnstile** on each form (not added yet) |
 | Flooding the API | A Cloudflare **rate-limiting rule** on `api.mostwantedmc.com`, plus per-user limits in the API |
 | Reaching the VPS directly | Origin CA certificate and Authenticated Origin Pulls ([above](#the-api)) |
-| Fake purchases | Tebex webhooks are **signature-checked** |
+| Fake purchases | No webhooks: `core` fetches purchases from Tebex's command queue with the secret key, and runs only commands matching `store.allowed-commands` ([store](11-store.md#setting-up-tebex-whats-left-for-you)) |
 | Account abuse | **Discord sign-in** or a game code for anything tied to an account |
 
 ## What we sell

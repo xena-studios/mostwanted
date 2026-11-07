@@ -1,6 +1,6 @@
 # Launch
 
-From "a fresh VPS" to "players can join and the API answers", in order. **[Calagopus](https://calagopus.com) runs everything**: the game server, the API and Discord bot, the database, backups and schedules, all from the panel at **panel.mostwantedmc.com**. The machine itself only gets Docker, the panel and Caddy, once (steps 1–4). About an hour and a half, most of it waiting for installs.
+From "a fresh VPS" to "players can join and the API answers", in order. **[Calagopus](https://calagopus.com) runs everything**: the game server, the API and Discord bot, the database, backups and schedules, all from the panel at **panel.mostwantedmc.com**. The machine itself only gets Docker, the panel, its database agent and Caddy, once (steps 1–4). About an hour and a half, most of it waiting for installs.
 
 Why the setup looks like this: [tech](04-tech.md), [server stack](07-server-stack.md), [the API](08-website.md#the-api). What the panel installs: [`server/eggs/`](../server/eggs/) (the eggs), built from `main` by the [server release](../.github/workflows/server-release.yml) workflow. The panel's own files: [`server/panel/`](../server/panel/).
 

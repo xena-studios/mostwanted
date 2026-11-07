@@ -48,16 +48,18 @@ Every custom item is a vanilla item underneath with a custom name and lore (e.g.
 
 ## Custom things we might want
 
-| Item | Base vanilla item (idea) | Bedrock difficulty |
+Built ones are flat 16×16 textures ([`pack/`](../pack/README.md)), each on the vanilla base shown.
+
+| Item | Base vanilla item | Bedrock difficulty |
 | --- | --- | --- |
-| Handcuffs | | 🟡 3D model |
-| Taser | | 🟡 3D model |
-| Keycard | paper | 🟢 |
+| Handcuffs (built) | tripwire hook | 🟢 flat; 🟡 if made 3D |
+| Taser (built) | breeze rod | 🟢 flat; 🟡 if made 3D |
+| Keycard (built) | trial key | 🟢 |
 | Cash / money bag | | 🟢 |
 | Lockpick / crowbar | | 🟢 |
 | Police badge | | 🟢 |
-| Guns (pistol, shotgun, rifle) | | 🟡 3D models; keep the "use item to shoot" simple |
-| Ammo | | 🟢 |
+| Guns: pistol, shotgun, rifle (built) | iron, diamond and netherite hoes | 🟢 flat; 🟡 if made 3D. Keep "use item to shoot" simple |
+| Ammo (built) | iron, gold and copper nuggets | 🟢 |
 | Custom food (prison slop, donuts for guards, energy drinks) | | 🟡 custom eating behavior needs testing on Bedrock |
 | Custom tools (spoon/shovel for digging, wire cutters, drill) | | 🟢 textures, 🟡 if they need special behavior |
 | Bounty ⭐ / cash $ icons in HUD/chat | font glyphs | 🟡 |
